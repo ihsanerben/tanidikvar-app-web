@@ -15,6 +15,7 @@ export function CatalogPage({admin=false}:{admin?:boolean}){
   if(auth.user.role!=='MANAGER' && !(admin && auth.user.role==='ADMIN'))return <section className="status-page"><h1>Bu sayfaya erişim iznin yok.</h1><Link to="/account">Hesabıma dön</Link></section>
   if(admin && !auth.user.profileCompleted && auth.user.role!=='MANAGER')return <section className="status-page"><h1>Önce profilini tamamla.</h1><Link className="button" to="/profile">Profilini tamamla</Link></section>
   return <section className="management-page"><span className="eyebrow">{admin?'ADMIN':'MANAGER'} PANEL</span><h1>{admin?'Yeni konular ekle.':'Kataloğu yönet.'}</h1>
+    {!admin&&<Link className="button button-secondary" to="/manager/applications">Admin başvurularını incele</Link>}
     <p>{admin?'Soruları sınıflandırmak için yeni tagler oluştur.':'Üniversiteleri, bölümleri ve konuları düzenle. Pasif kayıtlar geçmiş bağlantılarıyla korunur.'}</p>
     {!admin && <nav className="catalog-tabs" aria-label="Katalog bölümleri">{Object.entries(tabs).map(([value,label])=><button key={value} type="button" aria-current={selected===value?'page':undefined} onClick={()=>setParams({tab:value})}>{label}</button>)}</nav>}
     <div className="auth-card">{selected==='EDUCATION'?<EducationEditor/>:<CatalogEditor key={selected} kind={selected as Kind} admin={admin}/>}</div>

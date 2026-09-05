@@ -20,6 +20,11 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const messages: Record<string, string> = {
+  INVALID_FILE: 'Belge PDF ve en fazla 10 MB; fotoğraf JPEG/PNG ve en fazla 5 MB (16 milyon piksel) olmalı.',
+  APPLICATION_INELIGIBLE: 'Başvuru için üniversite öğrencisi veya mezun profilini tamamla.',
+  APPLICATION_PENDING: 'Zaten inceleme bekleyen bir başvurun var.',
+  REASON_REQUIRED: 'Gerekçe yaz (en fazla 1000 karakter).',
+  STORAGE_UNAVAILABLE: 'Dosyaya şu anda erişilemiyor. Tekrar dene.',
   AUTHENTICATION_REQUIRED: 'E-posta veya şifre hatalı ya da oturumun sona erdi.',
   EMAIL_UNVERIFIED: 'Giriş yapmadan önce e-posta adresini doğrula.',
   INVALID_ACTION_TOKEN: 'Bu bağlantının süresi dolmuş veya bağlantı kullanılmış. Yeni bağlantı iste.',
@@ -39,22 +44,23 @@ const messages: Record<string, string> = {
   ACCESS_DENIED: 'Bu işlem tamamlanamadı. Sayfayı yenileyip tekrar dene.',
 }
 
-async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown, signal?: AbortSignal, csrf?: string): Promise<unknown> {
+async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown, signal?: AbortSignal, csrf?: string, binary=false): Promise<unknown> {
   let response: Response
   const timeout = AbortSignal.timeout(15_000)
   const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
   try {
     response = await fetch(`${baseUrl}${path}`, {
       method, credentials: 'include', signal: requestSignal,
-      headers: { Accept: 'application/json', ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      headers: { Accept: binary?'application/octet-stream':'application/json', ...(body !== undefined && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
         ...(csrf ? { 'X-XSRF-TOKEN': csrf } : {}) },
-      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+      ...(body !== undefined ? { body: body instanceof FormData?body:JSON.stringify(body) } : {}),
     })
   } catch (error) {
     if (signal?.aborted) throw error
     throw new ApiError(0, 'NETWORK_ERROR', 'Bağlantı kurulamadı. Lütfen tekrar dene.')
   }
   const requestId = response.headers.get('X-Request-ID') ?? undefined
+  if (binary && response.ok) return response.blob()
   if (response.status === 204 || (response.status === 202 && response.ok)) return undefined
   let text: string
   try { text = await response.text() } catch { throw new ApiError(0, 'NETWORK_ERROR', 'Yanıt alınamadı. Lütfen tekrar dene.') }
@@ -125,10 +131,10 @@ async function refresh() {
   return refreshPromise
 }
 
-export async function apiGet(path: string, signal?: AbortSignal): Promise<unknown> {
+export async function apiGet(path: string, signal?: AbortSignal, binary=false): Promise<unknown> {
   const startedRevision = revision
   const epoch = sessionEpoch
-  try { return await raw(path, 'GET', undefined, signal) }
+  try { return await raw(path, 'GET', undefined, signal, undefined, binary) }
   catch (error) {
     if (!(error instanceof ApiError) || error.status !== 401 || path.startsWith('/api/auth/')) throw error
     if (epoch !== sessionEpoch) throw error
@@ -136,7 +142,7 @@ export async function apiGet(path: string, signal?: AbortSignal): Promise<unknow
     if (signal?.aborted) throw signal.reason
     if (epoch !== sessionEpoch) throw error
     // Only one retry. A second 401 cannot trigger another refresh.
-    try { return await raw(path, 'GET', undefined, signal) }
+    try { return await raw(path, 'GET', undefined, signal, undefined, binary) }
     catch (retryError) {
       if (retryError instanceof ApiError && retryError.status === 401) {
         invalidateSession(); window.dispatchEvent(new Event('auth:expired'))
