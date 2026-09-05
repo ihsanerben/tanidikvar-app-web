@@ -130,3 +130,16 @@ Merkezi `apiPublicPost`, hesaba bağlı olmayan görüntülenmeler için CSRF ve
 11. adımda 71 frontend testi ve lint geçti. Docker üretim derlemesi TypeScript kontrolünü de içerir. Yeni testler anonim görünürlük/StrictMode, aynı kimlikle tekrar, beğeni/geri alma, profil/hesap değişimi, stale durum, arşiv ve sayaç doğrulamasını kapsar.
 
 Gerçek Docker API ile 14 masaüstü/mobil senaryo doğrulandı. Soru senaryosunda beğeni/geri alma, cevap toplamları, GET’in görüntülenme yazmaması, sayfa yenileme ve anonim arşiv okuması vardır. Masaüstü/mobil sayaç ekran görüntüleri incelendi.
+
+
+## Arama ve Popülerler
+
+- `/questions`: soru/üniversite/bölüm/tag arama alanı; mevcut birleşik filtrelere tüm üniversitelerde bölüm seçimi eklendi.
+- `/popular`: günlük/haftalık/aylık/yıllık dönem seçimi ve aynı arama/filtreler. Kartlar toplam sayaçları gösterir; sıralama seçilen döneme aittir. Yeni katkılar daha ağır, Admin cevapları daha etkilidir.
+- `/admins`: isimle public Admin arama, güncel/geçmiş yetki bilgisi, profil ve cevapladığı sorulara bağlantılar. `adminId` soru filtresi yalnız görünür Admin cevaplarını dikkate alır.
+
+Arama/dönem/filtre/page URL’de tutulur; doğrudan açma ve geri/ileri desteklenir. Yeni arama/filtre/dönem sayfayı sıfırlar; filtreleri temizlemek Popülerler dönemini korur. İstek iptali eski sonucun yeni aramayı ezmesini önler. Her ekran yükleniyor/boş/hata/yeniden deneme durumlarını içerir. Yeni bağımlılık eklenmedi.
+
+12. adımda 79 frontend testi, lint ve build geçti. Yeni 8 test arama+filtre birleşimi, sayfa sıfırlama, dönem/toplam ayrımı, URL geçmişi, eski yanıt yarışı, Admin bağlantıları ve hata/boş durumları kapsar. Backend ayrıca kesin formül ve dört pencere sınırlarını doğrular.
+
+Gerçek Docker API üzerinde 14 masaüstü/mobil senaryo geçti. Soru senaryosu arama/dört dönem/sıralama/arşiv; başvuru senaryosu Admin isim araması ve cevapladığı sorulara geçiş ile genişletildi. Yeni ekran görüntüleri incelendi.

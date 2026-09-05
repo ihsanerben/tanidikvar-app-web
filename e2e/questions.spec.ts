@@ -27,7 +27,7 @@ test('questions support all scopes, filtering, editing, stale forms and readable
       if(scope==='UNIVERSITY_DEPARTMENT')await page.getByLabel('Bölüm',{exact:true}).selectOption({label:department.name})
     }
     await page.getByLabel('Tag ekle ara').fill(suffix);await page.getByLabel('Tag ekle',{exact:true}).selectOption({label:tag.name})
-    await page.getByRole('button',{name:'Soruyu yayınla'}).click();await expect(page.getByRole('heading',{level:1})).toHaveText(`${scope} Kampüs hayatı nasıl ${suffix}?`)
+    await page.getByRole('button',{name:'Soruyu yayınla'}).click();await expect(page.getByRole('heading',{level:1})).toHaveText(`${scope} Kampüs hayatı nasıl ${suffix}?`);await expect(page.getByRole('region',{name:'Soru etkileşimleri'}).getByText('1 görüntülenme',{exact:true})).toBeVisible()
   }
   const detailUrl=page.url()
   const questionId=new URL(detailUrl).pathname.split('/').pop()
@@ -60,6 +60,17 @@ test('questions support all scopes, filtering, editing, stale forms and readable
   await expect(page.getByLabel('Cevabın',{exact:true})).toHaveCount(0)
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
   await page.screenshot({path:info.outputPath('community-answers.png'),fullPage:true})
+  await page.goto('/questions')
+  await page.getByLabel('Soru, üniversite, bölüm veya tag ara').fill('kampus hayati nasil '+suffix)
+  await page.getByRole('button',{name:'Ara',exact:true}).click();await expect(page.locator('.question-card')).toHaveCount(3)
+  await page.screenshot({path:info.outputPath('search-results.png'),fullPage:true})
+  await page.goto(`/popular?q=${suffix}&period=DAILY`)
+  await expect(page.locator('.question-card')).toHaveCount(3)
+  await expect(page.locator('.question-card').first().getByRole('link')).toHaveAttribute('href','/questions/'+questionId)
+  for(const period of ['WEEKLY','MONTHLY','YEARLY']){await page.getByLabel('Zaman aralığı').selectOption(period);await expect(page).toHaveURL(new RegExp('period='+period));await expect(page.locator('.question-card')).toHaveCount(3)}
+  await page.reload();await expect(page.getByLabel('Zaman aralığı')).toHaveValue('YEARLY');await expect(page.locator('.question-card')).toHaveCount(3)
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+  await page.screenshot({path:info.outputPath('popular.png'),fullPage:true})
   await page.goto(`/questions?universityId=${university.id}&tagId=${tag.id}`)
   await expect(page.locator('.question-card')).toHaveCount(2)
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
@@ -76,6 +87,7 @@ test('questions support all scopes, filtering, editing, stale forms and readable
   await expect(page.getByRole('button',{name:'Cevabımı kaldır'})).toBeVisible()
   await page.screenshot({path:info.outputPath('question-detail.png'),fullPage:true})
   await page.goto(`/questions?universityId=${university.id}&tagId=${tag.id}`);await expect(page.locator('.question-card')).toHaveCount(1)
+  await page.goto(`/popular?q=${suffix}`);await expect(page.locator('.question-card')).toHaveCount(2);await expect(page.locator(`.question-card a[href="/questions/${questionId}"]`)).toHaveCount(0)
   await page.goto('/my-questions');await expect(page.getByRole('link',{name:`UNIVERSITY_DEPARTMENT Kampüs hayatı nasıl ${suffix}?`})).toBeVisible()
   const anonymous=await browser.newContext();const reader=await anonymous.newPage()
   try{const before=(await (await page.request.get(`/api/questions/${questionId}/statistics`)).json()).viewCount;await reader.goto(detailUrl);await expect(reader.getByText(`${before+1} görüntülenme`,{exact:true})).toBeVisible();await reader.reload();await expect(reader.getByText(`${before+2} görüntülenme`,{exact:true})).toBeVisible();await expect(reader.getByText(/Bu soru arşivlendi/)).toBeVisible();await expect(reader.getByRole('link',{name:'Soruyu düzenle'})).toHaveCount(0);await expect(reader.getByText('1 topluluk cevabı',{exact:true})).toBeVisible();await expect(reader.getByRole('button',{name:'Cevabımı kaldır'})).toHaveCount(0)}finally{await anonymous.close()}
