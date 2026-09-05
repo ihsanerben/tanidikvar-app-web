@@ -1,7 +1,9 @@
+import { createOpening,type Opening } from '../engagement/opening'
+import { QuestionEngagement } from '../engagement/QuestionEngagement'
 import { AnswerSection } from '../answers/AnswerSection'
 import { AdminAnswerSection } from '../adminAnswers/AdminAnswerSection'
 import { useRef,useState } from 'react'
-import { Link,useParams } from 'react-router-dom'
+import { Link,useParams,useLocation } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { useAuth } from '../auth/useAuth'
 import { AuthFormError } from '../auth/AuthFormError'
@@ -10,11 +12,15 @@ import { QuestionLoader } from './QuestionLoader'
 import { QuestionContext } from './QuestionCard'
 import { archiveQuestion,questionDate,type Question } from './questionApi'
 export function QuestionDetailPage() {
-  const {id=''}=useParams()
-  return <QuestionLoader key={id} id={id}>{(q,reload)=><QuestionDetail key={`${q.id}-${q.version}`} question={q} reload={reload}/>}</QuestionLoader>
+  const {id=''}=useParams(),location=useLocation()
+  return <QuestionOpening key={id+location.key} id={id}/>
 }
-function QuestionDetail({question:q,reload}:{question:Question;reload:()=>void}) {
-  const auth=useAuth(),busy=useRef(false)
+function QuestionOpening({id}:{id:string}) {
+  const [opening]=useState<Opening>(()=>createOpening())
+  return <QuestionLoader id={id}>{(q,reload)=><QuestionDetail key={`${q.id}-${q.version}`} question={q} reload={reload} opening={opening}/>}</QuestionLoader>
+}
+function QuestionDetail({question:q,reload,opening}:{question:Question;reload:()=>void;opening:Opening}) {
+  const auth=useAuth(),busy=useRef(false),[answersRevision,setAnswersRevision]=useState(0)
   const [confirm,setConfirm]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null)
   async function archive(){if(busy.current)return;busy.current=true;setPending(true);setError(null);try{await archiveQuestion(q.id,q.version);reload()}catch(e){setError(formError(e))}finally{busy.current=false;setPending(false)}}
   return <article className="question-detail"><Link className="back-link" to="/questions">← Sorulara dön</Link><QuestionContext question={q}/><h1>{q.title}</h1>
@@ -25,7 +31,8 @@ function QuestionDetail({question:q,reload}:{question:Question;reload:()=>void})
       {confirm && <div className="archive-confirm"><p>Soru listelerden kalkacak ve düzenlemeye kapanacak. Bağlantıdan okunmaya devam edecek.</p><button className="button" disabled={pending} onClick={()=>void archive()}>Arşivlemeyi onayla</button><button disabled={pending} onClick={()=>setConfirm(false)}>Vazgeç</button></div>}
     </div>}
     <AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button onClick={reload}>Güncel soruyu yükle</button>}
-    <AdminAnswerSection questionId={q.id} archived={!!q.archivedAt}/>
-    <AnswerSection questionId={q.id} archived={!!q.archivedAt} reloadQuestion={reload}/>
+    <QuestionEngagement questionId={q.id} initial={q.statistics} archived={!!q.archivedAt} opening={opening} answersRevision={answersRevision}/>
+    <AdminAnswerSection questionId={q.id} archived={!!q.archivedAt} onChanged={()=>setAnswersRevision(r=>r+1)}/>
+    <AnswerSection questionId={q.id} archived={!!q.archivedAt} reloadQuestion={reload} onChanged={()=>setAnswersRevision(r=>r+1)}/>
   </article>
 }

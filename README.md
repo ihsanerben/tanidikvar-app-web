@@ -117,3 +117,16 @@ Soru detayında ayrı **Admin Cevapları** bölümü vardır. “Cevaplayacağı
 `/admins/:id`: fotoğraf, doğrulanmış eğitim, güncel kişisel beyan, görünür cevap sayısı ve soru/cevap geçmişi. Cevaplar ilk yayın doğrulamasını taşır. Yetkisi kaldırılan kişi “Artık Admin değil” olarak gösterilir. Public DTO resmi belge/ret bilgisi içermez.
 
 10. adımda 62 frontend testi, lint/build geçti. Tarayıcı başvuru senaryosu Admin yayını/düzenleme/restore, public profil/panel ve yetki kaldırmadan sonraki yönetimle genişletildi; hesap sayısı artırılmadı. API testleri ayrıca kota ve gerçek eşzamanlılığı doğrular.
+
+
+## Soru etkileşimleri
+
+Soru kartları ve detayları toplam görüntülenme, beğeni, topluluk/Admin cevapları ve toplam cevap sayısını gösterir. Kart sayaçları liste yanıtından gelir; kart başına HTTP isteği yapılmaz. Profilini tamamlamış hesap Beğen / Beğeniyi geri al düğmesiyle kendi durumunu yönetir. Sürüm çakışmasında açık yenileme sunulur; hesap değişiminde önceki kişinin beğeni durumu kaldırılır. Arşivde yeni beğeni kapalı, geri alma açıktır.
+
+Her görünür detay açılışı yeni UUID üretir. Yenileme/yeni sekme/yeniden navigasyon sayılır; aynı açılışın StrictMode, cevap güncellemesi, arşiv sonrası veri yüklemesi ve ağ tekrarı ikinci kayıt oluşturmaz. Arka planda açılan sekme ilk görünür olduğunda sayılır. Görüntülenme başarısız olursa aynı açılış kimliğiyle tekrar deneme vardır. GET/prefetch kendi başına görüntülenme yazmaz.
+
+Merkezi `apiPublicPost`, hesaba bağlı olmayan görüntülenmeler için CSRF ve cookie kilidini korur; anonim oturum kontrolü bu olayı iptal etmez. Public yazma otomatik refresh veya ağ retry yapmaz. Hesaba bağlı mutasyonların oturum değişimi kontrolü korunur. Cevap/beğeni değişiminden sonra yalnız sayaçlar yenilenir; diğer cevap taslakları sıfırlanmaz.
+
+11. adımda 71 frontend testi ve lint geçti. Docker üretim derlemesi TypeScript kontrolünü de içerir. Yeni testler anonim görünürlük/StrictMode, aynı kimlikle tekrar, beğeni/geri alma, profil/hesap değişimi, stale durum, arşiv ve sayaç doğrulamasını kapsar.
+
+Gerçek Docker API ile 14 masaüstü/mobil senaryo doğrulandı. Soru senaryosunda beğeni/geri alma, cevap toplamları, GET’in görüntülenme yazmaması, sayfa yenileme ve anonim arşiv okuması vardır. Masaüstü/mobil sayaç ekran görüntüleri incelendi.
