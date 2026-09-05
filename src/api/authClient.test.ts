@@ -76,3 +76,27 @@ it('does not retry stale requests after logout begins', async () => {
   invalidateSession(); finish?.(denied())
   await expect(request).rejects.toMatchObject({ status: 401 })
 })
+
+it('refreshes an expired session before retrying the same profile PUT once', async () => {
+  let refreshed=false
+  let writes=0
+  vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
+    if(url.endsWith('/csrf'))return json({token:'csrf'})
+    if(url.endsWith('/refresh')){refreshed=true;return json({ok:true})}
+    if(options.method==='PUT'){writes++;return refreshed?json({version:1}):denied()}
+    return denied()
+  }))
+  const {apiMutation}=await import('./apiClient')
+  await expect(apiMutation('/api/me/profile','PUT',{version:0})).resolves.toEqual({version:1})
+  expect(writes).toBe(2)
+})
+it('does not retry a mutation when its network result is unknown',async()=>{
+  const fetch=vi.fn(async(url:string)=>{
+    if(url.endsWith('/csrf'))return json({token:'csrf'})
+    throw new TypeError('connection lost')
+  })
+  vi.stubGlobal('fetch',fetch)
+  const {apiMutation}=await import('./apiClient')
+  await expect(apiMutation('/api/me/profile','PUT',{version:0})).rejects.toMatchObject({code:'NETWORK_ERROR'})
+  expect(fetch.mock.calls.filter(([url])=>url.endsWith('/api/me/profile'))).toHaveLength(1)
+})

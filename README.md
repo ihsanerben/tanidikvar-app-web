@@ -2,6 +2,14 @@
 
 Bağımsız frontend reposu: React + TypeScript + Vite. API reposunun konumuna veya üst klasördeki dosyalara bağımlı değildir; backend'e yapılandırılan HTTP adresiyle bağlanır.
 
+## Tüm sistemi Docker ile açma
+
+API reposunda `./run.sh --docker` çalıştır. Web de kendi Dockerfile'ından derlenerek Nginx ile http://localhost:5173 üzerinde açılır; Node/npm'nin host üzerinde çalışması gerekmez. API reposunun `.env` dosyasındaki `WEB_BUILD_CONTEXT` bu reponun konumunu gösterir (varsayılan komşu klasör). Bu repo yalnız public build arg `VITE_API_BASE_URL=/` alır; backend secret'ları build'e aktarılmaz.
+
+Docker web `/api` isteklerini `API_UPSTREAM` adresine proxy eder; default `http://api:8080`. Doğrudan `/profile` veya `/manager` gibi yollar SPA fallback ile açılır. Docker görüntüsü derlenmiş sürümdür; kod değişikliği için API reposundaki launcher'ı tekrar çalıştır.
+
+Eski `npm run dev` akışı korunur. Docker web aynı portu kullanıyorsa önce API reposunda `docker compose stop api web` çalıştır, backend'i `./run.sh` ile başlat ve burada `npm run dev` kullan.
+
 ## Kurulum ve çalıştırma
 
 Node 22.12 veya üstü ve npm gerekir. Bu klasörde:
@@ -16,6 +24,9 @@ npm install
 - Web: http://localhost:5173
 - `/`: Platform tanıtımı.
 - `/register`, `/login`, `/account`: kayıt, giriş ve korumalı hesap ekranı.
+- `/profile`: eğitim durumuna göre profil tamamlama/düzenleme.
+- `/manager`: üniversite/bölüm/tag ve eşleşme yönetimi.
+- `/admin/tags`: Admin için yeni tag oluşturma.
 - `/verify-email`, `/resend-verification`: e-posta doğrulama.
 - `/forgot-password`, `/reset-password`: şifre sıfırlama.
 - `/durum`: Gerçek backend health API'si; API kapalıysa hata ve yeniden deneme gösterir.
@@ -46,4 +57,8 @@ Merkezi API client credentials, CSRF, güvenli hata/field error/Retry-After ve e
 
 Tarayıcı auth testleri API, web ve Mailpit'in çalışmasını gerektirir. `E2E_MAILPIT_URL` varsayılanı `http://localhost:8025`; `FRONTEND_URL` e-posta bağlantıları için test web origin'iyle eşleşmelidir. Testler rastgele `@example.test` hesapları ve yerel e-postalar oluşturur; fiziksel veri temizliği yapmaz. Rate limit nedeniyle kısa sürede çok sayıda test tekrarı `429` üretebilir; `Retry-After` süresini bekle.
 
-Profil tamamlama, soru/cevap ve paneller sonraki teslimlerdir.
+Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru/cevap ve kalan panel işlevleri sonraki teslimlerdir. Avatar şu an baş harflerden oluşur; fotoğraf dosyası desteği 9. adımda eklenir.
+
+Profil/katalog mutasyonları merkezi CSRF ve en fazla bir 401 retry kullanır. Network hatasında yazma tekrar edilmez. Kayıt version'ı stale ise form korunur ve yeniden yükleme önerilir. Üniversite/bölüm seçimleri arama ve sayfalama destekler; yalnız ilk sayfanın kayıtlarıyla sınırlı seçim yoktur.
+
+Profil/katalog tarayıcı testleri Docker CLI ve yerel PostgreSQL'e erişim gerektirir. Test, kendisinin oluşturduğu `browser-profile-...@example.test` hesabını DB üzerinden Manager yapar; gerçek kullanıcıların yetkilerini değiştirmez. Varsayılan container `tanidikvar-postgres-1`, DB kullanıcı/adı `tanidikvar`; özelleştirmeler için `E2E_POSTGRES_CONTAINER`, `E2E_DB_USER`, `E2E_DB_NAME` kullanılabilir. Test katalog kayıtları “Test” adıyla oluşturulur ve fiziksel temizleme yapılmaz.

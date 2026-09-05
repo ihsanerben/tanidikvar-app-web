@@ -14,7 +14,7 @@ export function setUser(user: CurrentUser | null) { generation++; publish({ user
 export function reload() {
   if (pending) return pending
   const ticket = ++generation
-  publish({ user: snapshot.user, status: 'loading' })
+  if (snapshot.status !== 'ready') publish({ user: snapshot.user, status: 'loading' })
   pending = currentUser().then(user => {
     if (ticket === generation) publish({ user, status: 'ready' })
   }).catch(error => {
