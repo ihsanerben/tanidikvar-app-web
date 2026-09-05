@@ -29,6 +29,10 @@ const messages: Record<string, string> = {
   STALE_VERSION: 'Bu kayıt başka bir ekranda değişmiş. Güncel bilgileri yükleyip tekrar dene.',
   CATALOG_CONFLICT: 'Bu kayıt zaten var. Pasif kayıtları da kontrol et.',
   INACTIVE_EDUCATION: 'Bu üniversite/bölüm yeni seçimlere kapalı. Aktif bir eşleşme seç.',
+  REQUEST_CONFLICT: 'Bu gönderim daha önce kaydedilmiş. Sorularım sayfasından kontrol et.',
+  QUESTION_ARCHIVED: 'Arşivlenmiş soru düzenlenemez.',
+  INACTIVE_CATALOG: 'Bu kayıt artık yeni seçimlere açık değil.',
+  INVALID_REQUEST: 'Seçimlerini kontrol edip tekrar dene.',
   NOT_FOUND: 'Kayıt bulunamadı.',
   ACCESS_DENIED: 'Bu işlem tamamlanamadı. Sayfayı yenileyip tekrar dene.',
 }
@@ -63,9 +67,10 @@ async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown,
         firstName: 'Adını yaz (en fazla 80 karakter).', lastName: 'Soyadını yaz (en fazla 80 karakter).', educationStatus: 'Eğitim durumunu seç.',
         universityDepartmentId: 'Durumuna uygun, aktif bir üniversite/bölüm seç.', graduationYear: 'Geçerli bir mezuniyet yılı yaz.',
         biography: 'Biyografi en fazla 1000 karakter olabilir.', occupation: 'Meslek en fazla 120 karakter olabilir.', company: 'Şirket en fazla 120 karakter olabilir.',
+        title: 'Soru başlığı 10–200 karakter olmalı.', body: 'Açıklama en fazla 5000 karakter olabilir.', scope: 'Kapsama uygun üniversite ve bölüm seç.', tagIds: 'En fazla 5 farklı tag seç.', universityId: 'Aktif bir üniversite seç.',
         name: 'Ad 1–200 karakter olmalı.', version: 'Güncel kaydı yükleyip tekrar dene.',
       }
-      for (const [key,message] of Object.entries(fieldMessages)) if(typeof data.fieldErrors[key] === 'string') fields[key]=message
+      for (const [key,message] of Object.entries(fieldMessages)) if(typeof data.fieldErrors[key] === 'string' || typeof data.fieldErrors[`content.${key}`] === 'string') fields[key]=message
     }
     const retry = Number(response.headers.get('Retry-After'))
     throw new ApiError(response.status, code, messages[code] ?? 'İşlem şu anda tamamlanamıyor. Lütfen tekrar dene.',
