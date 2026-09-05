@@ -155,3 +155,11 @@ Manager tarafından gizlenen cevapta düzenleme/geri yükleme sunulmaz. Geri yü
 Backend ile birlikte V10 migration ve `moderatedAt` cevap alanını içeren sürümü kullan. `npm run dev` ve API reposundan `./run.sh --docker` çalışma biçimleri değişmez.
 
 Bu teslimde `npm test`: 91 test başarılı; lint/build geçti. Docker üzerinden 7 masaüstü + 7 mobil senaryo, panel ekranları ve moderasyon/hesap yönetimi akışlarıyla doğrulandı.
+
+## Yerelde uzun süre kullanım
+
+Geliştirme komutu `npm run dev` olarak kalır. `./run.sh --help` alternatif launcher kullanımını gösterir; desteklenmeyen seçenekler ayar oluşturulmadan reddedilir.
+
+Docker kullanırken başlatma/durum/durdurma API reposundan sırasıyla `./run.sh --docker`, `./run.sh --status`, `./run.sh --stop` komutlarıyla yapılır. Web `http://localhost:5173`, yerel e-postalar `http://localhost:8025` adresindedir. Kod güncellemesinden sonra Docker başlangıcını yeniden çalıştır. Ayrı `npm run dev` sürecini Ctrl+C ile durdur.
+
+Bu dönem yerel kullanım içindir; yayın veya deployment değişikliği yapılmadı. Otomatik e2e paketi sentetik kayıtlar üretir; günlük kullanımdan önce her seferinde çalıştırılması gerekmez.

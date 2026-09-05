@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
+if [[ $# -gt 0 ]]; then
+  echo 'Kullanım: ./run.sh veya npm run dev'
+  echo 'Tüm Docker servisleri API klasöründen ./run.sh --docker ile başlatılır.'
+  if [[ $# -eq 1 && ( "$1" == '--help' || "$1" == '-h' ) ]]; then exit 0; fi
+  exit 1
+fi
 if [[ ! -f .env ]]; then
   (umask 077; cp .env.example .env)
 fi
