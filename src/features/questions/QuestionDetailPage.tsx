@@ -1,4 +1,5 @@
 import { AnswerSection } from '../answers/AnswerSection'
+import { AdminAnswerSection } from '../adminAnswers/AdminAnswerSection'
 import { useRef,useState } from 'react'
 import { Link,useParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
@@ -24,6 +25,7 @@ function QuestionDetail({question:q,reload}:{question:Question;reload:()=>void})
       {confirm && <div className="archive-confirm"><p>Soru listelerden kalkacak ve düzenlemeye kapanacak. Bağlantıdan okunmaya devam edecek.</p><button className="button" disabled={pending} onClick={()=>void archive()}>Arşivlemeyi onayla</button><button disabled={pending} onClick={()=>setConfirm(false)}>Vazgeç</button></div>}
     </div>}
     <AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button onClick={reload}>Güncel soruyu yükle</button>}
+    <AdminAnswerSection questionId={q.id} archived={!!q.archivedAt}/>
     <AnswerSection questionId={q.id} archived={!!q.archivedAt} reloadQuestion={reload}/>
   </article>
 }

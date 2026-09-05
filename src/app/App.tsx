@@ -1,5 +1,7 @@
 import { QuestionListPage } from '../features/questions/QuestionListPage'
 import { ApplicationsPage } from '../features/applications/ApplicationsPage'
+import { AdminPanelPage } from '../features/adminAnswers/AdminPanelPage'
+import { AdminProfilePage } from '../features/adminAnswers/AdminProfilePage'
 import { QuestionDetailPage } from '../features/questions/QuestionDetailPage'
 import { QuestionFormPage } from '../features/questions/QuestionFormPage'
 import { Link, Route, Routes } from 'react-router-dom'
@@ -31,6 +33,8 @@ export function App() {
       <Route path="/questions/:id" element={<QuestionDetailPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/applications" element={<ApplicationsPage />} />
+      <Route path="/admin" element={<AdminPanelPage />} />
+      <Route path="/admins/:id" element={<AdminProfilePage />} />
       <Route path="/manager/applications" element={<ApplicationsPage manager />} />
       <Route path="/manager" element={<CatalogPage />} />
       <Route path="/admin/tags" element={<CatalogPage admin />} />
