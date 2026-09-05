@@ -57,7 +57,7 @@ Merkezi API client credentials, CSRF, güvenli hata/field error/Retry-After ve e
 
 Tarayıcı auth testleri API, web ve Mailpit'in çalışmasını gerektirir. `E2E_MAILPIT_URL` varsayılanı `http://localhost:8025`; `FRONTEND_URL` e-posta bağlantıları için test web origin'iyle eşleşmelidir. Testler rastgele `@example.test` hesapları ve yerel e-postalar oluşturur; fiziksel veri temizliği yapmaz. Rate limit nedeniyle kısa sürede çok sayıda test tekrarı `429` üretebilir; `Retry-After` süresini bekle.
 
-Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; topluluk cevapları da uygulanmıştır; doğrulanmış admin cevapları ve kalan panel işlevleri sonraki teslimlerdir. Avatar şu an baş harflerden oluşur; fotoğraf dosyası desteği 9. adımda eklenir.
+Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; topluluk cevapları da uygulanmıştır; doğrulanmış admin cevapları ve kalan panel işlevleri sonraki teslimlerdir. Tamamlanmış profil ekranında fotoğraf yükleme/kaldırma vardır; fotoğrafsız sunumlarda baş harf avatarı kullanılabilir.
 
 Profil/katalog mutasyonları merkezi CSRF ve en fazla bir 401 retry kullanır. Network hatasında yazma tekrar edilmez. Kayıt version'ı stale ise form korunur ve yeniden yükleme önerilir. Üniversite/bölüm seçimleri arama ve sayfalama destekler; yalnız ilk sayfanın kayıtlarıyla sınırlı seçim yoktur.
 
@@ -84,3 +84,25 @@ Kişinin kendi cevabı public sayfalamadan ayrı yüklenir. Kaldırılmış meti
 Admin ve Manager katkıları da bu bölümde COMMUNITY kalır; doğrulanmış admin cevabı rozeti verilmez. Bu teslim yeni route veya bağımlılık eklemez. Genel soru kartı sayaçları, beğeni/görüntülenme ve admin cevabı sonraki teslimlerdir.
 
 Mevcut soru tarayıcı senaryosu cevap yayınlama, iki sekmede eski cevap sürümü, kaldırma/geri yükleme, arşivde okuma ve anonim erişim kontrolleriyle genişletildi. Backend gerçek Testcontainers testleri ayrıca tekillik, sahiplik, arşivleme yarışı ve fiziksel silme engelini doğrular.
+
+
+## Admin başvuruları ve fotoğraf
+
+`/applications`: kendi başvuru geçmişin, ret gerekçesi ve yeni/yeniden doğrulama başvurusu. Profil bilgileri gönderim öncesi gösterilir; PDF ile tek gönderimde kaydedilir. Gönderilen bilgiler değişmez. Aynı anda tek bekleyen başvuru olabilir; ret sonrası yeni belgeyle başvurulur. Eski onay ile güncel doğrulama ayrı gösterilir.
+
+`/manager/applications`: durum filtresi ve sayfalı başvurular, özel belge indirme, kabul/ret ve Admin yetkisi kaldırma. Karar öncesi açık onay vardır; ret/yetki kaldırmada gerekçe zorunlu. Yetki kaldırma bekleyen yeniden doğrulamayı da kapatır. Eski sürüm çakışmasında form korunur ve listeyi yenileme sunulur. Hesabım ve Manager katalog panelinden erişilir.
+
+`/profile`: tamamlanmış profil için JPEG/PNG yükleme, fotoğrafı değiştirme/kaldırma. Fotoğraf en fazla 5 MB, belge PDF en fazla 10 MB. Dosya doğrulaması backend'dedir. Fotoğraf herkese açıktır; resmi belgeyi yalnız sahibi ve Manager indirebilir. Kaldırılan/değiştirilen dosya fiziksel silinmez, eski erişim kapanır.
+
+Merkezi client multipart gönderiminde Content-Type boundary değerini tarayıcıya bırakır; aynı cookie/CSRF ve tek 401 yenileme davranışı kullanılır. Belge indirmede geçici Blob URL oluşturulup bırakılır. Belirsiz ağ hatasında başvuru yeniden gönderilirse formdaki aynı requestId korunur; otomatik yazma tekrarı yoktur.
+
+`npm test`: 52 test. Yeni testler multipart/CSRF, ağ hatasında aynı gönderim anahtarı, profil kapısı, Manager karar onayı/stale form, yetki kaldırma açıklaması ve avatar kaldırmayı doğrular. `npm run lint` ve `npm run build` başarılıdır.
+
+Tarayıcı paketinde toplam 14 senaryo vardır (7 masaüstü + 7 mobil). Başvuru senaryosu iki sentetik hesapla özel PDF indirme, ret/yeniden başvuru, onay, bekleyen yeniden doğrulamada yetki kaldırma ve fotoğraf erişim yaşam döngüsünü test eder. Toplu testler auth IP sınırını aşabileceği için projeleri ayrı çalıştır:
+
+```bash
+npm run test:e2e -- --project=desktop
+npm run test:e2e -- --project=mobile
+```
+
+İki çalıştırma arasında auth limit penceresinin dolmasını bekle veya yalnız yerel test ortamında API reposundan `docker compose restart api` ve ardından `docker compose --profile app up -d --wait api` çalıştır. Bu, bellek içi auth sayacını sıfırlar; PostgreSQL ve dosya volume verilerini silmez. Uygulamadaki auth sınırları test için düşürülmedi.

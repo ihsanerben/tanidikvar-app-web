@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { AvatarEditor } from './AvatarEditor'
 import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
@@ -26,7 +27,7 @@ function ProfileLoader(){
   },[revision])
   if(error) return <section className="status-page"><h1>Profil yüklenemedi.</h1><AuthFormError error={error}/><button className="button" onClick={()=>{setError(null);setRevision(revision+1)}}>Tekrar dene</button></section>
   if(!profile) return <section className="status-page" role="status">Profil yükleniyor…</section>
-  return <ProfileForm key={profile.version} initial={profile} reload={()=>{setProfile(null);setRevision(revision+1)}}/>
+  return <><ProfileForm key={profile.version} initial={profile} reload={()=>{setProfile(null);setRevision(revision+1)}}/>{profile.completed&&<div className="profile-page"><AvatarEditor/><Link to="/applications">Admin başvurularım</Link></div>}</>
 }
 function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const auth=useAuth()

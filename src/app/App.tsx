@@ -1,4 +1,5 @@
 import { QuestionListPage } from '../features/questions/QuestionListPage'
+import { ApplicationsPage } from '../features/applications/ApplicationsPage'
 import { QuestionDetailPage } from '../features/questions/QuestionDetailPage'
 import { QuestionFormPage } from '../features/questions/QuestionFormPage'
 import { Link, Route, Routes } from 'react-router-dom'
@@ -29,6 +30,8 @@ export function App() {
       <Route path="/questions/:id/edit" element={<QuestionFormPage edit />} />
       <Route path="/questions/:id" element={<QuestionDetailPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/applications" element={<ApplicationsPage />} />
+      <Route path="/manager/applications" element={<ApplicationsPage manager />} />
       <Route path="/manager" element={<CatalogPage />} />
       <Route path="/admin/tags" element={<CatalogPage admin />} />
       <Route path="/account" element={<AccountPage />} /><Route path="/" element={<HomePage />} /><Route path="/durum" element={<StatusPage />} /><Route path="*" element={<section className="status-page"><span className="eyebrow">404</span><h1>Bu sayfayı bulamadık.</h1><Link className="button" to="/">Ana sayfaya dön</Link></section>} /></Routes></main>
