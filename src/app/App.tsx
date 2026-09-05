@@ -1,3 +1,4 @@
+import { ManagerPage } from '../features/management/ManagerPage'
 import { AdminDirectoryPage } from '../features/discovery/AdminDirectoryPage'
 import { QuestionListPage } from '../features/questions/QuestionListPage'
 import { ApplicationsPage } from '../features/applications/ApplicationsPage'
@@ -39,7 +40,10 @@ export function App() {
       <Route path="/admin" element={<AdminPanelPage />} />
       <Route path="/admins/:id" element={<AdminProfilePage />} />
       <Route path="/manager/applications" element={<ApplicationsPage manager />} />
-      <Route path="/manager" element={<CatalogPage />} />
+      <Route path="/manager" element={<ManagerPage />} />
+      <Route path="/manager/users" element={<ManagerPage view="users" />} />
+      <Route path="/manager/content" element={<ManagerPage view="content" />} />
+      <Route path="/manager/catalog" element={<CatalogPage />} />
       <Route path="/admin/tags" element={<CatalogPage admin />} />
       <Route path="/account" element={<AccountPage />} /><Route path="/" element={<HomePage />} /><Route path="/durum" element={<StatusPage />} /><Route path="*" element={<section className="status-page"><span className="eyebrow">404</span><h1>Bu sayfayı bulamadık.</h1><Link className="button" to="/">Ana sayfaya dön</Link></section>} /></Routes></main>
     <footer className="site-footer"><Link className="brand footer-brand" to="/">tanıdık<span>var</span></Link><p>Tercihler değişir, deneyimler yol gösterir.</p><Link to="/durum">Sistem durumu ↗</Link></footer>

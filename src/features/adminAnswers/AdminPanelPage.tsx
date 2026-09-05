@@ -21,7 +21,7 @@ function Panel({id}:{id:string}){
  return <section className="management-page"><span className="eyebrow">DENEYİMLERİN YOL GÖSTERSİN</span><h1>Admin katkılarım</h1>
  <AuthFormError error={error}/>{error&&<button onClick={()=>{setError(null);setRevision(r=>r+1)}}>Tekrar dene</button>}
  {quota?<p role="status">{quota.activeAdmin?`Kalan cevap hakkın: ${quota.remaining} / ${quota.limit}`:'Yeni Admin cevabı için güncel Admin yetkisi ve tamamlanmış profil gerekiyor.'}</p>:!error&&<p role="status">Cevap hakkın yükleniyor…</p>}
- <nav className="question-navigation"><Link className="button" to="/questions">Soruları keşfet ve filtrele</Link>
+ <nav className="question-navigation"><Link className="button" to="/questions">Soruları keşfet ve filtrele</Link><Link to="/popular">Popüler sorular</Link>
  {profile?.education&&<><Link to={'/questions?universityId='+profile.education.universityId}>Üniversitemin soruları</Link><Link to={'/questions?universityId='+profile.education.universityId+'&universityDepartmentId='+profile.education.id}>Bölümümün soruları</Link></>}
  <Link to="/my-questions">Sorularım</Link><Link to="/profile">Profilimi düzenle</Link><Link to="/applications">Başvurularım</Link>{quota?.activeAdmin&&<><Link to={'/admins/'+id}>Herkese açık profilim</Link><Link to="/admin/tags">Tag yönetimi</Link></>}</nav>
  <h2>Cevaplayacaklarım</h2><Assignments/><h2>Admin cevaplarım</h2><AdminAnswerFeed path="/api/me/admin-answers" showQuestion/></section>

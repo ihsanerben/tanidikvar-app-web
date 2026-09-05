@@ -1,13 +1,13 @@
 import { apiGet,apiMutation,ApiError,isRecord } from '../../api/apiClient'
 import { pageOf } from '../catalog/catalogApi'
-export interface AdminAnswer {id:string;questionId:string;questionTitle:string;authorId:string|null;authorName:string;activeAdmin:boolean;universityName:string|null;departmentName:string|null;educationStatus:string|null;graduationYear:number|null;avatarFileId:string|null;occupation:string|null;company:string|null;body:string;publishedAt:string;editedAt:string|null;deletedAt:string|null;version:number}
+export interface AdminAnswer {id:string;questionId:string;questionTitle:string;authorId:string|null;authorName:string;activeAdmin:boolean;universityName:string|null;departmentName:string|null;educationStatus:string|null;graduationYear:number|null;avatarFileId:string|null;occupation:string|null;company:string|null;body:string;publishedAt:string;editedAt:string|null;deletedAt:string|null;moderatedAt:string|null;version:number}
 export interface Assignment {questionId:string;questionTitle:string;assigned:boolean;version:number;assignedAt:string|null;archivedAt:string|null}
 export interface Quota {activeAdmin:boolean;day:string;used:number;limit:number;remaining:number;resetsAt:string}
 export interface OwnAdminAnswer {answer:AdminAnswer|null;assignment:Assignment}
 export interface AdminProfile {id:string;name:string;activeAdmin:boolean;universityName:string;departmentName:string;educationStatus:string;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;avatarFileId:string|null;answerCount:number}
 const invalid=()=>new ApiError(200,'INVALID_RESPONSE','Admin bilgileri alınamadı.')
 export function adminAnswer(v:unknown):AdminAnswer {
- if(!isRecord(v)||!['id','questionId','questionTitle','authorName','body','publishedAt'].every(k=>typeof v[k]==='string')||!['authorId','universityName','departmentName','educationStatus','avatarFileId','occupation','company','editedAt','deletedAt'].every(k=>v[k]===null||typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.version)||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()
+ if(!isRecord(v)||!['id','questionId','questionTitle','authorName','body','publishedAt'].every(k=>typeof v[k]==='string')||!['authorId','universityName','departmentName','educationStatus','avatarFileId','occupation','company','editedAt','deletedAt','moderatedAt'].every(k=>v[k]===null||typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.version)||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()
  return v as unknown as AdminAnswer
 }
 export function assignment(v:unknown):Assignment{if(!isRecord(v)||typeof v.questionId!=='string'||typeof v.questionTitle!=='string'||typeof v.assigned!=='boolean'||!Number.isSafeInteger(v.version)||!['assignedAt','archivedAt'].every(k=>v[k]===null||typeof v[k]==='string'))throw invalid();return v as unknown as Assignment}

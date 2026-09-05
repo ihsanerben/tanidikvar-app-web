@@ -5,7 +5,7 @@ import { setUser } from '../auth/authStore'
 import { AdminAnswerSection } from './AdminAnswerSection'
 import { AdminAnswerCard } from './AdminAnswerCard'
 import type { AdminAnswer } from './adminAnswerApi'
-const original:AdminAnswer={id:'answer',questionId:'question',questionTitle:'Üniversitede eğitim nasıl?',authorId:'admin',authorName:'Ada Yılmaz',activeAdmin:true,universityName:'Eski Üniversite',departmentName:'Bilgisayar',educationStatus:'UNIVERSITE_OGRENCISI',graduationYear:null,avatarFileId:null,occupation:null,company:null,body:'Üniversitede edindiğim gerçek deneyim.',publishedAt:'2026-09-05T10:00:00Z',editedAt:null,deletedAt:null,version:0}
+const original:AdminAnswer={id:'answer',questionId:'question',questionTitle:'Üniversitede eğitim nasıl?',authorId:'admin',authorName:'Ada Yılmaz',activeAdmin:true,universityName:'Eski Üniversite',departmentName:'Bilgisayar',educationStatus:'UNIVERSITE_OGRENCISI',graduationYear:null,avatarFileId:null,occupation:null,company:null,body:'Üniversitede edindiğim gerçek deneyim.',publishedAt:'2026-09-05T10:00:00Z',editedAt:null,deletedAt:null,moderatedAt:null,version:0}
 const initialAssignment={questionId:'question',questionTitle:original.questionTitle,assigned:false,version:0,assignedAt:null,archivedAt:null}
 const quota={activeAdmin:true,day:'2026-09-05',used:0,limit:5,remaining:5,resetsAt:'2026-09-05T21:00:00Z'}
 const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status})
@@ -92,3 +92,5 @@ it('renders removed authors anonymously without links or educational data',()=>{
  expect(screen.queryByText(/ilk yayınındaki doğrulama/)).not.toBeInTheDocument()
 })
 
+
+it('blocks editing and restoration of a Manager-hidden Admin answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json(quota):url.endsWith('/my-admin-answer')?json({answer:{...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt},assignment:{...initialAssignment,assigned:true,version:1}}):list()));section();await screen.findByText(/Admin cevabın Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Admin cevabını geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Admin cevabımı düzenle'})).not.toBeInTheDocument()})

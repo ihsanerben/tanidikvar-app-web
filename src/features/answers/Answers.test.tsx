@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { setUser } from '../auth/authStore'
 import { AnswerSection } from './AnswerSection'
-const original={id:'answer',questionId:'question',authorId:'member',authorName:'Ada Yılmaz',answerKind:'COMMUNITY',body:'Kampüs hakkında gerçek bir deneyim.',publishedAt:'2026-09-05T10:00:00Z',editedAt:null,deletedAt:null,version:0}
+const original={id:'answer',questionId:'question',authorId:'member',authorName:'Ada Yılmaz',answerKind:'COMMUNITY',body:'Kampüs hakkında gerçek bir deneyim.',publishedAt:'2026-09-05T10:00:00Z',editedAt:null,deletedAt:null,moderatedAt:null,version:0}
 const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status})
 const list=(items:unknown[]=[])=>json({items,page:0,size:20,totalElements:items.length})
 beforeEach(()=>setUser({id:'member',email:'test@example.test',role:'YKS_ADAYI',profileCompleted:true}))
@@ -80,3 +80,5 @@ it('loads later public pages from the server',async()=>{
   expect(await screen.findByText('İkinci sayfadaki cevap metni')).toBeVisible()
   expect(within(screen.getByRole('region',{name:'Topluluk cevapları'})).queryByText(original.body)).not.toBeInTheDocument()
 })
+
+it('does not let an owner edit or restore a Manager-hidden answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/my-answer')?json({...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt}):list()));section();await screen.findByText(/Cevabın Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Cevabı geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Cevabımı düzenle'})).not.toBeInTheDocument()})
