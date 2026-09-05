@@ -143,3 +143,15 @@ Arama/dönem/filtre/page URL’de tutulur; doğrudan açma ve geri/ileri destekl
 12. adımda 79 frontend testi, lint ve build geçti. Yeni 8 test arama+filtre birleşimi, sayfa sıfırlama, dönem/toplam ayrımı, URL geçmişi, eski yanıt yarışı, Admin bağlantıları ve hata/boş durumları kapsar. Backend ayrıca kesin formül ve dört pencere sınırlarını doğrular.
 
 Gerçek Docker API üzerinde 14 masaüstü/mobil senaryo geçti. Soru senaryosu arama/dört dönem/sıralama/arşiv; başvuru senaryosu Admin isim araması ve cevapladığı sorulara geçiş ile genişletildi. Yeni ekran görüntüleri incelendi.
+
+## Tamamlanan yönetim panelleri
+
+Manager giriş noktası `/manager` genel bakış ve sayfalı işlem geçmişidir. `/manager/users` ad/e-posta ve durum filtresiyle hesap pasifleştirme/geri yükleme; `/manager/content` soru/topluluk/Admin cevabı filtresiyle gerekçeli gizleme/geri yükleme sunar. Katalog `/manager/catalog` adresine taşındı; başvurular `/manager/applications` adresinde, ortak panel navigasyonuyla erişilir.
+
+Manager hesabı pasifleştirilemez. İşlem öncesi etkisi açıklanır, gerekçe zorunludur; eski sürümde form korunur ve güncel listeyi yükleme sunulur. Kullanıcı/rol değişiminde private ekranlar temizlenir. Filtre ve sayfa URL’de tutulur; geri/ileri navigasyonda eski sonuçlar gösterilmez.
+
+Manager tarafından gizlenen cevapta düzenleme/geri yükleme sunulmaz. Geri yükleme sahibinin kaldırdığı cevabı veya sorunun arşiv durumunu değiştirmez. Admin paneline Popüler sorular bağlantısı eklendi; mevcut atamalar, kota, cevap geçmişi, kendi soruları, profil ve tag yönetimi korunur.
+
+Backend ile birlikte V10 migration ve `moderatedAt` cevap alanını içeren sürümü kullan. `npm run dev` ve API reposundan `./run.sh --docker` çalışma biçimleri değişmez.
+
+Bu teslimde `npm test`: 91 test başarılı; lint/build geçti. Docker üzerinden 7 masaüstü + 7 mobil senaryo, panel ekranları ve moderasyon/hesap yönetimi akışlarıyla doğrulandı.

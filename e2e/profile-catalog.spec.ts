@@ -19,6 +19,8 @@ test('candidate profile can be completed, edited and reopened',async({page,reque
 test('manager catalog supports linking, graduate profiles, soft delete and restore',async({page,request},testInfo)=>{
   const email=await account(page,request);promoteTestManager(email);await page.reload()
   await page.getByRole('link',{name:'Manager Panel'}).click()
+  await expect(page.getByRole('heading',{name:'Platforma genel bakış'})).toBeVisible()
+  await page.getByRole('link',{name:'Katalog',exact:true}).click()
   const suffix=randomUUID().slice(0,8)
   const university=`Test Üniversitesi ${suffix}`;const department=`Test Bölümü ${suffix}`;const tag=`Konu ${suffix}`
   await page.getByLabel('Yeni kayıt adı').fill(university);await page.getByRole('button',{name:'Ekle',exact:true}).click()
@@ -39,7 +41,7 @@ test('manager catalog supports linking, graduate profiles, soft delete and resto
   await page.getByLabel('Bölüm',{exact:true}).selectOption({label:department});await page.getByLabel('Mezuniyet yılı').fill('2025')
   await page.getByRole('button',{name:'Profili kaydet'}).click();await expect(page.getByText('Profilin kaydedildi.')).toBeVisible()
   await page.reload();await expect(page.getByLabel('Mezuniyet yılı')).toHaveValue('2025')
-  await page.goto('/manager?tab=TAG');await page.getByLabel('Yeni kayıt adı').fill(tag);await page.getByRole('button',{name:'Ekle',exact:true}).click()
+  await page.goto('/manager/catalog?tab=TAG');await page.getByLabel('Yeni kayıt adı').fill(tag);await page.getByRole('button',{name:'Ekle',exact:true}).click()
   await expect(page.getByText('Kayıt eklendi.',{exact:true})).toBeVisible();await page.getByLabel('Listede ara').fill(suffix)
   await page.getByRole('button',{name:'Pasife al',exact:true}).click();await expect(page.getByText('Kayıt pasife alındı.')).toBeVisible()
   await page.getByLabel('Pasif kayıtları göster').check();await page.getByRole('button',{name:'Geri yükle',exact:true}).click()

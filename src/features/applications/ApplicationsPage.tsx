@@ -1,3 +1,4 @@
+import { ManagementNav } from '../management/ManagementNav'
 import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
@@ -20,7 +21,8 @@ function ApplicationsList({manager,canApply}:{manager:boolean;canApply:boolean})
  useEffect(()=>{const c=new AbortController();listApplications(manager,page,status,c.signal).then(v=>{if(!c.signal.aborted)setData(v)}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[manager,page,status,revision])
  function reload(){setData(null);setError(null);setRevision(revision+1)}
  const pending=data?.items.some(a=>a.status==='PENDING')
- return <section className="profile-page"><div className="profile-heading"><div><span className="eyebrow">{manager?'MANAGER PANEL':'DOĞRULANMIŞ DENEYİMLER'}</span><h1>{manager?'Admin başvuruları':'Başvurularım'}</h1><p>Üniversite deneyimini doğrula, adayların sorularına katkı sun.</p><Link to={manager?'/manager':'/profile'}>{manager?'Katalog yönetimi':'Profilime dön'}</Link></div></div>
+ return <section className="profile-page"><div className="profile-heading"><div><span className="eyebrow">{manager?'MANAGER PANEL':'DOĞRULANMIŞ DENEYİMLER'}</span><h1>{manager?'Admin başvuruları':'Başvurularım'}</h1><p>Üniversite deneyimini doğrula, adayların sorularına katkı sun.</p><Link to={manager?'/manager':'/profile'}>{manager?'Genel bakış':'Profilime dön'}</Link></div></div>
+ {manager&&<ManagementNav/>}
  {manager&&<div className="auth-card"><label htmlFor="application-status">Başvuru durumu</label><select id="application-status" value={status} onChange={e=>{setStatus(e.target.value);setPage(0);setData(null);setError(null)}}><option value="PENDING">İnceleme bekliyor</option><option value="APPROVED">Onaylandı</option><option value="REJECTED">Reddedildi</option><option value="">Tümü</option></select></div>}
  {saved&&<p role="status">Başvurun alındı. Manager incelemesini burada takip edebilirsin.</p>}
  {error?<div className="auth-card"><AuthFormError error={error}/><button className="button" onClick={reload}>Tekrar dene</button></div>:!data?<p role="status">Başvurular yükleniyor…</p>:<><div className="application-list">{data.items.length===0?<p>Henüz başvuru yok.</p>:data.items.map(a=><ApplicationCard key={a.id+'-'+a.version+'-'+a.activeVerification} application={a} manager={manager} reload={reload}/>)}</div>

@@ -18,10 +18,11 @@ export function OwnAdminAnswer({questionId,archived,reload}:{questionId:string;a
  <AuthFormError error={error}/>{error&&<button onClick={reload}>Güncel Admin bilgilerini yükle</button>}
  <div className="answer-actions">{active&&!archived&&!own.assignment.assigned&&<button className="button" disabled={pending} onClick={()=>void action(()=>assign(own.assignment,true))}>Cevaplayacağım</button>}
  {own.assignment.assigned&&<><span>Bu soru cevaplayacakların arasında.</span><button disabled={pending} onClick={()=>void action(()=>assign(own.assignment,false))}>Atamayı iptal et</button></>}</div>
- {a?.deletedAt&&<><p className="answer-body">{a.body}</p><p>Admin cevabını kaldırdın.</p>{active&&!archived&&own.assignment.assigned&&<button className="button" disabled={pending} onClick={()=>void action(()=>setStatus(a,false))}>Admin cevabını geri yükle</button>}</>}
- {a&&!a.deletedAt&&!editing&&<div className="answer-actions">{active&&!archived&&<button className="button" disabled={pending} onClick={()=>setEditing(true)}>Admin cevabımı düzenle</button>}<button disabled={pending} onClick={()=>setConfirm(true)}>Admin cevabımı kaldır</button></div>}
+ {a?.moderatedAt&&<p role="status">Admin cevabın Manager tarafından gizlendi. Düzenleme ve geri yükleme kapalıdır.</p>}
+ {a?.deletedAt&&<><p className="answer-body">{a.body}</p><p>Admin cevabını kaldırdın.</p>{active&&!archived&&!a.moderatedAt&&own.assignment.assigned&&<button className="button" disabled={pending} onClick={()=>void action(()=>setStatus(a,false))}>Admin cevabını geri yükle</button>}</>}
+ {a&&!a.deletedAt&&!editing&&<div className="answer-actions">{active&&!archived&&!a.moderatedAt&&<button className="button" disabled={pending} onClick={()=>setEditing(true)}>Admin cevabımı düzenle</button>}<button disabled={pending} onClick={()=>setConfirm(true)}>Admin cevabımı kaldır</button></div>}
  {confirm&&a&&<div className="archive-confirm"><p>Cevabın görünümden kalkacak. Kullanılmış günlük hakkın geri gelmez.</p><button className="button" disabled={pending} onClick={()=>void action(()=>setStatus(a,true))}>Admin cevabını kaldırmayı onayla</button><button disabled={pending} onClick={()=>setConfirm(false)}>Vazgeç</button></div>}
- {active&&!archived&&((editing&&a&&!a.deletedAt)||(!a&&own.assignment.assigned))&&
+ {active&&!archived&&!a?.moderatedAt&&((editing&&a&&!a.deletedAt)||(!a&&own.assignment.assigned))&&
  (a||quota.remaining>0?<AdminAnswerEditor questionId={questionId} initial={a??undefined} onSaved={reload} reload={reload} onCancel={()=>{if(a)setEditing(false);else void action(()=>assign(own.assignment,false))}}/>:<p>Bugünkü beş farklı soru hakkını kullandın. Geçmiş cevaplarını düzenleyebilirsin.</p>)}
  </div>
 }
