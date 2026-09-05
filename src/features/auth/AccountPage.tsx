@@ -18,6 +18,7 @@ export function AccountPage() {
       <Link className="button" to="/profile">{auth.user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link>
       {auth.user.role==='MANAGER' && <Link to="/manager">Manager Panel</Link>}
       {auth.user.role==='ADMIN' && <Link to="/admin/tags">Tag yönetimi</Link>}
+      <Link to="/my-questions">Sorularım</Link><Link to="/questions/new">Soru sor</Link>
       <AuthFormError error={error} /><Link className="button" to="/">Ana sayfaya dön</Link>
       <button className="button button-secondary" onClick={() => { setError(null); void auth.logout().catch(reason => setError(formError(reason))) }}>Çıkış yap</button>
     </div></section>

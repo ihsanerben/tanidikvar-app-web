@@ -57,8 +57,20 @@ Merkezi API client credentials, CSRF, güvenli hata/field error/Retry-After ve e
 
 Tarayıcı auth testleri API, web ve Mailpit'in çalışmasını gerektirir. `E2E_MAILPIT_URL` varsayılanı `http://localhost:8025`; `FRONTEND_URL` e-posta bağlantıları için test web origin'iyle eşleşmelidir. Testler rastgele `@example.test` hesapları ve yerel e-postalar oluşturur; fiziksel veri temizliği yapmaz. Rate limit nedeniyle kısa sürede çok sayıda test tekrarı `429` üretebilir; `Retry-After` süresini bekle.
 
-Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru/cevap ve kalan panel işlevleri sonraki teslimlerdir. Avatar şu an baş harflerden oluşur; fotoğraf dosyası desteği 9. adımda eklenir.
+Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; cevaplar ve kalan panel işlevleri sonraki teslimlerdir. Avatar şu an baş harflerden oluşur; fotoğraf dosyası desteği 9. adımda eklenir.
 
 Profil/katalog mutasyonları merkezi CSRF ve en fazla bir 401 retry kullanır. Network hatasında yazma tekrar edilmez. Kayıt version'ı stale ise form korunur ve yeniden yükleme önerilir. Üniversite/bölüm seçimleri arama ve sayfalama destekler; yalnız ilk sayfanın kayıtlarıyla sınırlı seçim yoktur.
 
 Profil/katalog tarayıcı testleri Docker CLI ve yerel PostgreSQL'e erişim gerektirir. Test, kendisinin oluşturduğu `browser-profile-...@example.test` hesabını DB üzerinden Manager yapar; gerçek kullanıcıların yetkilerini değiştirmez. Varsayılan container `tanidikvar-postgres-1`, DB kullanıcı/adı `tanidikvar`; özelleştirmeler için `E2E_POSTGRES_CONTAINER`, `E2E_DB_USER`, `E2E_DB_NAME` kullanılabilir. Test katalog kayıtları “Test” adıyla oluşturulur ve fiziksel temizleme yapılmaz.
+
+## Soru ekranları
+
+- `/questions`: public, en yeni sorular; kapsam/üniversite/bölüm/tag filtreleri ve sayfalama. Filtreler URL’de taşınır.
+- `/questions/new`: giriş/profil ön koşulu, üç kapsam, isteğe bağlı açıklama ve en fazla 5 tag.
+- `/questions/:id`: düz metin detay, yayın/düzenleme tarihi; yalnız soru sahibine düzenleme/arşivleme düğmeleri.
+- `/questions/:id/edit`: sürüm kontrollü form; 409’da yazılanlar korunur ve açık yeniden yükleme sunulur.
+- `/my-questions`: oturum sahibinin aktif ve arşivlenmiş soruları.
+
+Arşivlemeden önce sonucu açıklayan onay gösterilir; arşiv soru bağlantıdan okunur ve düzenlenemez. Yeni gönderim anahtarı form ömrünce korunur; belirsiz ağ hatasından sonra aynı içerikle tekrar deneme ikinci soru oluşturmaz. Değiştirilmiş içerikle aynı anahtar çakışırsa Sorularım’dan önceki kayıt kontrol edilir. Yeni form aynı başlıkla ayrı soru açabilir. HTML/rich-text çalıştırılmaz; kullanıcı içeriği React metni olarak gösterilir.
+
+Yeni tarayıcı senaryosu masaüstü/mobilde profil kapısı, üç soru kapsamı, birleşik filtre, düzenleme, iki sekmede eski sürüm çakışması, arşiv ve anonim okuma akışını gerçek Docker API ile doğrular. Sentetik katalog/soru kayıtları yerel test verisidir; fiziksel silinmez.

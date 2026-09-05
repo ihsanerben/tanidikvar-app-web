@@ -1,3 +1,6 @@
+import { QuestionListPage } from '../features/questions/QuestionListPage'
+import { QuestionDetailPage } from '../features/questions/QuestionDetailPage'
+import { QuestionFormPage } from '../features/questions/QuestionFormPage'
 import { Link, Route, Routes } from 'react-router-dom'
 import { HomePage } from '../features/home/HomePage'
 import { CredentialsPage } from '../features/auth/CredentialsPage'
@@ -12,7 +15,7 @@ export function App() {
   const auth = useAuth()
   return <>
     <a className="skip-link" href="#main">İçeriğe geç</a>
-    <header className="site-header"><Link className="brand" to="/" aria-label="TanıdıkVar ana sayfa"><span className="brand-mark" aria-hidden="true">t.</span>tanıdık<span>var</span></Link><span className="header-note">Üniversiteyi, içinden öğren.</span><nav className="auth-nav" aria-label="Hesap">{auth.user ? <Link className="button" to="/account">Hesabım</Link> : <><Link to="/login">Giriş yap</Link><Link className="button" to="/register">Kayıt ol</Link></>}</nav></header>
+    <header className="site-header"><Link className="brand" to="/" aria-label="TanıdıkVar ana sayfa"><span className="brand-mark" aria-hidden="true">t.</span>tanıdık<span>var</span></Link><span className="header-note">Üniversiteyi, içinden öğren.</span><nav className="auth-nav" aria-label="Hesap"><Link to="/questions">Sorular</Link>{auth.user ? <Link className="button" to="/account">Hesabım</Link> : <><Link to="/login">Giriş yap</Link><Link className="button" to="/register">Kayıt ol</Link></>}</nav></header>
     <main id="main"><Routes>
       <Route path="/login" element={<CredentialsPage key="login" mode="login" />} />
       <Route path="/register" element={<CredentialsPage key="register" mode="register" />} />
@@ -20,6 +23,11 @@ export function App() {
       <Route path="/resend-verification" element={<EmailActionPage key="resend" mode="resend" />} />
       <Route path="/forgot-password" element={<EmailActionPage key="forgot" mode="forgot" />} />
       <Route path="/reset-password" element={<EmailActionPage key="reset" mode="reset" />} />
+      <Route path="/questions" element={<QuestionListPage />} />
+      <Route path="/my-questions" element={<QuestionListPage mine />} />
+      <Route path="/questions/new" element={<QuestionFormPage />} />
+      <Route path="/questions/:id/edit" element={<QuestionFormPage edit />} />
+      <Route path="/questions/:id" element={<QuestionDetailPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/manager" element={<CatalogPage />} />
       <Route path="/admin/tags" element={<CatalogPage admin />} />

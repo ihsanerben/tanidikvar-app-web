@@ -1,0 +1,50 @@
+import { expect,test,type APIRequestContext } from '@playwright/test'
+import { randomUUID } from 'node:crypto'
+import { account,promoteTestManager } from './accounts'
+async function create(request:APIRequestContext,path:string,data:unknown){
+  const csrf=await request.get('/api/auth/csrf');const {token}=await csrf.json()
+  const response=await request.post(path,{data,headers:{'X-XSRF-TOKEN':token}})
+  expect(response.status()).toBe(201);return response.json()
+}
+test('questions support all scopes, filtering, editing, stale forms and readable archives',async({page,request,browser},info)=>{
+  const email=await account(page,request)
+  await page.goto('/questions/new');await expect(page.getByRole('heading',{name:'Önce profilini tamamla.'})).toBeVisible()
+  await page.getByRole('link',{name:'Profilini tamamla'}).click()
+  await page.getByLabel('Ad',{exact:true}).fill('Deniz');await page.getByLabel('Soyad',{exact:true}).fill('Yılmaz')
+  await page.getByRole('button',{name:'Profili kaydet'}).click();await expect(page.getByText('Profilin kaydedildi.')).toBeVisible()
+  promoteTestManager(email);await page.reload()
+  const suffix=randomUUID().slice(0,8)
+  const university=await create(page.request,'/api/manager/catalog/UNIVERSITY',{name:`Test Üniversitesi ${suffix}`})
+  const department=await create(page.request,'/api/manager/catalog/DEPARTMENT',{name:`Test Bölümü ${suffix}`})
+  await create(page.request,'/api/manager/university-departments',{universityId:university.id,departmentId:department.id})
+  const tag=await create(page.request,'/api/tags',{name:`Test Kampüs ${suffix}`})
+  for(const scope of ['GENERAL','UNIVERSITY','UNIVERSITY_DEPARTMENT']){
+    await page.goto('/questions/new');await page.getByLabel('Soru başlığı').fill(`${scope} Kampüs hayatı nasıl ${suffix}?`)
+    await page.getByLabel('Açıklama (isteğe bağlı)').fill('Dersler ve sosyal hayat hakkında deneyimlerinizi merak ediyorum.')
+    await page.getByLabel('Soru kapsamı').selectOption(scope)
+    if(scope!=='GENERAL'){
+      await page.getByLabel('Üniversite ara',{exact:true}).fill(suffix);await page.getByLabel('Üniversite',{exact:true}).selectOption({label:university.name})
+      if(scope==='UNIVERSITY_DEPARTMENT')await page.getByLabel('Bölüm',{exact:true}).selectOption({label:department.name})
+    }
+    await page.getByLabel('Tag ekle ara').fill(suffix);await page.getByLabel('Tag ekle',{exact:true}).selectOption({label:tag.name})
+    await page.getByRole('button',{name:'Soruyu yayınla'}).click();await expect(page.getByRole('heading',{level:1})).toHaveText(`${scope} Kampüs hayatı nasıl ${suffix}?`)
+  }
+  const detailUrl=page.url()
+  await page.goto(`/questions?universityId=${university.id}&tagId=${tag.id}`)
+  await expect(page.locator('.question-card')).toHaveCount(2)
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+  await page.screenshot({path:info.outputPath('questions.png'),fullPage:true})
+  await page.goto(detailUrl);await page.getByRole('link',{name:'Soruyu düzenle'}).click()
+  const stale=await page.context().newPage();await stale.goto(page.url());await expect(stale.getByLabel('Soru başlığı')).toBeVisible()
+  await page.getByLabel('Açıklama (isteğe bağlı)').fill('Güncel soru açıklaması <script>alert(1)</script>')
+  await page.getByRole('button',{name:'Değişiklikleri kaydet'}).click();await expect(page.getByText(/Düzenlendi ·/)).toBeVisible()
+  await stale.getByLabel('Soru başlığı').fill(`Eski formdaki soru başlığı ${suffix}`);await stale.getByRole('button',{name:'Değişiklikleri kaydet'}).click()
+  await expect(stale.getByRole('button',{name:'Güncel soruyu yükle'})).toBeVisible();await stale.close()
+  await page.getByRole('button',{name:'Arşivle',exact:true}).click();await page.getByRole('button',{name:'Arşivlemeyi onayla'}).click()
+  await expect(page.getByText(/Bu soru arşivlendi/)).toBeVisible()
+  await page.screenshot({path:info.outputPath('question-detail.png'),fullPage:true})
+  await page.goto(`/questions?universityId=${university.id}&tagId=${tag.id}`);await expect(page.locator('.question-card')).toHaveCount(1)
+  await page.goto('/my-questions');await expect(page.getByRole('link',{name:`UNIVERSITY_DEPARTMENT Kampüs hayatı nasıl ${suffix}?`})).toBeVisible()
+  const anonymous=await browser.newContext();const reader=await anonymous.newPage()
+  try{await reader.goto(detailUrl);await expect(reader.getByText(/Bu soru arşivlendi/)).toBeVisible();await expect(reader.getByRole('link',{name:'Soruyu düzenle'})).toHaveCount(0)}finally{await anonymous.close()}
+})
