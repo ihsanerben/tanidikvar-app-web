@@ -57,7 +57,7 @@ Merkezi API client credentials, CSRF, güvenli hata/field error/Retry-After ve e
 
 Tarayıcı auth testleri API, web ve Mailpit'in çalışmasını gerektirir. `E2E_MAILPIT_URL` varsayılanı `http://localhost:8025`; `FRONTEND_URL` e-posta bağlantıları için test web origin'iyle eşleşmelidir. Testler rastgele `@example.test` hesapları ve yerel e-postalar oluşturur; fiziksel veri temizliği yapmaz. Rate limit nedeniyle kısa sürede çok sayıda test tekrarı `429` üretebilir; `Retry-After` süresini bekle.
 
-Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; topluluk cevapları da uygulanmıştır; doğrulanmış admin cevapları ve kalan panel işlevleri sonraki teslimlerdir. Tamamlanmış profil ekranında fotoğraf yükleme/kaldırma vardır; fotoğrafsız sunumlarda baş harf avatarı kullanılabilir.
+Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; topluluk cevapları da uygulanmıştır; doğrulanmış Admin cevapları ve Admin katkı paneli de uygulanmıştır; kalan Manager/panel işlevleri sonraki teslimlerdir. Tamamlanmış profil ekranında fotoğraf yükleme/kaldırma vardır; fotoğrafsız sunumlarda baş harf avatarı kullanılabilir.
 
 Profil/katalog mutasyonları merkezi CSRF ve en fazla bir 401 retry kullanır. Network hatasında yazma tekrar edilmez. Kayıt version'ı stale ise form korunur ve yeniden yükleme önerilir. Üniversite/bölüm seçimleri arama ve sayfalama destekler; yalnız ilk sayfanın kayıtlarıyla sınırlı seçim yoktur.
 
@@ -106,3 +106,14 @@ npm run test:e2e -- --project=mobile
 ```
 
 İki çalıştırma arasında auth limit penceresinin dolmasını bekle veya yalnız yerel test ortamında API reposundan `docker compose restart api` ve ardından `docker compose --profile app up -d --wait api` çalıştır. Bu, bellek içi auth sayacını sıfırlar; PostgreSQL ve dosya volume verilerini silmez. Uygulamadaki auth sınırları test için düşürülmedi.
+
+
+## Admin cevapları ve profil
+
+`/admin`: kalan günlük hak, cevaplayacakların, kendi Admin cevapların, profil ve soru yönetimi bağlantıları. Üniversite/bölüm bağlantıları mevcut soru filtrelerini açar; keşif ekranında tag seçimi de yapılabilir. Eski Admin kendi geçmişini okuyup soru üzerinden cevabını kaldırabilir.
+
+Soru detayında ayrı **Admin Cevapları** bölümü vardır. “Cevaplayacağım” ile atan, sonra cevabını yayımla. Atama iptali cevabı değiştirmez. Günlük beş farklı soru hakkı yalnız ilk yayında tüketilir. Düzenleme ve geri yükleme yeni hak tüketmez; geri yükleme aktif atama ister. Arşivde yalnız kaldırma yapılabilir. Ret/yeniden doğrulama geçmişi ilk yayın eğitim bilgisini değiştirmez.
+
+`/admins/:id`: fotoğraf, doğrulanmış eğitim, güncel kişisel beyan, görünür cevap sayısı ve soru/cevap geçmişi. Cevaplar ilk yayın doğrulamasını taşır. Yetkisi kaldırılan kişi “Artık Admin değil” olarak gösterilir. Public DTO resmi belge/ret bilgisi içermez.
+
+10. adımda 62 frontend testi, lint/build geçti. Tarayıcı başvuru senaryosu Admin yayını/düzenleme/restore, public profil/panel ve yetki kaldırmadan sonraki yönetimle genişletildi; hesap sayısı artırılmadı. API testleri ayrıca kota ve gerçek eşzamanlılığı doğrular.

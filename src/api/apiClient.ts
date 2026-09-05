@@ -20,6 +20,9 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const messages: Record<string, string> = {
+  ADMIN_REQUIRED: 'Güncel Admin yetkisi ve doğrulaması gerekiyor.',
+  ASSIGNMENT_REQUIRED: 'Önce Cevaplayacağım düğmesiyle bu soruyu seç.',
+  DAILY_LIMIT: 'Bugünkü beş farklı soru hakkını kullandın. Geçmiş cevaplarını düzenleyebilirsin.',
   INVALID_FILE: 'Belge PDF ve en fazla 10 MB; fotoğraf JPEG/PNG ve en fazla 5 MB (16 milyon piksel) olmalı.',
   APPLICATION_INELIGIBLE: 'Başvuru için üniversite öğrencisi veya mezun profilini tamamla.',
   APPLICATION_PENDING: 'Zaten inceleme bekleyen bir başvurun var.',
@@ -75,7 +78,7 @@ async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown,
         firstName: 'Adını yaz (en fazla 80 karakter).', lastName: 'Soyadını yaz (en fazla 80 karakter).', educationStatus: 'Eğitim durumunu seç.',
         universityDepartmentId: 'Durumuna uygun, aktif bir üniversite/bölüm seç.', graduationYear: 'Geçerli bir mezuniyet yılı yaz.',
         biography: 'Biyografi en fazla 1000 karakter olabilir.', occupation: 'Meslek en fazla 120 karakter olabilir.', company: 'Şirket en fazla 120 karakter olabilir.',
-        title: 'Soru başlığı 10–200 karakter olmalı.', body: path.includes('/answers')?'Cevap 10–5000 karakter olmalı.':'Açıklama en fazla 5000 karakter olabilir.', scope: 'Kapsama uygun üniversite ve bölüm seç.', tagIds: 'En fazla 5 farklı tag seç.', universityId: 'Aktif bir üniversite seç.',
+        title: 'Soru başlığı 10–200 karakter olmalı.', body: path.includes('answers')?'Cevap 10–5000 karakter olmalı.':'Açıklama en fazla 5000 karakter olabilir.', scope: 'Kapsama uygun üniversite ve bölüm seç.', tagIds: 'En fazla 5 farklı tag seç.', universityId: 'Aktif bir üniversite seç.',
         name: 'Ad 1–200 karakter olmalı.', version: 'Güncel kaydı yükleyip tekrar dene.',
       }
       for (const [key,message] of Object.entries(fieldMessages)) if(typeof data.fieldErrors[key] === 'string' || typeof data.fieldErrors[`content.${key}`] === 'string') fields[key]=message
