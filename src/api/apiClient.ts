@@ -38,7 +38,7 @@ const messages: Record<string, string> = {
   CATALOG_CONFLICT: 'Bu kayıt zaten var. Pasif kayıtları da kontrol et.',
   INACTIVE_EDUCATION: 'Bu üniversite/bölüm yeni seçimlere kapalı. Aktif bir eşleşme seç.',
   REQUEST_CONFLICT: 'Bu gönderim daha önce kaydedilmiş. Sorularım sayfasından kontrol et.',
-  QUESTION_ARCHIVED: 'Arşivlenmiş soru yeni cevap, düzenleme veya geri yüklemeye kapalı.',
+  QUESTION_ARCHIVED: 'Arşivlenmiş soru yeni cevap, beğeni, düzenleme veya geri yüklemeye kapalı.',
   ANSWER_EXISTS: 'Bu soruya zaten cevap verdin. Mevcut cevabını düzenle.',
   ANSWER_REMOVED: 'Bu sorudaki cevabını kaldırmışsın. Yeni kayıt yerine aynı cevabı geri yükleyebilirsin.',
   INACTIVE_CATALOG: 'Bu kayıt artık yeni seçimlere açık değil.',
@@ -185,4 +185,10 @@ export async function apiMutation(path: string, method: 'POST' | 'PUT', body: un
       throw retryError
     }
   }
+}
+
+// Public events have no account owner: an anonymous bootstrap must not cancel them.
+// Keep cookie/CSRF serialization; never refresh or automatically retry a public write.
+export async function apiPublicPost(path:string,body:unknown):Promise<unknown> {
+  return authLock(()=>mutation(path,body,'POST'))
 }

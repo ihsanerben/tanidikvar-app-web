@@ -5,7 +5,7 @@ import { setUser } from '../auth/authStore'
 import { QuestionFormPage } from './QuestionFormPage'
 import { QuestionDetailPage } from './QuestionDetailPage'
 import { QuestionListPage } from './QuestionListPage'
-const q={id:'question',authorId:'member',authorName:'Ada Yılmaz',title:'Üniversitede kampüs hayatı nasıl?',body:'<script>alert(1)</script>',scope:'GENERAL',universityId:null,universityName:null,universityDepartmentId:null,departmentId:null,departmentName:null,tags:[],createdAt:'2026-09-05T10:00:00Z',editedAt:null,archivedAt:null,version:0}
+const q={id:'question',authorId:'member',authorName:'Ada Yılmaz',title:'Üniversitede kampüs hayatı nasıl?',body:'<script>alert(1)</script>',scope:'GENERAL',universityId:null,universityName:null,universityDepartmentId:null,departmentId:null,departmentName:null,tags:[],createdAt:'2026-09-05T10:00:00Z',editedAt:null,archivedAt:null,version:0,statistics:{viewCount:0,likeCount:0,communityAnswerCount:0,adminAnswerCount:0,totalAnswerCount:0}}
 const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status})
 const empty={items:[],page:0,size:20,totalElements:0}
 beforeEach(()=>setUser({id:'member',email:'test@example.test',role:'YKS_ADAYI',profileCompleted:true}))
@@ -20,6 +20,7 @@ it('keeps form and request identity after unknown network result, then navigates
   let attempts=0
   const fetch=vi.fn(async(url:string,options:RequestInit)=>{
     if(url.endsWith('/csrf'))return json({token:'csrf'})
+    if(url.endsWith('/views'))return new Response(null,{status:204})
     if(options.method==='POST'){if(++attempts===1)throw new TypeError('lost response');return json(q,201)}
     return json(url.endsWith('/api/questions/question')?q:empty)
   });vi.stubGlobal('fetch',fetch);form()
@@ -28,7 +29,7 @@ it('keeps form and request identity after unknown network result, then navigates
   expect(screen.getByLabelText('Soru başlığı')).toHaveValue(q.title)
   fireEvent.click(screen.getByRole('button',{name:'Soruyu yayınla'}))
   await screen.findByRole('heading',{name:q.title})
-  const writes=fetch.mock.calls.filter(([,o])=>o.method==='POST')
+  const writes=fetch.mock.calls.filter(([url,o])=>o.method==='POST'&&!url.endsWith('/views'))
   expect(writes).toHaveLength(2);expect(writes[0][1].body).toEqual(writes[1][1].body)
   expect(writes[0][1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
