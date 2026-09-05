@@ -1,3 +1,4 @@
+import { AdminDirectoryPage } from '../features/discovery/AdminDirectoryPage'
 import { QuestionListPage } from '../features/questions/QuestionListPage'
 import { ApplicationsPage } from '../features/applications/ApplicationsPage'
 import { AdminPanelPage } from '../features/adminAnswers/AdminPanelPage'
@@ -18,7 +19,7 @@ export function App() {
   const auth = useAuth()
   return <>
     <a className="skip-link" href="#main">İçeriğe geç</a>
-    <header className="site-header"><Link className="brand" to="/" aria-label="TanıdıkVar ana sayfa"><span className="brand-mark" aria-hidden="true">t.</span>tanıdık<span>var</span></Link><span className="header-note">Üniversiteyi, içinden öğren.</span><nav className="auth-nav" aria-label="Hesap"><Link to="/questions">Sorular</Link>{auth.user ? <Link className="button" to="/account">Hesabım</Link> : <><Link to="/login">Giriş yap</Link><Link className="button" to="/register">Kayıt ol</Link></>}</nav></header>
+    <header className="site-header"><Link className="brand" to="/" aria-label="TanıdıkVar ana sayfa"><span className="brand-mark" aria-hidden="true">t.</span>tanıdık<span>var</span></Link><span className="header-note">Üniversiteyi, içinden öğren.</span><nav className="auth-nav" aria-label="Hesap"><Link to="/questions">Sorular</Link><Link to="/popular">Popülerler</Link>{auth.user ? <Link className="button" to="/account">Hesabım</Link> : <><Link to="/login">Giriş yap</Link><Link className="button" to="/register">Kayıt ol</Link></>}</nav></header>
     <main id="main"><Routes>
       <Route path="/login" element={<CredentialsPage key="login" mode="login" />} />
       <Route path="/register" element={<CredentialsPage key="register" mode="register" />} />
@@ -27,6 +28,8 @@ export function App() {
       <Route path="/forgot-password" element={<EmailActionPage key="forgot" mode="forgot" />} />
       <Route path="/reset-password" element={<EmailActionPage key="reset" mode="reset" />} />
       <Route path="/questions" element={<QuestionListPage />} />
+      <Route path="/popular" element={<QuestionListPage popular />} />
+      <Route path="/admins" element={<AdminDirectoryPage />} />
       <Route path="/my-questions" element={<QuestionListPage mine />} />
       <Route path="/questions/new" element={<QuestionFormPage />} />
       <Route path="/questions/:id/edit" element={<QuestionFormPage edit />} />

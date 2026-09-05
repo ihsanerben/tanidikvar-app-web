@@ -18,10 +18,11 @@ export async function save(q:string,body:string,a?:AdminAnswer){return adminAnsw
 export async function setStatus(a:AdminAnswer,deleted:boolean){return adminAnswer(await apiMutation(`/api/admin-answers/${a.id}/status`,'PUT',{deleted,version:a.version}))}
 export async function listAnswers(path:string,signal?:AbortSignal){return pageOf(await apiGet(path,signal),adminAnswer)}
 export async function listAssignments(page:number,signal?:AbortSignal){return pageOf(await apiGet(`/api/me/assignments?page=${page}&size=10`,signal),assignment)}
-export async function getAdmin(id:string,signal?:AbortSignal):Promise<AdminProfile>{
- const v=await apiGet(`/api/admins/${encodeURIComponent(id)}`,signal)
+export function adminProfile(v:unknown):AdminProfile{
  if(!isRecord(v)||!['id','name','universityName','departmentName','educationStatus'].every(k=>typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.answerCount)||!['biography','occupation','company','avatarFileId'].every(k=>v[k]===null||typeof v[k]==='string')||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()
  return v as unknown as AdminProfile
 }
+export async function getAdmin(id:string,signal?:AbortSignal):Promise<AdminProfile>{return adminProfile(await apiGet(`/api/admins/${encodeURIComponent(id)}`,signal))}
+export async function listAdmins(query:string,signal?:AbortSignal){return pageOf(await apiGet('/api/admins?'+query,signal),adminProfile)}
 export function avatarUrl(id:string){return (import.meta.env.VITE_API_BASE_URL||'http://localhost:8080').replace(/\/$/,'')+'/api/avatars/'+encodeURIComponent(id)}
 
