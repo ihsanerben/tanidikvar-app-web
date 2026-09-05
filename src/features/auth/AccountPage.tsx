@@ -14,6 +14,10 @@ export function AccountPage() {
   return <section className="auth-page"><div className="auth-intro"><span className="eyebrow">TANIDIKVAR'A HOŞ GELDİN</span>
     <h1>İyi ki geldin.</h1><p>Üniversiteyi, onu yaşayanlardan tanımaya bir adım daha yakınsın.</p></div>
     <div className="auth-card"><h2>Hesabım</h2><dl><dt>E-posta adresi</dt><dd>{auth.user.email}</dd><dt>Hesap durumu</dt><dd>E-posta doğrulandı</dd></dl>
+      <p>{auth.user.profileCompleted?'Profilin tamamlandı.':'Soru sormak ve deneyim paylaşmak için profilini tamamla.'}</p>
+      <Link className="button" to="/profile">{auth.user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link>
+      {auth.user.role==='MANAGER' && <Link to="/manager">Manager Panel</Link>}
+      {auth.user.role==='ADMIN' && <Link to="/admin/tags">Tag yönetimi</Link>}
       <AuthFormError error={error} /><Link className="button" to="/">Ana sayfaya dön</Link>
       <button className="button button-secondary" onClick={() => { setError(null); void auth.logout().catch(reason => setError(formError(reason))) }}>Çıkış yap</button>
     </div></section>

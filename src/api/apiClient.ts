@@ -25,10 +25,15 @@ const messages: Record<string, string> = {
   INVALID_ACTION_TOKEN: 'Bu bağlantının süresi dolmuş veya bağlantı kullanılmış. Yeni bağlantı iste.',
   VALIDATION_FAILED: 'Lütfen form alanlarını kontrol et.',
   RATE_LIMITED: 'Çok fazla deneme yaptın. Biraz bekleyip tekrar dene.',
+  PROFILE_REQUIRED: 'Bu işlem için profilini tamamla.',
+  STALE_VERSION: 'Bu kayıt başka bir ekranda değişmiş. Güncel bilgileri yükleyip tekrar dene.',
+  CATALOG_CONFLICT: 'Bu kayıt zaten var. Pasif kayıtları da kontrol et.',
+  INACTIVE_EDUCATION: 'Bu üniversite/bölüm yeni seçimlere kapalı. Aktif bir eşleşme seç.',
+  NOT_FOUND: 'Kayıt bulunamadı.',
   ACCESS_DENIED: 'Bu işlem tamamlanamadı. Sayfayı yenileyip tekrar dene.',
 }
 
-async function raw(path: string, method: 'GET' | 'POST', body?: unknown, signal?: AbortSignal, csrf?: string): Promise<unknown> {
+async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown, signal?: AbortSignal, csrf?: string): Promise<unknown> {
   let response: Response
   const timeout = AbortSignal.timeout(15_000)
   const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
@@ -53,11 +58,14 @@ async function raw(path: string, method: 'GET' | 'POST', body?: unknown, signal?
     const code = isRecord(data) && typeof data.code === 'string' ? data.code : 'REQUEST_FAILED'
     const fields: Record<string, string> = {}
     if (isRecord(data) && isRecord(data.fieldErrors)) {
-      for (const key of ['email', 'password', 'token']) {
-        if (typeof data.fieldErrors[key] === 'string') fields[key] = key === 'email'
-          ? 'Geçerli bir e-posta adresi yaz.' : key === 'password'
-            ? 'Şifre en az 10 karakter, UTF-8 olarak en fazla 72 bayt olmalı.' : 'Geçerli bir bağlantı kullan.'
+      const fieldMessages: Record<string,string> = {
+        email: 'Geçerli bir e-posta adresi yaz.', password: 'Şifre en az 10 karakter, UTF-8 olarak en fazla 72 bayt olmalı.', token: 'Geçerli bir bağlantı kullan.',
+        firstName: 'Adını yaz (en fazla 80 karakter).', lastName: 'Soyadını yaz (en fazla 80 karakter).', educationStatus: 'Eğitim durumunu seç.',
+        universityDepartmentId: 'Durumuna uygun, aktif bir üniversite/bölüm seç.', graduationYear: 'Geçerli bir mezuniyet yılı yaz.',
+        biography: 'Biyografi en fazla 1000 karakter olabilir.', occupation: 'Meslek en fazla 120 karakter olabilir.', company: 'Şirket en fazla 120 karakter olabilir.',
+        name: 'Ad 1–200 karakter olmalı.', version: 'Güncel kaydı yükleyip tekrar dene.',
       }
+      for (const [key,message] of Object.entries(fieldMessages)) if(typeof data.fieldErrors[key] === 'string') fields[key]=message
     }
     const retry = Number(response.headers.get('Retry-After'))
     throw new ApiError(response.status, code, messages[code] ?? 'İşlem şu anda tamamlanamıyor. Lütfen tekrar dene.',
@@ -67,11 +75,11 @@ async function raw(path: string, method: 'GET' | 'POST', body?: unknown, signal?
   return data
 }
 
-async function mutation(path: string, body?: unknown) {
+async function mutation(path: string, body?: unknown, method: 'POST' | 'PUT' = 'POST') {
   // Fetch on mutation so a cookie changed by another tab never leaves a cached CSRF token behind.
   const csrf = await raw('/api/auth/csrf', 'GET')
   if (!isRecord(csrf) || typeof csrf.token !== 'string') throw new ApiError(0, 'INVALID_RESPONSE', 'İşlem başlatılamadı.')
-  return raw(path, 'POST', body, undefined, csrf.token)
+  return raw(path, method, body, undefined, csrf.token)
 }
 
 let authTail: Promise<unknown> = Promise.resolve()
@@ -140,4 +148,25 @@ export async function authPost(path: string, body?: unknown): Promise<unknown> {
     }
     return result
   })
+}
+
+// Business mutations retry only a rejected 401, never a network error or a successful write.
+export async function apiMutation(path: string, method: 'POST' | 'PUT', body: unknown): Promise<unknown> {
+  const epoch = sessionEpoch
+  const startedRevision = revision
+  const send = () => authLock(async () => {
+    if (epoch !== sessionEpoch) throw new ApiError(401, 'SESSION_CHANGED', 'Oturum değişti. Sayfayı yenile.')
+    return mutation(path, body, method)
+  })
+  try { return await send() } catch(error) {
+    if (!(error instanceof ApiError) || error.status !== 401 || epoch !== sessionEpoch) throw error
+    if (startedRevision === revision) await refresh()
+    if (epoch !== sessionEpoch) throw error
+    try { return await send() } catch (retryError) {
+      if (retryError instanceof ApiError && retryError.status === 401) {
+        invalidateSession(); window.dispatchEvent(new Event('auth:expired'))
+      }
+      throw retryError
+    }
+  }
 }

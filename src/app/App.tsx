@@ -2,6 +2,8 @@ import { Link, Route, Routes } from 'react-router-dom'
 import { HomePage } from '../features/home/HomePage'
 import { CredentialsPage } from '../features/auth/CredentialsPage'
 import { EmailActionPage } from '../features/auth/EmailActionPage'
+import { ProfilePage } from '../features/profile/ProfilePage'
+import { CatalogPage } from '../features/catalog/CatalogPage'
 import { AccountPage } from '../features/auth/AccountPage'
 import { useAuth } from '../features/auth/useAuth'
 import { StatusPage } from '../features/status/StatusPage'
@@ -18,6 +20,9 @@ export function App() {
       <Route path="/resend-verification" element={<EmailActionPage key="resend" mode="resend" />} />
       <Route path="/forgot-password" element={<EmailActionPage key="forgot" mode="forgot" />} />
       <Route path="/reset-password" element={<EmailActionPage key="reset" mode="reset" />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/manager" element={<CatalogPage />} />
+      <Route path="/admin/tags" element={<CatalogPage admin />} />
       <Route path="/account" element={<AccountPage />} /><Route path="/" element={<HomePage />} /><Route path="/durum" element={<StatusPage />} /><Route path="*" element={<section className="status-page"><span className="eyebrow">404</span><h1>Bu sayfayı bulamadık.</h1><Link className="button" to="/">Ana sayfaya dön</Link></section>} /></Routes></main>
     <footer className="site-footer"><Link className="brand footer-brand" to="/">tanıdık<span>var</span></Link><p>Tercihler değişir, deneyimler yol gösterir.</p><Link to="/durum">Sistem durumu ↗</Link></footer>
   </>
