@@ -8,7 +8,7 @@ import { ApplicationReviewPage,UserDetailPage } from './ReviewPages'
 import { QuestionReviewPage } from './QuestionReviewPage'
 import { ActionHistoryPage,ActionDetailPage } from './ActionHistoryPage'
 import { EmailActionPage } from '../auth/EmailActionPage'
-const links=[['/manager','Özet'],['/manager/applications','Başvurular'],['/manager/users','Kullanıcılar'],['/manager/content','Sorular ve Cevaplar'],['/manager/catalog','Üniversiteler ve Bölümler'],['/manager/tags','Tagler'],['/manager/actions','İşlem Geçmişi'],['/manager/account','Hesabım']]
+const links=[['/manager','Özet'],['/manager/applications','Başvurular'],['/manager/users','Kullanıcılar'],['/manager/content','Sorular ve Yorumlar'],['/manager/catalog','Üniversiteler ve Bölümler'],['/manager/tags','Tagler'],['/manager/actions','İşlem Geçmişi'],['/manager/account','Hesabım']]
 export function ManagerShell(){
  const [openedAt,setOpenedAt]=useState<string|null>(null),location=useLocation(),toggle=useRef<HTMLButtonElement>(null)
  const routeKey=location.pathname+location.search,open=openedAt===routeKey

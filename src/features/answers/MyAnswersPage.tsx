@@ -15,8 +15,8 @@ export function MyAnswersPage(){
 }
 function History(){
  const [page,setPage]=useState(0),[revision,setRevision]=useState(0)
- return <section className="questions-page"><div className="questions-heading"><h1>Yorumlarım</h1><Link className="button button-secondary" to="/account">Hesabıma dön</Link></div>
- <Entries key={`${page}:${revision}`} page={page} setPage={setPage} retry={()=>setRevision(r=>r+1)}/></section>
+ return <section className="questions-page"><div className="questions-heading"><h1>Topluluk yorumlarım</h1></div>
+ <Entries key={`${page}:${revision}`} page={page} setPage={setPage} retry={()=>setRevision(r=>r+1)}/><Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link></section>
 }
 function Entries({page,setPage,retry}:{page:number;setPage:(n:number)=>void;retry:()=>void}){
  const [data,setData]=useState<Page<OwnAnswerEntry>|null>(null),[error,setError]=useState<ApiError|null>(null)

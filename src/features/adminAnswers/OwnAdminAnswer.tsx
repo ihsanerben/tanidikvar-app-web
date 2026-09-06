@@ -4,26 +4,25 @@ import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
 import { useAuth } from '../auth/useAuth'
 import type { ApiError } from '../../api/apiClient'
-import { getOwn,getQuota,assign,setStatus,type OwnAdminAnswer as Own,type Quota } from './adminAnswerApi'
+import { getOwn,getQuota,setStatus,type OwnAdminAnswer as Own,type Quota } from './adminAnswerApi'
 import { AdminAnswerEditor } from './AdminAnswerEditor'
-export function OwnAdminAnswer({questionId,archived,reload}:{questionId:string;archived:boolean;reload:()=>void}){
- const auth=useAuth(),[data,setData]=useState<{own:Own;quota:Quota}|null>(null),[error,setError]=useState<ApiError|null>(null),[pending,setPending]=useState(false),[editing,setEditing]=useState(false),[confirm,setConfirm]=useState(false)
- useEffect(()=>{const c=new AbortController();Promise.all([getOwn(questionId,c.signal),getQuota(c.signal)]).then(([own,quota])=>{if(!c.signal.aborted)setData({own,quota})}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[questionId])
- async function action(fn:()=>Promise<unknown>){if(pending)return;setPending(true);setError(null);try{await fn();reload()}catch(e){setError(formError(e))}finally{setPending(false)}}
- if(!data)return error?<div><AuthFormError error={error}/><button onClick={reload}>Admin bilgilerini yeniden yükle</button></div>:<p role="status">Kendi Admin katkın kontrol ediliyor…</p>
- const {own,quota}=data,a=own.answer,active=quota.activeAdmin
- if(!active&&!a&&!own.assignment.assigned)return null
- if(!auth.user?.profileCompleted)return <p>Katkını yönetmek için <Link to="/profile">profilini tamamla</Link>.</p>
- return <div className="own-answer"><h3>Admin katkın</h3>{active?<p role="status">Kalan cevap hakkın: {quota.remaining} / {quota.limit}</p>:<p>Artık Admin değilsin. Eski cevabını kaldırabilirsin.</p>}
- <AuthFormError error={error}/>{error&&<button onClick={reload}>Güncel Admin bilgilerini yükle</button>}
- <div className="answer-actions">{active&&!archived&&!own.assignment.assigned&&<button className="button" disabled={pending} onClick={()=>void action(()=>assign(own.assignment,true))}>Cevaplayacağım</button>}
- {own.assignment.assigned&&<><span>Bu soru cevaplayacakların arasında.</span><button disabled={pending} onClick={()=>void action(()=>assign(own.assignment,false))}>Atamayı iptal et</button></>}</div>
- {a?.moderatedAt&&<p role="status">Admin cevabın Manager tarafından gizlendi. Düzenleme ve geri yükleme kapalıdır.</p>}
- {a?.deletedAt&&<><p className="answer-body">{a.body}</p><p>Admin cevabını kaldırdın.</p>{active&&!archived&&!a.moderatedAt&&own.assignment.assigned&&<button className="button" disabled={pending} onClick={()=>void action(()=>setStatus(a,false))}>Admin cevabını geri yükle</button>}</>}
- {a&&!a.deletedAt&&!editing&&<div className="answer-actions">{active&&!archived&&!a.moderatedAt&&<button className="button" disabled={pending} onClick={()=>setEditing(true)}>Admin cevabımı düzenle</button>}<button disabled={pending} onClick={()=>setConfirm(true)}>Admin cevabımı kaldır</button></div>}
- {confirm&&a&&<div className="archive-confirm"><p>Cevabın görünümden kalkacak. Kullanılmış günlük hakkın geri gelmez.</p><button className="button" disabled={pending} onClick={()=>void action(()=>setStatus(a,true))}>Admin cevabını kaldırmayı onayla</button><button disabled={pending} onClick={()=>setConfirm(false)}>Vazgeç</button></div>}
- {active&&!archived&&!a?.moderatedAt&&((editing&&a&&!a.deletedAt)||(!a&&own.assignment.assigned))&&
- (a||quota.remaining>0?<AdminAnswerEditor questionId={questionId} initial={a??undefined} onSaved={reload} reload={reload} onCancel={()=>{if(a)setEditing(false);else void action(()=>assign(own.assignment,false))}}/>:<p>Bugünkü beş farklı soru hakkını kullandın. Geçmiş cevaplarını düzenleyebilirsin.</p>)}
- </div>
+import { AdminAnswerCard } from './AdminAnswerCard'
+import { ComposerDialog } from '../answers/ComposerDialog'
+export function OwnAdminAnswer({questionId,archived,reload,onLoaded}:{questionId:string;archived:boolean;reload:()=>void;onLoaded?:(id:string|null)=>void}){
+ const auth=useAuth(),[data,setData]=useState<{own:Own;quota:Quota}|null>(null),[error,setError]=useState<ApiError|null>(null),[pending,setPending]=useState(false),[editing,setEditing]=useState(false)
+ useEffect(()=>{const c=new AbortController();Promise.all([getOwn(questionId,c.signal),getQuota(c.signal)]).then(([own,quota])=>{if(!c.signal.aborted){setData({own,quota});onLoaded?.(own.answer?.id??null)}}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[questionId,onLoaded])
+ async function change(deleted:boolean){if(pending||!data?.own.answer)return;setPending(true);try{await setStatus(data.own.answer,deleted);reload()}catch(e){setError(formError(e))}finally{setPending(false)}}
+ if(!data)return error?<><AuthFormError error={error}/><button onClick={reload}>Admin bilgilerini yeniden yükle</button></>:null
+ const a=data.own.answer,active=data.quota.activeAdmin
+ if(!active&&!a)return null
+ if(!auth.user?.profileCompleted)return <Link to="/profile">Profilini tamamla</Link>
+ return <div className="own-answer compact-own-answer">
+ {!a&&active&&!archived&&<div className="answer-compose-action"><button className="answer-add-button" disabled={data.quota.remaining===0} onClick={()=>setEditing(true)} aria-label="Admin yorumu yap"><span aria-hidden="true">+</span> Yorum yap</button></div>}
+ {!a&&active&&data.quota.remaining===0&&<p>Bugünkü beş yorum hakkını kullandın.</p>}
+ {a?.moderatedAt&&<p>Admin yorumun Manager tarafından gizlendi.</p>}{a&&<div className="own-answer-row"><AdminAnswerCard answer={a}/><div className="answer-actions">
+ {!a.deletedAt?<>{active&&!archived&&!a.moderatedAt&&<button className="button button-warning" disabled={pending} onClick={()=>setEditing(true)}>Düzenle</button>}<button className="button button-danger" disabled={pending} onClick={()=>void change(true)}>Sil</button></>:
+ active&&!archived&&!a.moderatedAt&&<button className="button button-success" disabled={pending} onClick={()=>void change(false)}>Geri yükle</button>}
+ </div></div>}
+ {editing&&<ComposerDialog title={a?'Admin yorumunu düzenle':'Admin yorumu'} onClose={()=>setEditing(false)}><p>Kalan yorum hakkın: {data.quota.remaining} / {data.quota.limit}</p><AdminAnswerEditor questionId={questionId} initial={a??undefined} onSaved={reload} reload={reload} onCancel={()=>setEditing(false)}/></ComposerDialog>}
+ <AuthFormError error={error}/></div>
 }
-

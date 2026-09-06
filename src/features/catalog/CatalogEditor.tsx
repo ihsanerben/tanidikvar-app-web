@@ -15,7 +15,7 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
   const [loading,setLoading]=useState(true)
   const [pending,setPending]=useState(false)
   const [revision,setRevision]=useState(0)
-  const [notice,setNotice]=useState('')
+  const [,setNotice]=useState('')
   const [editing,setEditing]=useState<CatalogEntry|null>(null)
   const [editName,setEditName]=useState('')
   const busy=useRef(false)
@@ -44,7 +44,7 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
     {!admin && <label className="checkbox-label"><input type="checkbox" checked={includeDeleted} onChange={e=>{setIncludeDeleted(e.target.checked);setPage(0);setLoading(true)}}/>Pasif kayıtları göster</label>}
   </div>
   <AuthFormError error={error}/>{error && <button type="button" onClick={refresh}>Listeyi yenile</button>}
-  {notice && <p className="success-notice" role="status">{notice}</p>}
+
   {loading?<p role="status">Liste yükleniyor…</p>:result?.items.length===0?<p className="empty-state">Henüz kayıt yok. Yeni bir kayıt ekleyebilirsin.</p>:
     <ul className="catalog-list">{result?.items.map(entry=><li key={entry.id}>
       {editing?.id===entry.id?<form className="inline-form" onSubmit={event=>{event.preventDefault();void mutate(()=>renameEntry(kind,entry,editName,editReason),'Ad güncellendi.')}}>

@@ -6,7 +6,7 @@ import { QuestionListPage } from '../questions/QuestionListPage'
 import { AdminDirectoryPage } from './AdminDirectoryPage'
 const stats={viewCount:15000,likeCount:500,communityAnswerCount:4,adminAnswerCount:8,totalAnswerCount:12}
 const q={id:'question',authorId:'member',authorName:'Ada Yılmaz',title:'Işık kampüs hayatı nasıl?',body:null,scope:'GENERAL',universityId:null,universityName:null,universityDepartmentId:null,departmentId:null,departmentName:null,tags:[],createdAt:'2026-09-05T10:00:00Z',editedAt:null,archivedAt:null,version:0,statistics:stats}
-const admin={id:'admin',name:'Çağrı Işık',activeAdmin:false,universityName:'Işık Üniversitesi',departmentName:'Bilgisayar Mühendisliği',educationStatus:'MEZUN',graduationYear:2025,biography:null,occupation:null,company:null,avatarFileId:null,answerCount:8}
+const admin={id:'admin',name:'Çağrı Işık',activeAdmin:false,universityName:'Işık Üniversitesi',departmentName:'Bilgisayar Mühendisliği',educationStatus:'MEZUN',graduationYear:2025,biography:null,occupation:null,company:null,avatarFileId:null,answerCount:8,communityAnswerCount:3}
 const page=(items:unknown[]=[],number=0,total=items.length)=>({items,page:number,size:20,totalElements:total})
 const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status})
 beforeEach(()=>setUser(null));afterEach(()=>vi.unstubAllGlobals())
@@ -31,7 +31,7 @@ it('loads popular periods and keeps card totals independent of the selected peri
 it('preserves the period when clearing filters and supports empty results',async()=>{
  const fetch=server();fetch.mockImplementation(async()=>json(page()));renderList('/popular?period=MONTHLY&q=deneme&adminId=admin',true)
  await screen.findByRole('heading',{name:'Bu dönemde popüler soru yok.'})
- fireEvent.click(screen.getByText('Soruları filtrele'));fireEvent.click(screen.getByRole('button',{name:'Filtreleri temizle'}))
+ fireEvent.click(screen.getByText('Filtrele'));fireEvent.click(screen.getByRole('button',{name:'Filtreleri temizle'}))
  await waitFor(()=>expect(fetch.mock.calls.some(([url])=>url.endsWith('/api/popular?period=MONTHLY'))).toBe(true))
  expect(screen.getByLabelText('Soru ara')).toHaveValue('');expect(screen.queryByRole('button',{name:'Admin filtresini kaldır'})).not.toBeInTheDocument()
 })
@@ -50,11 +50,11 @@ it('does not display an old response after a newer search succeeds',async()=>{
  renderList();fireEvent.change(screen.getByLabelText('Soru ara'),{target:{value:'new'}});fireEvent.click(screen.getByRole('button',{name:'Ara'}));await screen.findByRole('heading',{name:q.title})
  resolveOld?.(json(page([{...q,title:'Eski arama sonucu'}])));await waitFor(()=>expect(screen.queryByRole('heading',{name:'Eski arama sonucu'})).not.toBeInTheDocument())
 })
-it('searches admin names and links public profiles and answered questions with former status',async()=>{
+it('searches admins and opens their public profile with summary counts',async()=>{
  const fetch=server();render(<MemoryRouter initialEntries={['/admins?page=2']}><AdminDirectoryPage/></MemoryRouter>)
- await screen.findByRole('link',{name:admin.name});expect(screen.getByText('ARTIK ADMIN DEĞİL')).toBeVisible();expect(screen.getByRole('link',{name:'Cevapladığı soruları keşfet'})).toHaveAttribute('href','/questions?adminId=admin')
+ const card=await screen.findByRole('link',{name:'Çağrı Işık profilini aç'});expect(card).toHaveTextContent('8 Admin yorumu');expect(card).toHaveTextContent('3 topluluk yorumu')
  fireEvent.change(screen.getByLabelText('Admin adı ara'),{target:{value:'cagri'}});fireEvent.click(screen.getByRole('button',{name:'Ara'}));await waitFor(()=>expect(fetch.mock.calls.some(([url])=>url.endsWith('/api/admins?q=cagri'))).toBe(true))
- expect(screen.getByRole('link',{name:admin.name})).toHaveAttribute('href','/admins/admin')
+ expect(screen.getByRole('link',{name:'Çağrı Işık profilini aç'})).toHaveAttribute('href','/profiles/admin')
 })
 it('handles admin directory errors and empty states',async()=>{
  let attempts=0;vi.stubGlobal('fetch',vi.fn(async()=>++attempts===1?json({code:'SERVICE_UNAVAILABLE'},503):json(page())))

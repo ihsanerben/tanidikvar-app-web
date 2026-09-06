@@ -21,14 +21,14 @@ function Account({status}:{status:boolean}){
  return <section className="account-page"><h1>{status?'Hesap durumu':'Hesabım'}</h1>
  <div className="auth-card">{status?<><ul className="account-status-list"><li><span>E-posta doğrulama</span><strong className="status-badge">Tamamlandı</strong></li><li><span>Profil tamamlama</span><strong className={`status-badge ${user.profileCompleted?'':'status-pending'}`}>{user.profileCompleted?'Tamamlandı':'Eksik'}</strong></li></ul>
  {!user.profileCompleted&&<Link className="button" to="/profile">Profilini tamamla</Link>}<Link className="button button-secondary" to="/account">Hesabıma dön</Link></>:<>
- {error?<><AuthFormError error={error}/><button className="button" onClick={reload}>Bilgileri yeniden yükle</button></>:!profile?<p role="status">Bilgiler yükleniyor…</p>:<><div className="account-photo"><OwnProfileAvatar name={[profile.firstName,profile.lastName].filter(Boolean).join(' ')}/></div><dl className="account-summary">
- <div><dt>Ad Soyad</dt><dd>{[profile.firstName,profile.lastName].filter(Boolean).join(' ')||'—'}</dd></div><div><dt>E-posta</dt><dd>{user.email}</dd></div><div><dt>Üniversite</dt><dd>{profile.education?.universityName||'—'}</dd></div><div><dt>Bölüm</dt><dd>{profile.education?.departmentName||'—'}</dd></div><div><dt>Rol</dt><dd>{roleLabels[user.role]||user.role}</dd></div></dl><ProfileLinks linkedinUrl={profile.linkedinUrl} portfolioUrl={profile.portfolioUrl}/></>}
+ {error?<><AuthFormError error={error}/><button className="button" onClick={reload}>Bilgileri yeniden yükle</button></>:!profile?<p role="status">Bilgiler yükleniyor…</p>:<><div className="account-profile-overview"><div className="account-photo"><OwnProfileAvatar name={[profile.firstName,profile.lastName].filter(Boolean).join(' ')} isAdmin={user.role==='ADMIN'}/></div><div className="account-contact"><strong>{[profile.firstName,profile.lastName].filter(Boolean).join(' ')||'—'}</strong><span>{user.email}</span></div></div><dl className={`account-summary role-${profile.educationStatus??"USER"}`}>
+ <div><dt>Üniversite</dt><dd>{profile.education?.universityName||'—'}</dd></div><div><dt>Bölüm</dt><dd>{profile.education?.departmentName||'—'}</dd></div><div><dt>Rol</dt><dd>{roleLabels[profile.educationStatus??user.role]||profile.educationStatus||'—'}</dd></div></dl><ProfileLinks linkedinUrl={profile.linkedinUrl} portfolioUrl={profile.portfolioUrl}/></>}
  <nav className="account-actions" aria-label="Hesap işlemleri"><Link className="button button-secondary" to="/profile">{user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link><Link className="button button-secondary" to="/account/status">Hesap durumu</Link>
- <Link className="button button-secondary" to="/my-answers">Yorumlarım</Link>{user.role!=='ADMIN'&&<Link className="button button-secondary" to="/questions/new">Soru sor</Link>}
+ <Link className="button button-secondary" to="/my-answers">Topluluk yorumlarım</Link>
+ <Link className="button button-secondary" to="/my-questions">Sorularım</Link>
  {user.role==='MANAGER'&&<Link className="button button-secondary" to="/manager">Manager Panel</Link>}
- {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin/tags">Tag yönetimi</Link>}
- {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin">Cevaplarım</Link>}
- {user.role!=='ADMIN'&&<Link className="button button-secondary" to={user.role==='MANAGER'?'/manager/applications':'/applications'}>{user.role==='MANAGER'?'Admin başvurularını incele':'Admin başvurularım'}</Link>}</nav>
+ {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin">Admin yorumlarım</Link>}
+ {<Link className="button button-secondary" to={user.role==='MANAGER'?'/manager/applications':'/applications'}>{user.role==='MANAGER'?'Admin başvurularını incele':'Admin başvurularım'}</Link>}</nav>
  <AuthFormError error={failure}/><button className="button button-danger account-logout" onClick={()=>{setFailure(null);void auth.logout().catch(e=>setFailure(formError(e)))}}>Çıkış yap</button></>}
  </div></section>
 }

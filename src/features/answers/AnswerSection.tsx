@@ -4,11 +4,11 @@ import { useAuth } from '../auth/useAuth'
 import { AnswerList } from './AnswerList'
 import { OwnAnswer } from './OwnAnswer'
 export function AnswerSection({questionId,archived,reloadQuestion,onChanged}:{questionId:string;archived:boolean;reloadQuestion:()=>void;onChanged?:()=>void}) {
-  const auth=useAuth(),[revision,setRevision]=useState(0)
-  return <section className="answer-section" aria-labelledby="community-heading"><div className="answer-heading"><h2 id="community-heading">Topluluk cevapları</h2></div>
+  const auth=useAuth(),[revision,setRevision]=useState(0),[ownId,setOwnId]=useState<string|null>(null)
+  return <section className="answer-section" aria-labelledby="community-heading"><div className="answer-heading"><h2 id="community-heading">Topluluk yorumları</h2></div>
     {auth.status==='loading'?<p role="status">Hesabın yükleniyor…</p>:auth.status==='error'?<div><p>Hesap bilgilerin alınamadı.</p><button onClick={auth.reload}>Hesabımı tekrar kontrol et</button></div>:auth.user?
-      <OwnAnswer key={`${questionId}:${auth.user.id}`} questionId={questionId} archived={archived} onChange={()=>{setRevision(r=>r+1);onChanged?.()}} reloadQuestion={reloadQuestion}/>:
+      <OwnAnswer onLoaded={setOwnId} key={`${questionId}:${auth.user.id}`} questionId={questionId} archived={archived} onChange={()=>{setRevision(r=>r+1);onChanged?.()}} reloadQuestion={reloadQuestion}/>:
       !archived && <p className="answer-login">Sen de katkı vermek ister misin? <Link to="/login">Giriş yap</Link> veya <Link to="/register">kayıt ol</Link>.</p>}
-    <AnswerList key={questionId} questionId={questionId} revision={revision}/>
+    <AnswerList excludeId={ownId} key={questionId} questionId={questionId} revision={revision}/>
   </section>
 }

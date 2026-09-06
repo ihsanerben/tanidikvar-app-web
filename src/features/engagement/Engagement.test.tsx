@@ -46,10 +46,10 @@ it('retries an uncertain view with the same opening identity',async()=>{
 })
 it('likes, unlikes and relikes with the returned version and updates totals',async()=>{
  const fetch=server();setUser({id:'member',email:'test@example.test',role:'YKS_ADAYI',profileCompleted:true});render(ui())
- fireEvent.click(await screen.findByRole('button',{name:'Beğen'}));await screen.findByText('1 beğeni')
+ fireEvent.click(await screen.findByRole('button',{name:'Beğen'}));await screen.findByText('1')
  expect(screen.getByRole('button',{name:'Beğeniyi geri al'})).toHaveAttribute('aria-pressed','true')
- fireEvent.click(screen.getByRole('button',{name:'Beğeniyi geri al'}));await screen.findByText('0 beğeni')
- fireEvent.click(screen.getByRole('button',{name:'Beğen'}));await screen.findByText('1 beğeni')
+ fireEvent.click(screen.getByRole('button',{name:'Beğeniyi geri al'}));await screen.findByText('0')
+ fireEvent.click(screen.getByRole('button',{name:'Beğen'}));await screen.findByText('1')
  expect(fetch.mock.calls.filter(([,o])=>o.method==='PUT').map(([,o])=>JSON.parse(String(o.body)))).toEqual([{liked:true,version:0},{liked:false,version:1},{liked:true,version:2}])
 })
 it('requires a profile and discards private like state when the account changes',async()=>{
@@ -62,7 +62,7 @@ it('keeps a stale like state until explicit reload and prevents additional write
  const fetch=server(),normal=fetch.getMockImplementation()!;fetch.mockImplementation(async(url,o)=>o.method==='PUT'?json({code:'STALE_VERSION'},409):normal(url,o))
  setUser({id:'member',email:'test@example.test',role:'YKS_ADAYI',profileCompleted:true});render(ui())
  fireEvent.click(await screen.findByRole('button',{name:'Beğen'}));await screen.findByRole('button',{name:'Beğeni durumunu yenile'})
- expect(screen.getByRole('button',{name:'Beğen'})).toBeDisabled();expect(screen.getByText('0 beğeni')).toBeVisible()
+ expect(screen.getByRole('button',{name:'Beğen'})).toBeDisabled();expect(screen.getByText('0')).toBeVisible()
  fireEvent.click(screen.getByRole('button',{name:'Beğeni durumunu yenile'}));await waitFor(()=>expect(screen.getByRole('button',{name:'Beğen'})).toBeEnabled())
 })
 it('allows removing an existing like on an archived question, then prevents reliking',async()=>{

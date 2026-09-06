@@ -1,3 +1,4 @@
+import { mutationNotice } from '../features/notifications/notifications'
 const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
 
 export class ApiError extends Error {
@@ -21,8 +22,8 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 
 const messages: Record<string, string> = {
   ADMIN_REQUIRED: 'Güncel Admin yetkisi ve doğrulaması gerekiyor.',
-  ASSIGNMENT_REQUIRED: 'Önce Cevaplayacağım düğmesiyle bu soruyu seç.',
-  DAILY_LIMIT: 'Bugünkü beş farklı soru hakkını kullandın. Geçmiş cevaplarını düzenleyebilirsin.',
+  ASSIGNMENT_REQUIRED: 'Bu soru için yorum yapma yetkin yok.',
+  DAILY_LIMIT: 'Bugünkü beş farklı soru hakkını kullandın. Geçmiş yorumlarını düzenleyebilirsin.',
   INVALID_FILE: 'Belge PDF ve en fazla 10 MB; fotoğraf JPEG/PNG ve en fazla 5 MB (16 milyon piksel) olmalı.',
   APPLICATION_INELIGIBLE: 'Başvuru için üniversite öğrencisi veya mezun profilini tamamla.',
   APPLICATION_PENDING: 'Zaten inceleme bekleyen bir başvurun var.',
@@ -38,8 +39,8 @@ const messages: Record<string, string> = {
   CATALOG_CONFLICT: 'Bu kayıt zaten var. Pasif kayıtları da kontrol et.',
   INACTIVE_EDUCATION: 'Bu üniversite/bölüm yeni seçimlere kapalı. Aktif bir eşleşme seç.',
   REQUEST_CONFLICT: 'Bu gönderim daha önce kaydedilmiş. Sorunun detayını kontrol et.',
-  QUESTION_ARCHIVED: 'Arşivlenmiş soru yeni cevap, beğeni, düzenleme veya geri yüklemeye kapalı.',
-  ANSWER_EXISTS: 'Bu soruya zaten cevap verdin. Mevcut cevabını düzenle.',
+  QUESTION_ARCHIVED: 'Arşivlenmiş soru yeni yorum, beğeni, düzenleme veya geri yüklemeye kapalı.',
+  ANSWER_EXISTS: 'Bu soruya zaten yorum yaptın. Mevcut yorumunu düzenle.',
   ANSWER_REMOVED: 'Bu sorudaki cevabını kaldırmışsın. Yeni kayıt yerine aynı cevabı geri yükleyebilirsin.',
   INACTIVE_CATALOG: 'Bu kayıt artık yeni seçimlere açık değil.',
   INVALID_REQUEST: 'Seçimlerini kontrol edip tekrar dene.',
@@ -77,8 +78,9 @@ async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown,
         email: 'Geçerli bir e-posta adresi yaz.', password: 'Şifre en az 10 karakter, UTF-8 olarak en fazla 72 bayt olmalı.', token: 'Geçerli bir bağlantı kullan.',
         firstName: 'Adını yaz (en fazla 80 karakter).', lastName: 'Soyadını yaz (en fazla 80 karakter).', educationStatus: 'Eğitim durumunu seç.',
         universityDepartmentId: 'Durumuna uygun, aktif bir üniversite/bölüm seç.', graduationYear: 'Geçerli bir mezuniyet yılı yaz.',
+        avatarFileId: 'Profilini tamamlamak için profil fotoğrafı ekle.',
         biography: 'Biyografi en fazla 1000 karakter olabilir.', occupation: 'Meslek en fazla 120 karakter olabilir.', company: 'Şirket en fazla 120 karakter olabilir.',
-        title: 'Soru başlığı 10–200 karakter olmalı.', body: path.includes('answers')?'Cevap 10–5000 karakter olmalı.':'Açıklama en fazla 5000 karakter olabilir.', scope: 'Kapsama uygun üniversite ve bölüm seç.', tagIds: 'En fazla 5 farklı tag seç.', universityId: 'Aktif bir üniversite seç.',
+        title: 'Soru başlığı 10–200 karakter olmalı.', body: path.includes('answers')?'Yorum 10–5000 karakter olmalı.':'Açıklama en fazla 5000 karakter olabilir.', scope: 'Kapsama uygun üniversite ve bölüm seç.', tagIds: 'En fazla 5 farklı tag seç.', universityId: 'Aktif bir üniversite seç.',
         name: 'Ad 1–200 karakter olmalı.', version: 'Güncel kaydı yükleyip tekrar dene.',
       }
       for (const [key,message] of Object.entries(fieldMessages)) if(typeof data.fieldErrors[key] === 'string' || typeof data.fieldErrors[`content.${key}`] === 'string') fields[key]=message
@@ -95,7 +97,9 @@ async function mutation(path: string, body?: unknown, method: 'POST' | 'PUT' = '
   // Fetch on mutation so a cookie changed by another tab never leaves a cached CSRF token behind.
   const csrf = await raw('/api/auth/csrf', 'GET')
   if (!isRecord(csrf) || typeof csrf.token !== 'string') throw new ApiError(0, 'INVALID_RESPONSE', 'İşlem başlatılamadı.')
-  return raw(path, method, body, undefined, csrf.token)
+  const result=await raw(path, method, body, undefined, csrf.token)
+  mutationNotice(path,method,body)
+  return result
 }
 
 let authTail: Promise<unknown> = Promise.resolve()

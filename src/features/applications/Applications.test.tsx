@@ -1,4 +1,5 @@
-import { render,screen,fireEvent,waitFor } from '@testing-library/react'
+import { render } from '../../test/render'
+import { screen,fireEvent,waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { setUser } from '../auth/authStore'
@@ -27,7 +28,7 @@ it('submits multipart with CSRF and leaves the browser to set the boundary',asyn
  });vi.stubGlobal('fetch',fetch);page()
  fireEvent.change(await screen.findByLabelText('e-Devlet öğrenci / mezun belgesi'),{target:{files:[new File(['%PDF-1.4\n%%EOF'],'belge.pdf',{type:'application/pdf'})]}})
  fireEvent.submit(screen.getByRole('button',{name:'Başvuruyu gönder'}).closest('form')!)
- await screen.findByText('Başvurun alındı. Manager incelemesini burada takip edebilirsin.')
+ await screen.findByText('İşlem tamamlandı.')
  const call=fetch.mock.calls.find(([,o])=>o.method==='POST')!
  expect(call[1].body).toBeInstanceOf(FormData)
  expect(call[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
@@ -82,8 +83,7 @@ it('shows and removes public avatar through a protected mutation',async()=>{
  const fetch=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):options.method==='POST'?new Response(null,{status:204}):json({fileId:'avatar'}))
  vi.stubGlobal('fetch',fetch);render(<AvatarEditor/>)
  expect(await screen.findByAltText('Profil fotoğrafın')).toHaveAttribute('src',expect.stringContaining('/api/avatars/avatar'))
- fireEvent.click(screen.getByRole('button',{name:'Fotoğrafı kaldır'}));await screen.findByText('Fotoğraf güncellendi.')
+ fireEvent.click(screen.getByRole('button',{name:'Fotoğrafı kaldır'}));await screen.findByText('Kayıt kaldırıldı.')
  expect(screen.queryByAltText('Profil fotoğrafın')).not.toBeInTheDocument()
  expect(fetch.mock.calls.find(([,o])=>o.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
-

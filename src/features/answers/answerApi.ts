@@ -1,11 +1,12 @@
 import { apiGet,apiMutation,ApiError,isRecord } from '../../api/apiClient'
 import { pageOf } from '../catalog/catalogApi'
-export interface Answer { id:string;questionId:string;authorId:string|null;authorName:string;avatarFileId?:string|null;answerKind:'COMMUNITY';body:string;publishedAt:string;editedAt:string|null;deletedAt:string|null;moderatedAt:string|null;version:number }
+export interface Answer { id:string;questionId:string;authorId:string|null;authorName:string;avatarFileId?:string|null;educationStatus?:string|null;answerKind:'COMMUNITY';body:string;publishedAt:string;editedAt:string|null;deletedAt:string|null;moderatedAt:string|null;version:number }
 export function answer(value:unknown):Answer {
-  const invalid=()=>new ApiError(200,'INVALID_RESPONSE','Cevap bilgileri alınamadı.')
+  const invalid=()=>new ApiError(200,'INVALID_RESPONSE','Yorum bilgileri alınamadı.')
   if(!isRecord(value))throw invalid()
   for(const field of ['id','questionId','authorName','body','publishedAt'])if(typeof value[field]!=='string')throw invalid()
   for(const field of ['authorId','editedAt','deletedAt','moderatedAt'])if(value[field]!==null && typeof value[field]!=='string')throw invalid()
+  if(value.educationStatus!==undefined&&value.educationStatus!==null&&typeof value.educationStatus!=='string')throw invalid()
   if(value.avatarFileId!==undefined&&value.avatarFileId!==null&&typeof value.avatarFileId!=='string')throw invalid()
   if(value.answerKind!=='COMMUNITY'||!Number.isSafeInteger(value.version)||Number(value.version)<0)throw invalid()
   return value as unknown as Answer

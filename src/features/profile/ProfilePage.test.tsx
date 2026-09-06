@@ -1,4 +1,5 @@
-import { render,screen,fireEvent,act,within,waitFor } from '@testing-library/react'
+import { render } from '../../test/render'
+import { screen,fireEvent,act,within,waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { ProfilePage } from './ProfilePage'
@@ -55,6 +56,7 @@ it('keeps unsaved profile fields during a background session check',async()=>{
 })
 it('completes a candidate profile without asking for university details',async()=>{
   const fetch=vi.fn(async(url:string,options:RequestInit)=>{
+    if(url.endsWith('/avatar'))return json({fileId:'avatar'})
     if(url.endsWith('/csrf'))return json({token:'csrf'})
     if(options.method==='PUT')return json({...empty,firstName:'Ada',lastName:'Yılmaz',educationStatus:'YKS_ADAYI',completed:true,version:1})
     return json(empty)
@@ -65,13 +67,14 @@ it('completes a candidate profile without asking for university details',async()
   expect(screen.queryByLabelText('Üniversite')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Ad'),{target:{value:'Ada'}});fireEvent.change(screen.getByLabelText('Soyad'),{target:{value:'Yılmaz'}})
   fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
-  await screen.findByText('Profilin kaydedildi.')
+  await screen.findByText('Bilgiler kaydedildi.')
   const call=fetch.mock.calls.find(([,options])=>options.method==='PUT')!
   expect(JSON.parse(call[1].body as string)).toMatchObject({educationStatus:'YKS_ADAYI',universityDepartmentId:null,graduationYear:null,version:0})
   expect(call[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
 it('requires education for students and shows server errors near the field',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
+    if(url.endsWith('/avatar'))return json({fileId:'avatar'})
     if(url.endsWith('/csrf'))return json({token:'csrf'})
     if(options.method==='PUT')return json({code:'VALIDATION_FAILED',fieldErrors:{universityDepartmentId:'required'}},400)
     if(url.includes('/universities'))return json({items:[],page:0,size:20,totalElements:0})
@@ -91,6 +94,7 @@ it('requires education for students and shows server errors near the field',asyn
 })
 it('offers reloading instead of silently overwriting a stale profile',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
+    if(url.endsWith('/avatar'))return json({fileId:'avatar'})
     if(url.endsWith('/csrf'))return json({token:'csrf'})
     if(options.method==='PUT')return json({code:'STALE_VERSION'},409)
     return json({...empty,firstName:'Ada',lastName:'Yılmaz',educationStatus:'YKS_ADAYI',completed:true,version:1})
@@ -105,7 +109,20 @@ it('offers reloading instead of silently overwriting a stale profile',async()=>{
 it('offers photo and social links before first profile save',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>json(url.endsWith('/avatar')?{fileId:null}:empty)))
  render(<MemoryRouter><ProfilePage/></MemoryRouter>)
- expect(await screen.findByLabelText('Fotoğraf seç')).toBeInTheDocument()
+ fireEvent.click(await screen.findByRole('button',{name:'Profil fotoğrafını düzenle'}));expect(await screen.findByLabelText('Fotoğraf seç')).toBeInTheDocument()
  expect(screen.getByLabelText('LinkedIn bağlantısı')).toHaveAttribute('type','url')
  expect(screen.getByLabelText('Portfolyo sitesi')).not.toBeRequired()
+})
+it('stops profile completion and explains the missing required photo',async()=>{
+ const fetch=vi.fn(async(url:string)=>json(url.endsWith('/avatar')?{fileId:null}:empty))
+ vi.stubGlobal('fetch',fetch)
+ render(<MemoryRouter><ProfilePage/></MemoryRouter>)
+ await screen.findByLabelText('Ad')
+ await waitFor(()=>expect(fetch.mock.calls.some(([url])=>String(url).endsWith('/avatar'))).toBe(true))
+ act(()=>window.dispatchEvent(new CustomEvent('avatar:updated',{detail:null})))
+ fireEvent.change(screen.getByLabelText('Ad'),{target:{value:'Ada'}})
+ fireEvent.change(screen.getByLabelText('Soyad'),{target:{value:'Yılmaz'}})
+ fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
+ expect((await screen.findAllByText('Profilini tamamlamak için profil fotoğrafı ekle.')).length).toBeGreaterThan(0)
+ expect(fetch.mock.calls.some(call=>(call as unknown as [string,RequestInit?])[1]?.method==='PUT')).toBe(false)
 })
