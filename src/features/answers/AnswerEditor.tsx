@@ -12,13 +12,13 @@ export function AnswerEditor({questionId,initial,onSaved,onCancel,reload,reloadQ
     catch(e){setError(formError(e));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{busy.current=false;setPending(false)}
   }
-  return <form className="answer-editor" onSubmit={submit} ref={form}><label htmlFor="answer-body">{initial?'Cevabını düzenle':'Cevabın'}</label>
+  return <form className="answer-editor" onSubmit={submit} ref={form}><label htmlFor="answer-body">{initial?'Yorumunu düzenle':'Yorumun'}</label>
 
     <textarea id="answer-body" rows={6} required minLength={10} maxLength={5000} value={body} disabled={pending} onChange={e=>setBody(e.target.value)} aria-invalid={!!error?.fieldErrors.body} aria-describedby={error?.fieldErrors.body?'answer-body-error':undefined}/>
     {error?.fieldErrors.body && <p className="field-error" id="answer-body-error">{error.fieldErrors.body}</p>}
-    <AuthFormError error={error}/>{error && ['STALE_VERSION','ANSWER_EXISTS','ANSWER_REMOVED'].includes(error.code) && <button type="button" onClick={reload}>Güncel cevabımı yükle</button>}
+    <AuthFormError error={error}/>{error && ['STALE_VERSION','ANSWER_EXISTS','ANSWER_REMOVED'].includes(error.code) && <button type="button" onClick={reload}>Güncel yorumumu yükle</button>}
     {error?.code==='QUESTION_ARCHIVED' && <button type="button" onClick={reloadQuestion}>Güncel soruyu yükle</button>}
     {error?.code==='PROFILE_REQUIRED' && <Link to="/profile">Profilini tamamla</Link>}
-    <div className="answer-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Cevap değişikliklerini kaydet':'Cevabı yayınla'}</button>{onCancel && <button type="button" disabled={pending} onClick={onCancel}>Vazgeç</button>}</div>
+    <div className="answer-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Yorum değişikliklerini kaydet':'Yorumu yayınla'}</button>{onCancel && <button type="button" disabled={pending} onClick={onCancel}>Vazgeç</button>}</div>
   </form>
 }

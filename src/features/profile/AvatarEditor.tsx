@@ -5,7 +5,7 @@ import { formError } from '../auth/formError'
 function parse(v:unknown):string|null{if(!isRecord(v)||!(v.fileId===null||typeof v.fileId==='string'))throw new ApiError(200,'INVALID_RESPONSE','Fotoğraf bilgisi alınamadı.');return v.fileId as string|null}
 const base=(import.meta.env.VITE_API_BASE_URL||'http://localhost:8080').replace(/\/$/,'')
 export function AvatarEditor(){
- const [id,setId]=useState<string|null>(null),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState<string|null>(null),[loaded,setLoaded]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null),[revision,setRevision]=useState(0),[saved,setSaved]=useState(false)
+ const [id,setId]=useState<string|null>(null),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState<string|null>(null),[loaded,setLoaded]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null),[revision,setRevision]=useState(0),[,setSaved]=useState(false)
  const busy=useRef(false),input=useRef<HTMLInputElement>(null),previewUrl=useRef<string|null>(null)
  useEffect(()=>{const c=new AbortController();apiGet('/api/me/avatar',c.signal).then(v=>{if(!c.signal.aborted){setId(parse(v));setLoaded(true)}}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[revision])
  useEffect(()=>()=>{if(previewUrl.current)URL.revokeObjectURL(previewUrl.current)},[])
@@ -33,5 +33,5 @@ export function AvatarEditor(){
  {!loaded?error?<button className="button" onClick={()=>{setError(null);setRevision(r=>r+1)}}>Tekrar dene</button>:<p role="status">Fotoğraf yükleniyor…</p>:<form noValidate onSubmit={e=>{e.preventDefault();void save()}}>
  <label htmlFor="avatar-file">Fotoğraf seç</label><input ref={input} id="avatar-file" type="file" accept="image/jpeg,image/png" disabled={pending} onChange={e=>choose(e.target.files?.[0]??null)}/>
  <div className="application-actions"><button type="submit" className="button" disabled={pending} aria-busy={pending}>{pending?'Kaydediliyor…':'Fotoğrafı kaydet'}</button>{id&&<button type="button" className="button button-secondary" disabled={pending} onClick={()=>void save(true)}>Fotoğrafı kaldır</button>}</div></form>}
- {saved&&<p role="status">Fotoğraf güncellendi.</p>}</section>
+ </section>
 }

@@ -17,7 +17,7 @@ function EducationList({university}:{university:Choice}){
   const [page,setPage]=useState(0)
   const [revision,setRevision]=useState(0)
   const [error,setError]=useState<ApiError|null>(null)
-  const [notice,setNotice]=useState('')
+  const [,setNotice]=useState('')
   const [pending,setPending]=useState(false)
   const busy=useRef(false)
   useEffect(()=>{
@@ -36,7 +36,7 @@ function EducationList({university}:{university:Choice}){
   return <div className="catalog-editor"><form onSubmit={submit} className="education-create"><RemotePicker label="Eklenecek bölüm" endpoint="/api/departments" value={department} onChange={setDepartment}/>
     <label>Eşleştirme gerekçesi<input required maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)}/></label><button className="button" disabled={!department || pending||!reason.trim()}>Üniversiteye bölüm ekle</button></form>
     <AuthFormError error={error}/>{error && <button type="button" onClick={()=>{setError(null);setRevision(revision+1)}}>Listeyi yenile</button>}
-    {notice && <p role="status" className="success-notice">{notice}</p>}
+
     {!result?<p role="status">Eşleşmeler yükleniyor…</p>:result.items.length===0?<p className="empty-state">Bu üniversiteye henüz bölüm eklenmemiş.</p>:
       <ul className="catalog-list">{result.items.map(entry=><li key={entry.id}><span className="catalog-name">{entry.departmentName}<small>{entry.deletedAt?'Pasif':entry.available?'Aktif':'Üniversite veya bölüm pasif'}</small></span>
         <button type="button" disabled={pending} onClick={()=>setStatusEntry(entry)}>{entry.deletedAt?'Geri yükle':'Pasife al'}</button></li>)}</ul>}

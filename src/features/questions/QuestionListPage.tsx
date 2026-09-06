@@ -10,6 +10,8 @@ import { useAuth } from '../auth/useAuth'
 import { QuestionGate } from './QuestionGate'
 import { QuestionCard } from './QuestionCard'
 import { listQuestions,scopeLabels,type Question } from './questionApi'
+import { QuestionFormPage } from './QuestionFormPage'
+import { ComposerDialog } from '../answers/ComposerDialog'
 export function QuestionListPage({mine=false,popular=false}:{mine?:boolean;popular?:boolean}) {
   const auth=useAuth()
   return mine?<QuestionGate profile={false}><QuestionList key={auth.user?.id} mine/></QuestionGate>:<QuestionList key={popular?'popular':'public'} popular={popular}/>
@@ -32,6 +34,8 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   const [revision,setRevision]=useState(0)
   const query=params.toString()
   const [loadedQuery,setLoadedQuery]=useState<string|null>(null)
+  const [filtersOpen,setFiltersOpen]=useState(false)
+  const [questionComposerOpen,setQuestionComposerOpen]=useState(false)
   const waiting=loading||loadedQuery!==query
   useEffect(()=>{
     const controller=new AbortController()
@@ -41,20 +45,22 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   },[mine,popular,query,revision,auth.user?.id])
   function filter(key:string,value:string|null){const next=new URLSearchParams(params);next.delete('page');if(value)next.set(key,value);else next.delete(key);setError(null);setLoading(true);setParams(next)}
   function page(value:number){const next=new URLSearchParams(params);next.set('page',String(value));setError(null);setLoading(true);setParams(next)}
-  return <section className="questions-page"><div className="questions-heading"><div><h1>{mine?'Sorularım':popular?'Popülerler':'Sorular'}</h1></div>{auth.user?.role!=='ADMIN'&&<Link className="button" to="/questions/new">Soru sor</Link>}</div>
+  return <section className="questions-page"><div className="questions-heading"><div><h1>{mine?'Sorularım':popular?'Popülerler':'Sorular'}</h1></div>{auth.user?.role!=='ADMIN'&&auth.user?.role!=='MANAGER'&&<button className="button" type="button" onClick={()=>setQuestionComposerOpen(true)}>Soru sor</button>}</div>
+    {questionComposerOpen&&<ComposerDialog title="Soru sor" onClose={()=>setQuestionComposerOpen(false)}><QuestionFormPage/></ComposerDialog>}
 
-    {!mine&&<SearchForm value={params.get('q')??''} onSearch={value=>filter('q',value)}/>}
+    {!mine&&<SearchForm value={params.get('q')??''} onSearch={value=>filter('q',value)} filterButton={<button type="button" className="button button-secondary filter-toggle" onClick={()=>setFiltersOpen(v=>!v)}>Filtrele</button>}/>}
     {popular&&<div className="popular-period"><label htmlFor="popular-period">Zaman aralığı</label><select id="popular-period" value={params.get('period')??'WEEKLY'} onChange={e=>filter('period',e.target.value)}><option value="DAILY">Günlük · Son 24 saat</option><option value="WEEKLY">Haftalık · Son 7 gün</option><option value="MONTHLY">Aylık · Son 30 gün</option><option value="YEARLY">Yıllık · Son 365 gün</option></select></div>}
-    {!mine&&params.get('adminId')&&<div className="archive-notice"><p>Seçilen Admin’in cevapladığı sorular gösteriliyor.</p><Link to={'/admins/'+encodeURIComponent(params.get('adminId')!)}>Admin profilini aç</Link> <button onClick={()=>filter('adminId',null)}>Admin filtresini kaldır</button></div>}
-    {!mine && <details className="question-filters"><summary>Soruları filtrele</summary><div className="auth-card">
+    {!mine&&params.get('adminId')&&<div className="archive-notice"><p>Seçilen Admin’in yorum yaptığı sorular gösteriliyor.</p><Link to={'/admins/'+encodeURIComponent(params.get('adminId')!)}>Admin profilini aç</Link> <button onClick={()=>filter('adminId',null)}>Admin filtresini kaldır</button></div>}
+    {!mine && filtersOpen && <div className="question-filters"><div className="auth-card">
       <label htmlFor="scope-filter">Soru kapsamı</label><select id="scope-filter" value={params.get('scope')??''} onChange={e=>filter('scope',e.target.value)}><option value="">Tüm kapsamlar</option>{Object.entries(scopeLabels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
       <div className="form-columns"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={v=>{setUniversity(v);setEducation(null);const next=new URLSearchParams(params);next.delete('page');next.delete('universityDepartmentId');if(v)next.set('universityId',v.id);else next.delete('universityId');setError(null);setLoading(true);setParams(next)}}/>
       <RemotePicker key={university?.id??'none'} label="Bölüm" education disabled={!university} endpoint={`/api/universities/${university?.id}/departments`} value={education} onChange={v=>{setEducation(v);filter('universityDepartmentId',v?.id??null)}}/>
       <RemotePicker label="Tag seç" endpoint="/api/tags" value={tag} onChange={v=>{setTag(v);filter('tagId',v?.id??null)}}/></div>
       <RemotePicker label="Bölüm adı (tüm üniversiteler)" endpoint="/api/departments" value={department} onChange={v=>{setDepartment(v);filter('departmentId',v?.id??null)}}/>
-      <button type="button" onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setEducation(null);setTag(null);setLoading(true);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Filtreleri temizle</button>
-    </div></details>}
+      <button className="filter-clear-button" type="button" onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setEducation(null);setTag(null);setLoading(true);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Filtreleri temizle</button>
+    </div></div>}
     {error?<div className="auth-card"><AuthFormError error={error}/><button onClick={()=>{setLoading(true);setRevision(r=>r+1)}}>Tekrar dene</button></div>:waiting?<p role="status">Sorular yükleniyor…</p>:result?.items.length===0?<div className="question-empty"><h2>{popular?'Bu dönemde popüler soru yok.':'Henüz soru yok.'}</h2></div>:<div className="question-list">{result?.items.map(q=><QuestionCard key={q.id} question={q}/>)}</div>}
     {result && !error && <div className="pagination"><button disabled={waiting||result.page===0} onClick={()=>page(result.page-1)}>Önceki sayfa</button><span>{result.totalElements} soru · Sayfa {result.page+1}</span><button disabled={waiting||(result.page+1)*result.size>=result.totalElements} onClick={()=>page(result.page+1)}>Sonraki sayfa</button></div>}
+    {mine&&<Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link>}
   </section>
 }

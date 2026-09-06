@@ -4,7 +4,7 @@ export interface AdminAnswer {id:string;questionId:string;questionTitle:string;a
 export interface Assignment {questionId:string;questionTitle:string;assigned:boolean;version:number;assignedAt:string|null;archivedAt:string|null}
 export interface Quota {activeAdmin:boolean;day:string;used:number;limit:number;remaining:number;resetsAt:string}
 export interface OwnAdminAnswer {answer:AdminAnswer|null;assignment:Assignment}
-export interface AdminProfile {linkedinUrl?:string|null;portfolioUrl?:string|null;id:string;name:string;activeAdmin:boolean;universityName:string;departmentName:string;educationStatus:string;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;avatarFileId:string|null;answerCount:number}
+export interface AdminProfile {linkedinUrl?:string|null;portfolioUrl?:string|null;id:string;name:string;activeAdmin:boolean;universityName:string;departmentName:string;educationStatus:string;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;avatarFileId:string|null;answerCount:number;communityAnswerCount:number}
 const invalid=()=>new ApiError(200,'INVALID_RESPONSE','Admin bilgileri alınamadı.')
 export function adminAnswer(v:unknown):AdminAnswer {
  if(!isRecord(v)||!['id','questionId','questionTitle','authorName','body','publishedAt'].every(k=>typeof v[k]==='string')||!['authorId','universityName','departmentName','educationStatus','avatarFileId','occupation','company','editedAt','deletedAt','moderatedAt'].every(k=>v[k]===null||typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.version)||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()
@@ -19,10 +19,9 @@ export async function setStatus(a:AdminAnswer,deleted:boolean){return adminAnswe
 export async function listAnswers(path:string,signal?:AbortSignal){return pageOf(await apiGet(path,signal),adminAnswer)}
 export async function listAssignments(page:number,signal?:AbortSignal){return pageOf(await apiGet(`/api/me/assignments?page=${page}&size=10`,signal),assignment)}
 export function adminProfile(v:unknown):AdminProfile{
- if(!isRecord(v)||!['id','name','universityName','departmentName','educationStatus'].every(k=>typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.answerCount)||!['biography','occupation','company','avatarFileId'].every(k=>v[k]===null||typeof v[k]==='string')||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()
+ if(!isRecord(v)||!['id','name','educationStatus'].every(k=>typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.answerCount)||!Number.isSafeInteger(v.communityAnswerCount)||!['universityName','departmentName','biography','occupation','company','avatarFileId'].every(k=>v[k]===null||typeof v[k]==='string')||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()
  return v as unknown as AdminProfile
 }
 export async function getAdmin(id:string,signal?:AbortSignal):Promise<AdminProfile>{return adminProfile(await apiGet(`/api/admins/${encodeURIComponent(id)}`,signal))}
 export async function listAdmins(query:string,signal?:AbortSignal){return pageOf(await apiGet('/api/admins?'+query,signal),adminProfile)}
 export function avatarUrl(id:string){return (import.meta.env.VITE_API_BASE_URL||'http://localhost:8080').replace(/\/$/,'')+'/api/avatars/'+encodeURIComponent(id)}
-

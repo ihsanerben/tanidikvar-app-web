@@ -9,7 +9,7 @@ afterEach(()=>vi.unstubAllGlobals())
 it('shows a concise account summary and links to a separate status page',async()=>{
  render(<MemoryRouter initialEntries={['/account']}><Routes><Route path="/account" element={<AccountPage/>}/><Route path="/account/status" element={<AccountPage status/>}/></Routes></MemoryRouter>)
  expect(await screen.findByText('Deniz Yılmaz')).toBeVisible();expect(screen.getByText('Dokuz Eylül Üniversitesi')).toBeVisible();expect(screen.getByText('Bilgisayar Mühendisliği')).toBeVisible()
- expect(screen.getByRole('link',{name:'Soru sor'})).toHaveClass('button')
+ expect(screen.queryByRole('link',{name:'Soru sor'})).not.toBeInTheDocument()
  fireEvent.click(screen.getByRole('link',{name:'Hesap durumu'}));expect(await screen.findByRole('heading',{name:'Hesap durumu'})).toBeVisible();expect(screen.getAllByText('Tamamlandı')).toHaveLength(2)
 })
 it('marks an incomplete profile as missing',()=>{
@@ -20,7 +20,8 @@ it('marks an incomplete profile as missing',()=>{
 it('admin account offers answers and comments without questions or applications',async()=>{
  setUser({id:'user',email:'test@example.test',role:'ADMIN',profileCompleted:true})
  render(<MemoryRouter><AccountPage/></MemoryRouter>);await screen.findByText('Deniz Yılmaz')
- expect(screen.getByRole('link',{name:'Cevaplarım'})).toHaveAttribute('href','/admin')
- expect(screen.getByRole('link',{name:'Yorumlarım'})).toBeVisible()
- for(const name of ['Sorularım','Soru sor','Admin başvurularım'])expect(screen.queryByRole('link',{name})).not.toBeInTheDocument()
+ expect(screen.getByRole('link',{name:'Admin yorumlarım'})).toHaveAttribute('href','/admin')
+ expect(screen.getByRole('link',{name:'Topluluk yorumlarım'})).toBeVisible()
+ expect(screen.queryByRole('link',{name:'Soru sor'})).not.toBeInTheDocument()
+ expect(screen.getByRole('link',{name:'Admin başvurularım'})).toHaveAttribute('href','/applications')
 })

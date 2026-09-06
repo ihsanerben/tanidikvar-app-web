@@ -14,6 +14,7 @@ import { HomePage } from '../features/home/HomePage'
 import { CredentialsPage } from '../features/auth/CredentialsPage'
 import { EmailActionPage } from '../features/auth/EmailActionPage'
 import { ProfilePage } from '../features/profile/ProfilePage'
+import { PublicProfilePage } from '../features/profile/PublicProfilePage'
 import { CatalogPage } from '../features/catalog/CatalogPage'
 import { AccountPage } from '../features/auth/AccountPage'
 import { useAuth } from '../features/auth/useAuth'
@@ -39,11 +40,12 @@ export function App() {
       <Route path="/popular" element={<QuestionListPage popular />} />
       <Route path="/admins" element={<AdminDirectoryPage />} />
       <Route path="/my-answers" element={<MyAnswersPage />} />
-      <Route path="/my-questions" element={<Navigate to="/questions" replace />} />
+      <Route path="/my-questions" element={<QuestionListPage mine />} />
       <Route path="/questions/new" element={<QuestionFormPage />} />
       <Route path="/questions/:id/edit" element={<QuestionFormPage edit />} />
       <Route path="/questions/:id" element={<QuestionDetailPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/profiles/:id" element={<PublicProfilePage />} />
       <Route path="/applications" element={<ApplicationsPage />} />
       <Route path="/admin" element={<AdminPanelPage />} />
       <Route path="/admins/:id" element={<AdminProfilePage />} />
@@ -52,7 +54,7 @@ export function App() {
       <Route path="/manager/users" element={<ManagerPage view="users" />} />
       <Route path="/manager/content" element={<ManagerPage view="content" />} />
       <Route path="/manager/catalog" element={<CatalogPage />} />
-      <Route path="/admin/tags" element={<CatalogPage admin />} />
+
       <Route path="/account" element={<AccountPage />} /><Route path="/account/status" element={<AccountPage status />} /><Route path="/" element={<Navigate to="/questions" replace />} /><Route path="/about" element={<HomePage />} /><Route path="/durum" element={<StatusPage />} /><Route path="*" element={<section className="status-page"><span className="eyebrow">404</span><h1>Bu sayfayı bulamadık.</h1><Link className="button" to="/">Ana sayfaya dön</Link></section>} /></Routes></main>
     <footer className="site-footer"><Link className="brand footer-brand" to="/">tanıdık<span>var</span></Link><Link to="/about">Hakkımızda</Link><Link to="/durum">Sistem durumu ↗</Link></footer>
   </>
@@ -60,5 +62,6 @@ export function App() {
 
 function HeaderIdentity({userId,role}:{userId:string;role:string}){
  const {profile}=useProfileSummary(userId)
- return <Link className="account-menu-button" to="/account" aria-label="Hesabım"><span className="header-identity"><strong>{[profile?.firstName,profile?.lastName].filter(Boolean).join(' ')||'Üye'}</strong><span>{roleLabels[role]||role}</span></span><span className="account-menu-divider" aria-hidden="true"/><span className="account-menu-label">Hesabım</span></Link>
+ const displayRole=role==='ADMIN'?(profile?.educationStatus??'USER'):role
+ return <Link className={`account-menu-button account-role-${displayRole.toLowerCase()} ${role==='ADMIN'?'is-admin':''}`} to="/account" aria-label="Hesabım">{role==='ADMIN'&&<span className="admin-stars" aria-hidden="true">★<br/>★<br/>★</span>}<span className="header-identity"><strong>{[profile?.firstName,profile?.lastName].filter(Boolean).join(' ')||'Üye'}</strong><span>{roleLabels[displayRole]||displayRole}</span></span><span className="account-menu-divider" aria-hidden="true"/><span className="account-menu-label">Hesabım</span></Link>
 }

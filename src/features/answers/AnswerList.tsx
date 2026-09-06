@@ -6,7 +6,8 @@ import { formError } from '../auth/formError'
 import type { Page } from '../catalog/catalogApi'
 import { questionDate } from '../questions/questionApi'
 import { listAnswers,type Answer } from './answerApi'
-export function AnswerList({questionId,revision}:{questionId:string;revision:number}) {
+import { roleLabels } from '../profile/useProfileSummary'
+export function AnswerList({questionId,revision,excludeId=null}:{questionId:string;revision:number;excludeId?:string|null}) {
   const [page,setPage]=useState(0),[retry,setRetry]=useState(0),[data,setData]=useState<Page<Answer>|null>(null),[error,setError]=useState<ApiError|null>(null),[loaded,setLoaded]=useState('')
   const key=`${page}:${revision}:${retry}`
   useEffect(()=>{
@@ -17,10 +18,10 @@ export function AnswerList({questionId,revision}:{questionId:string;revision:num
     }}).catch(e=>{if(!controller.signal.aborted){setError(formError(e));setLoaded(key)}})
     return ()=>controller.abort()
   },[questionId,page,key])
-  if(loaded!==key)return <p role="status">Cevaplar yükleniyor…</p>
-  if(error)return <div><AuthFormError error={error}/><button onClick={()=>setRetry(r=>r+1)}>Cevapları tekrar yükle</button></div>
-  return <div className="community-list"><p className="answer-total" role="status">{data?.totalElements??0} topluluk cevabı</p>
-    {data?.items.length===0?<p className="answer-empty">Henüz topluluk cevabı yok.</p>:data?.items.map(a=><article className="answer-card" key={a.id}><div className="answer-author"><div><h3><ProfileTrigger id={a.authorId} name={a.authorName} avatarFileId={a.avatarFileId}/></h3><div className="question-meta"><time dateTime={a.publishedAt}>{questionDate(a.publishedAt)}</time>{a.editedAt && <span>Cevap düzenlendi · <time dateTime={a.editedAt}>{questionDate(a.editedAt)}</time></span>}</div></div></div><p className="answer-body">{a.body}</p></article>)}
-    {data && data.totalElements>data.size && <div className="pagination"><button disabled={page===0} onClick={()=>setPage(p=>p-1)}>Önceki cevaplar</button><span>Sayfa {page+1} / {Math.ceil(data.totalElements/data.size)}</span><button disabled={(page+1)*data.size>=data.totalElements} onClick={()=>setPage(p=>p+1)}>Sonraki cevaplar</button></div>}
+  if(loaded!==key)return <p role="status">Yorumlar yükleniyor…</p>
+  if(error)return <div><AuthFormError error={error}/><button onClick={()=>setRetry(r=>r+1)}>Yorumları tekrar yükle</button></div>
+  return <div className="community-list"><p className="answer-total" role="status">{data?.totalElements??0} topluluk yorumu</p>
+    {data?.items.length===0?<p className="answer-empty">Henüz topluluk yorumu yok.</p>:data?.items.filter(a=>a.id!==excludeId).map(a=><article className="answer-card" key={a.id}><div className="answer-author"><div><h3><ProfileTrigger id={a.authorId} name={a.authorName} avatarFileId={a.avatarFileId}/></h3>{a.educationStatus&&<p className="author-role">{roleLabels[a.educationStatus]??a.educationStatus}</p>}<div className="question-meta"><time dateTime={a.publishedAt}>{questionDate(a.publishedAt)}</time>{a.editedAt && <span>Yorum düzenlendi · <time dateTime={a.editedAt}>{questionDate(a.editedAt)}</time></span>}</div></div></div><p className="answer-body">{a.body}</p></article>)}
+    {data && data.totalElements>data.size && <div className="pagination"><button disabled={page===0} onClick={()=>setPage(p=>p-1)}>Önceki yorumlar</button><span>Sayfa {page+1} / {Math.ceil(data.totalElements/data.size)}</span><button disabled={(page+1)*data.size>=data.totalElements} onClick={()=>setPage(p=>p+1)}>Sonraki yorumlar</button></div>}
   </div>
 }

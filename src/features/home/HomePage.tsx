@@ -22,8 +22,8 @@ export function HomePage() {
       <div className="section-heading"><span className="eyebrow">TANIDIKVAR NEDİR?</span><h2>Broşürlerin ötesinde,<br />kampüsün içinden.</h2><p>Tercih döneminde aradığın deneyimleri tek bir yerde buluşturuyoruz.</p></div>
       <div className="feature-grid">
         <article><span className="feature-number">01 / KEŞFET</span><h3>Merak ettiğin yeri bul.</h3><p>Üniversite, bölüm ve konular üzerinden sana yakın sorulara ulaş.</p><span className="feature-symbol" aria-hidden="true">↗</span></article>
-        <article><span className="feature-number">02 / DİNLE</span><h3>Yaşayanlardan öğren.</h3><p>Doğrulanmış öğrencilerin ve mezunların cevaplarıyla farklı bakış açılarını keşfet.</p><span className="feature-symbol" aria-hidden="true">≋</span></article>
-        <article><span className="feature-number">03 / SOR</span><h3>Sorun cevapsız kalmasın.</h3><p>Kampüs hayatından derslere, hazırlıktan iş hayatına kadar merak ettiklerini paylaş.</p><span className="feature-symbol" aria-hidden="true">?</span></article>
+        <article><span className="feature-number">02 / DİNLE</span><h3>Yaşayanlardan öğren.</h3><p>Öğrencilerin ve mezunların yorumlarıyla farklı bakış açılarını keşfet.</p><span className="feature-symbol" aria-hidden="true">≋</span></article>
+        <article><span className="feature-number">03 / SOR</span><h3>Merak ettiklerini sor.</h3><p>Kampüs hayatından derslere, hazırlıktan iş hayatına kadar merak ettiklerini paylaş.</p><span className="feature-symbol" aria-hidden="true">?</span></article>
       </div>
     </section>
     <section className="closing"><span className="eyebrow">BİRLİKTE DAHA KOLAY</span><h2>Birinin deneyimi,<br />senin başlangıcın olabilir.</h2><p>Soru sormanın ve deneyim paylaşmanın buluşma noktası.</p></section>
