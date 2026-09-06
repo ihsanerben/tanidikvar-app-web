@@ -11,6 +11,7 @@ import { QuestionLoader } from './QuestionLoader'
 import { createQuestion,updateQuestion,scopeLabels,type Scope,type Question } from './questionApi'
 export function QuestionFormPage({edit=false}:{edit?:boolean}) {
   const {id=''}=useParams(),auth=useAuth()
+  if(!edit&&auth.user?.role==='ADMIN')return <section className="status-page"><h1>Adminler sorulara cevap verebilir.</h1><Link className="button" to="/questions">Soruları keşfet</Link></section>
   return <QuestionGate>{edit?<QuestionLoader key={id} id={id}>{(q,reload)=>q.authorId!==auth.user?.id?<section className="status-page"><h1>Bu soruyu düzenleyemezsin.</h1></section>:q.archivedAt?<section className="status-page"><h1>Bu soru arşivlenmiş.</h1><Link to={`/questions/${id}`}>Soruyu oku</Link></section>:<QuestionForm key={`${q.id}-${q.version}`} initial={q} reload={reload}/>}</QuestionLoader>:<QuestionForm key={auth.user?.id}/>}</QuestionGate>
 }
 function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
@@ -32,15 +33,15 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
     catch(e){setError(formError(e));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{busy.current=false;setPending(false)}
   }
-  return <section className="question-form-page"><span className="eyebrow">MERAKINI PAYLAŞ</span><h1>{initial?'Sorunu düzenle.':'Aklında ne var?'}</h1><p>Sorunu açıkça anlat; benzer bir soru olsa da kendi sorunu paylaşabilirsin.</p>
+  return <section className="question-form-page"><h1>{initial?'Sorunu düzenle.':'Aklında ne var?'}</h1>
     <form className="auth-card" onSubmit={submit} ref={form}><fieldset disabled={pending}><legend>Soru bilgileri</legend>
       <label htmlFor="question-title">Soru başlığı</label><input id="question-title" required minLength={10} maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} aria-invalid={!!field('title')} aria-describedby={field('title')?'question-title-error':undefined}/>{message('title')}
       <label htmlFor="question-body">Açıklama (isteğe bağlı)</label><textarea id="question-body" rows={6} maxLength={5000} value={body} onChange={e=>setBody(e.target.value)} aria-invalid={!!field('body')} aria-describedby={field('body')?'question-body-error':undefined}/>{message('body')}
       <label htmlFor="question-scope">Soru kapsamı</label><select id="question-scope" value={scope} onChange={e=>setScope(e.target.value as Scope)} aria-invalid={!!field('scope')} aria-describedby={field('scope')?'question-scope-error':undefined}>{Object.entries(scopeLabels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>{message('scope')}
       {scope!=='GENERAL' && <div className="form-columns"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={v=>{setUniversity(v);setEducation(null)}} error={field('universityId')}/>
       {scope==='UNIVERSITY_DEPARTMENT' && <RemotePicker key={university?.id??'none'} label="Bölüm" education endpoint={`/api/universities/${university?.id}/departments`} disabled={!university} value={education} onChange={setEducation} error={field('universityDepartmentId')}/>}</div>}
-      <p className="field-help">Konuyu daraltmak için en fazla 5 tag seçebilirsin.</p>
-      {tags.length<5 && <RemotePicker label="Tag ekle" endpoint="/api/tags" value={null} onChange={v=>{if(v&&!tags.some(t=>t.id===v.id))setTags([...tags,v])}} error={field('tagIds')}/>}
+
+      {tags.length<5 && <RemotePicker label="Tag seç" endpoint="/api/tags" value={null} onChange={v=>{if(v&&!tags.some(t=>t.id===v.id))setTags([...tags,v])}} error={field('tagIds')}/>}
       <ul className="selected-tags">{tags.map(t=><li key={t.id}><span>{t.label}</span><button type="button" aria-label={`${t.label} tagini kaldır`} onClick={()=>setTags(tags.filter(tag=>tag.id!==t.id))}>×</button></li>)}</ul>{message('tagIds')}
     </fieldset><AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button type="button" onClick={reload}>Güncel soruyu yükle</button>}
       <button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Değişiklikleri kaydet':'Soruyu yayınla'}</button><Link to={initial?`/questions/${initial.id}`:'/questions'}>Vazgeç</Link>

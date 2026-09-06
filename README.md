@@ -163,3 +163,39 @@ Geliştirme komutu `npm run dev` olarak kalır. `./run.sh --help` alternatif lau
 Docker kullanırken başlatma/durum/durdurma API reposundan sırasıyla `./run.sh --docker`, `./run.sh --status`, `./run.sh --stop` komutlarıyla yapılır. Web `http://localhost:5173`, yerel e-postalar `http://localhost:8025` adresindedir. Kod güncellemesinden sonra Docker başlangıcını yeniden çalıştır. Ayrı `npm run dev` sürecini Ctrl+C ile durdur.
 
 Bu dönem yerel kullanım içindir; yayın veya deployment değişikliği yapılmadı. Otomatik e2e paketi sentetik kayıtlar üretir; günlük kullanımdan önce her seferinde çalıştırılması gerekmez.
+
+## Basit profil seçimleri
+
+Profilde üniversite/bölüm arama alanları ve önceki/sonraki kontrolleri kaldırıldı. Seçim kutuları ilk 10 aktif kaydı alır; bölümler seçilen üniversiteye bağlıdır. Ayrı manuel seed başlangıç kataloğu 10 üniversite ve toplam 10 bölüm içerir; üniversiteye göre bölüm sayısı daha az olabilir. Liste dışındaki mevcut eğitim kaydı korunur. Diğer sayfalarda da üniversite/bölüm/tag arama kutuları kaldırıldı; mevcut katalog sayfaları liste seçeneklerini tamamlamak için arka planda okunur. Manager katalog yönetimi ayrı kalır.
+
+Tarayıcı testlerinin öğrenci/mezun profilleri başlangıç kataloğunu kullanır. İki cihaz grubunu aynı anda çalıştırmak kayıt deneme limitini doldurabilir; gruplar ayrı çalıştırılmalı, yerel API yeniden başlatılarak geçici limit temizlenebilir. Günlük veritabanına test kaydı yazmamak için E2E_BASE_URL/E2E_MAILPIT_URL/E2E_POSTGRES_CONTAINER/E2E_DB_USER/E2E_DB_NAME ile ayrı Compose test ortamı kullanılır.
+
+## Hesap, gezinme ve kullanım rehberi
+
+`/` doğrudan `/questions` sayfasına yönlenir; tanıtım ve kullanım açıklamaları `/about` sayfasındadır. Ana menüde Sorular, Popülerler, Adminler, yanında ad-soyad/ortalanmış rol ve Hesabım yazısını birleştiren tek hesap butonu yer alır. Sorularım ve Yorumlarım Hesabım içindedir. `/account` kısa profil özetini, `/account/status` e-posta/profil durumunu gösterir. Giriş doğrulanmış e-posta gerektirdiği için oturum açıkken e-posta durumu tamamlanmıştır. Profil kaydı header bilgisini de yeniler.
+
+Avatar seçimi önizleme, dosya türü/boyutu kontrolü, çift gönderim koruması ve hatadan sonra yeniden deneme sunar. Dosya seçilmemiş durum bekleme imleciyle gösterilmez; kaydet tıklamasında açık hata verilir. Seçilen dosya tarayıcı odağı değişince korunur; nesne URL’leri temizlenir.
+
+`src/features/home/guide.json` kullanım özeti ve ayrıntılı rehberin ortak kaynağıdır. `npm run generate:guide`, mevcut Playwright/Chromium ile `public/guides/tanidikvar-kullanim-rehberi.pdf` üretir. PDF statik olarak sunulur; uygulamada PDF üretme bağımlılığı yoktur. Rehber değiştiğinde PDF yeniden üretilip birlikte teslim edilir. 11 sayfalık PDF Türkçe metin çıkarımı ve görsel sayfa kontrolüyle doğrulandı.
+
+`/my-answers`, kendi topluluk cevaplarını soru başlığı, düzenleme/kaldırma durumu ve soru bağlantısıyla gösterir. Private liste oturum değişiminde temizlenir; loading/error/retry/empty/pagination vardır. Soru kapsam rozetleri Genel=mavi, Üniversite=turuncu, Üniversite+Bölüm=mor; metinler korunur. Hesap aksiyonları aynı nötr stilde, Çıkış yap kırmızı stildedir. 99 frontend testi, build ve lint başarılı.
+
+Profil fotoğrafı profil başlığında, Hesabım, Yorumlarım ve cevap kartlarında gösterilir. Kaydetme/kaldırma sonrası profil başlığı anında güncellenir; yüklenemeyen görsel baş harflere döner. Profildeki Admin başvuruları bağlantısı mor vurguludur.
+
+
+## Ayrı Manager deneyimi
+
+Manager girişinde `/manager` açılır; public menünün yerine `ManagerShell` sabit başlık, sol menü ve mobil açılır menü sunar. Özet, Başvurular, Kullanıcılar, Sorular ve Cevaplar, Üniversiteler ve Bölümler, Tagler, İşlem Geçmişi, Hesabım buradadır. Katkı/atama/başvuru bağlantıları yoktur; backend de işlemleri reddeder.
+
+`/manager/applications/:id` belge ve bilgileri birlikte, önceki başvurularla gösterir. `/manager/users/:id` eğitim/hesap/doğrulama/katkı özeti ve gerekçeli yönetim işlemlerini toplar. `/manager/questions/:id` gizli içerik dahil iki cevap türünü inceler; yalnız görünürlük ve soru kapsam/tagleri değiştirilebilir. Soru incelemesi görüntülenme bildirimi göndermez.
+
+Katalog durum kararından önce bağlı profil/soru sayıları görünür. Ekleme/ad/durum/eşleştirme gerekçeleri backend’e gönderilir. `/manager/actions` filtreli liste, `/manager/actions/:id` aktör/zaman/hedef/gerekçe detayıdır. `/manager/account` ad-soyad, fotoğraf, e-posta ve parola güvenliği içerir; eğitim tamamlama gerektirmez.
+
+Bu sürüm API V12 ve genişletilmiş Manager sözleşmesi gerektirir. Private istekler oturum/rota değişiminde iptal edilir; belge önizleme URL’leri temizlenir. Eski sürüm hataları kullanıcı kararının üzerine otomatik yazmaz.
+
+Güncel Manager teslimi doğrulaması: 123 backend, 109 frontend testi ve 8 masaüstü + 8 mobil senaryo geçti. Son PDF/katalog değişiklikleri iki cihazda yeniden doğrulandı (6/6). Lint/build ve 67 yollu OpenAPI kontrolü başarılı. E2E ayrı Compose test ortamında çalıştı; günlük veritabanına test verisi yazılmadı.
+
+
+## Sosyal profil ve cevaplar
+
+Profil düzenlemede LinkedIn ve Portfolyo bağlantıları isteğe bağlıdır; ilk profil kaydından önce de fotoğraf yüklenebilir. Cevap kartındaki kişi adına tıklayınca public bilgiler ve güvenli dış bağlantılar popup’ta açılır. Soru detayında Admin cevapları varsayılan sekmedir; Topluluk cevapları ikinci sekmede yüklenir. Kalp düğmesi beğeniyi açar/kapatır. Admin hesabında soru oluşturma, Sorularım ve Admin başvurusu bağlantıları yoktur; Cevaplarım günlük Admin cevap kotasını, Yorumlarım topluluk cevaplarını gösterir.

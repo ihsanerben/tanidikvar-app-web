@@ -66,3 +66,18 @@ it('shows an empty list and supports retrying a failed list request',async()=>{
   fireEvent.click(await screen.findByRole('button',{name:'Tekrar dene'}))
   await screen.findByRole('heading',{name:'Henüz soru yok.'})
 })
+
+it('admin cannot open question creation',()=>{
+ setUser({id:'admin',email:'test@example.test',role:'ADMIN',profileCompleted:true});form()
+ expect(screen.queryByLabelText('Soru başlığı')).not.toBeInTheDocument()
+ expect(screen.getByRole('link',{name:'Soruları keşfet'})).toBeVisible()
+})
+it('defaults to admin answers and switches the visible answer type',async()=>{
+ setUser(null);vi.stubGlobal('fetch',vi.fn(async(url:string)=>json(url.endsWith('/api/questions/question')?q:url.endsWith('/statistics')?q.statistics:url.endsWith('/csrf')?{token:'csrf'}:empty)))
+ render(<MemoryRouter initialEntries={['/questions/question']}><Routes><Route path="/questions/:id" element={<QuestionDetailPage/>}/></Routes></MemoryRouter>)
+ expect(await screen.findByRole('tab',{name:'Admin cevapları'})).toHaveAttribute('aria-selected','true')
+ expect(screen.queryByRole('heading',{name:'Topluluk cevapları'})).not.toBeInTheDocument()
+ fireEvent.click(screen.getByRole('tab',{name:'Topluluk cevapları'}))
+ expect(screen.getByRole('heading',{name:'Topluluk cevapları'})).toBeVisible()
+ expect(screen.queryByRole('heading',{name:'Admin Cevapları'})).not.toBeInTheDocument()
+})

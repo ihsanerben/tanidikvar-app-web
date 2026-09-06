@@ -1,0 +1,117 @@
+[
+  {
+    "title": "Başlangıç ve keşif",
+    "summary": "Site Sorular sayfasında açılır. Üniversite, bölüm ve tag seçerek soruları filtrele; Popülerler ve Adminler sayfalarını keşfet.",
+    "details": [
+      "TanıdıkVar, YKS tercih döneminde üniversite öğrencileri ve mezunların deneyimlerini bir araya getiren herkese açık bir soru-cevap platformudur. Paylaşımlar kişisel deneyim ve görüşlerdir; üniversitelerin resmî duyuruları veya bir yerleştirme garantisi değildir.",
+      "İçerikleri okumak için kayıt veya tamamlanmış profil gerekmez. Üst menüde Sorular, Popülerler, Adminler ve Hakkımızda bulunur. Giriş yaptıktan sonra Hesabım üzerinden Sorularım ve Yorumlarım sayfalarına ulaşılır. Manager ayrı yönetim panelini kullanır.",
+      "Soru ara alanı anahtar kelimeyle arama yapar. Üniversite, bölüm ve tagler hazır listelerden seçilir. Üniversite seçildiğinde yalnız o üniversiteyle eşleşen bölümler görünür. Filtreleri temizle düğmesi seçimleri sıfırlar.",
+      "Başlangıç kataloğu 10 tanınan üniversite ve toplam 10 yaygın bölüm içerir. Bu liste resmî popülerlik sıralaması veya Türkiye’deki tüm programların listesi değildir. Üniversiteye göre bölüm sayısı değişir. Katalog Manager tarafından genişletilebilir."
+    ]
+  },
+  {
+    "title": "Kayıt, giriş ve hesap durumu",
+    "summary": "E-posta adresinle kayıt ol, doğrulama bağlantısını aç ve giriş yap. Hesap durumu sayfasından e-posta ve profil durumunu kontrol et.",
+    "details": [
+      "Kayıt sırasında e-posta ve şifre girilir. Şifre en az 10 karakter, UTF-8 olarak en fazla 72 bayt olmalıdır. Doğrulama e-postasındaki bağlantıyı açıp E-postamı doğrula düğmesine basılır. Bağlantı 24 saat geçerlidir.",
+      "E-posta doğrulanmadan giriş yapılamaz. Bu nedenle giriş yapmış bir hesabın Hesap durumu sayfasında e-posta doğrulama Tamamlandı görünür. Profil tamamlama durumu ayrıca gösterilir.",
+      "E-posta ulaşmadıysa gelen kutusu ve spam klasörü kontrol edilir; Doğrulama bağlantısını yeniden iste akışı kullanılabilir. Yerel kurulumda e-postalar Mailpit gelen kutusunda görüntülenir.",
+      "Şifremi unuttum sayfasından sıfırlama bağlantısı istenir. Bağlantıyla yeni şifre belirlenir; başarılı sıfırlama eski oturumları kapatır. E-posta ve şifre sıfırlama bağlantıları tek kullanımlıktır.",
+      "Oturum bilgileri güvenli cookie’lerle yönetilir. İşin bittiğinde Hesabım ekranından Çıkış yap kullanılabilir. Çok sayıda kısa aralıklı deneme geçici bekleme süresine neden olabilir."
+    ]
+  },
+  {
+    "title": "Profil ve fotoğraf",
+    "summary": "Adını, soyadını ve eğitim durumunu tamamla. Öğrenci veya mezunsan üniversite ve bölüm seç; istersen fotoğraf ekle.",
+    "details": [
+      "Yeni kayıt USER durumundadır. Eğitim seçenekleri YKS Adayı, Üniversite Öğrencisi ve Mezun’dur. Ad ve soyad zorunludur. Üniversite öğrencisi için üniversite-bölüm; mezun için bunlara ek olarak mezuniyet yılı gerekir.",
+      "Profil tamamlanmadan soru sorma, cevap verme ve beğenme yapılamaz. Fotoğraf, kısa biyografi, meslek ve şirket isteğe bağlıdır. Hesabım sayfası ad-soyad, e-posta, üniversite, bölüm ve rolü özetler.",
+      "Üniversite değiştirildiğinde bölüm seçimi sıfırlanır. Geçmişte seçilmiş ve sonradan pasife alınmış bir eğitim kaydı korunabilir; yeni seçimler aktif listeden yapılır.",
+      "Fotoğraf seç ile JPEG veya PNG dosyası seçilir; önizleme kontrol edilip Fotoğrafı kaydet düğmesine basılır. Dosya en fazla 5 MB ve 16 milyon piksel olabilir. Başarılı kayıt sonrasında fotoğraf gösterilir; Fotoğrafı kaldır görünürlüğünü kapatır.",
+      "Profil fotoğrafı herkese açıktır. Sunucu görseli yeniden işler ve en uzun kenarı en fazla 512 piksel olacak şekilde saklar. Belgeler profil fotoğrafı olarak yüklenmemelidir.",
+      "Aynı profil başka sekmede değişmişse güncel profil yüklenerek yeniden düzenlenir; eski form yeni bilgilerin üzerine sessizce yazılmaz.",
+      "Manager hesabı eğitim profilinden bağımsızdır; kendi Hesabım ekranında ad-soyad ve fotoğrafını yönetir."
+    ]
+  },
+  {
+    "title": "Soru sorma ve yönetme",
+    "summary": "Soru sor ile başlığı, kapsamı ve tagleri seç. Soruları keşfet; Admin isen soru oluşturamaz, yalnız cevaplayabilirsin.",
+    "details": [
+      "Soru başlığı 10–200 karakterdir. İsteğe bağlı açıklama en fazla 5.000 karakter olabilir. Benzer veya aynı soruların farklı kullanıcılarca sorulması engellenmez.",
+      "Genel kapsam üniversiteye bağlı değildir. Üniversite kapsamı tek üniversiteye, Üniversite + Bölüm kapsamı o üniversitenin bir bölümüne bağlıdır. Örneğin kampüs yaşamı üniversite kapsamında, bölüm dersleri üniversite + bölüm kapsamında sorulabilir.",
+      "Bir soruya en fazla beş farklı tag eklenir. Adminler soru oluşturamaz; her soruda yalnız bir Admin cevabı yayınlayabilir. Tag seç listesinden konu seçilir; seçilmiş tag yanındaki kaldır düğmesiyle çıkarılır. Normal kullanıcı serbest metinle yeni tag oluşturmaz.",
+      "Soruyu yalnız sahibi düzenleyebilir ve arşivleyebilir. Admin olmak başka kullanıcıların sorularını düzenleme veya arşivleme hakkı vermez. Manager gerektiğinde moderasyon amacıyla içeriği gizleyebilir.",
+      "Arşivlenen soru okunmaya devam eder; yeni cevap, beğeni, düzenleme ve geri yükleme gibi etkileşimlere kapalıdır. Arşiv ile moderasyon nedeniyle gizleme farklı işlemlerdir.",
+      "Düzenlemelerde ilk yayın tarihi korunur; değiştirilen içerikte Düzenlendi ve tarih gösterilir. Başka bir sekmenin yaptığı değişiklikle çakışırsa güncel kayıt yüklenir.",
+      "Soru kapsamı renkli rozetle belirtilir: Genel mavi, Üniversite turuncu, Üniversite + Bölüm mor. Renklerin yanında kapsam adı da yazılıdır."
+    ]
+  },
+  {
+    "title": "Cevaplar ve etkileşimler",
+    "summary": "Sorunun altında topluluk cevaplarını ve doğrulanmış Admin cevaplarını ayrı ayrı oku. Kendi cevabını düzenleyebilir, soruyu beğenebilirsin.",
+    "details": [
+      "Topluluk cevapları kullanıcıların kişisel deneyim ve görüşleridir. Tamamlanmış profille soru başına tek topluluk cevabı verilir; cevap 10–5.000 karakterdir. Ayrı alt yorum veya iç içe yanıt zinciri bulunmaz.",
+      "Kendi cevabını düzenleyebilir, kaldırabilir ve uygun koşullarda geri yükleyebilirsin. Kaldırılmış cevap yerine ikinci bir kayıt açılmaz. Manager tarafından gizlenmiş cevap sahibi tarafından düzenlenemez veya geri yüklenemez. Cevap yazarının adına tıklayarak public profil popup’ını ve LinkedIn/portfolyo bağlantılarını görebilirsin.",
+      "Bir soru kullanıcı başına bir kez beğenilebilir; kalp düğmesine tekrar basınca beğeni geri alınır. Soru kartlarında görüntülenme, beğeni, topluluk cevabı ve Admin cevabı sayıları gösterilir.",
+      "Her başarılı soru detayı açılışı görüntülenme olarak sayılır; Manager incelemesi sayacı artırmaz. Aynı kişinin sonraki açılışları da sayılabilir; bu sayı tekil kişi sayısı değildir. Bir açılışın ağ üzerinden yinelenen aynı bildirimi yeniden sayılmaz. Manager’ın moderasyon incelemeleri görüntülenme sayısına eklenmez.",
+      "Sayaçlar görünür içerikleri dikkate alır. Gizlenen cevaplar görünür cevap toplamından çıkar. İşlem başarılı olduğunda veya bir hata oluştuğunda ekranda kısa durum bildirimi gösterilir.",
+      "Hesabım > Yorumlarım sayfasında kendi topluluk cevaplarını soru başlığıyla görebilirsin. Kaldırılmış veya moderasyonla gizlenmiş cevapların durumu belirtilir. Sorunun kendisi gizlenmişse bu geçmişte listelenmez. Admin cevapları ayrı Admin katkılarım sayfasındadır."
+    ]
+  },
+  {
+    "title": "Admin başvurusu ve doğrulama",
+    "summary": "Öğrenci veya mezunsan profilinden Admin başvurusu yap. e-Devlet belgen Manager tarafından incelenir.",
+    "details": [
+      "Admin başvurusu için üniversite öğrencisi veya mezun profilinin tamamlanmış olması gerekir. Öğrenciliği veya mezuniyeti kanıtlayan e-Devlet belgesi PDF biçiminde, en fazla 10 MB olarak yüklenir.",
+      "Başvuru, gönderim anındaki ad-soyad, eğitim, mezuniyet ve varsa çalışma bilgilerini içerir. Gönderilmiş başvurunun bilgileri ve belgesi değiştirilmez; yeni durum için profil güncellenip yeni başvuru yapılır.",
+      "Aynı anda tek bekleyen başvuru olabilir. Manager başvuruyu kabul eder veya gerekçeyle reddeder. Sonuç Başvurularım ekranında görülür. Kabul edildiğinde Admin yetkisi kazanılır.",
+      "Belge herkese açık değildir; yalnız sahibi ve Manager indirebilir. Diğer Adminler belgelere erişemez. Yeniden doğrulama başvurusunda önceki onay, yeni karar verilene kadar korunur.",
+      "Admin yetkisi kaldırılırsa öğrenci/mezun eğitim bilgisi kaybolmaz. Eski Admin cevapları doğrulama geçmişiyle kalır; yazarın artık Admin olmadığı belirtilir."
+    ]
+  },
+  {
+    "title": "Admin katkıları ve günlük hak",
+    "summary": "İstediğin soruda Cevaplayacağım düğmesini kullan. Günde beş farklı soruya Admin cevabı verebilirsin.",
+    "details": [
+      "Manager soruları Adminlere dağıtmaz. Admin, soruları üniversite, bölüm ve taglere göre keşfedip kendi seçtiği soruya atanır. Aynı soruya birden fazla Admin atanabilir ve ayrı ayrı cevap verebilir.",
+      "Her Admin aynı soru için tek Admin cevabına sahiptir. Günlük hak ilk kez Admin cevabı yayımlanan beş farklı soruyu kapsar. Gün Türkiye saatiyle gece yarısında yenilenir.",
+      "Mevcut cevabın düzenlenmesi yeni soru hakkı tüketmez. Cevabı kaldırmak, geri yüklemek veya atamayı iptal etmek kullanılmış hakkı geri getirmez. Düzenlemelerde Düzenlendi ve tarih gösterilir.",
+      "Admin Panel’de kalan hak, cevaplanacak sorular, eski cevaplar, profil ve kendi sorularına bağlantılar bulunur. Atama iptal edilebilir; yayımlanmış cevap otomatik kaldırılmaz.",
+      "Admin cevapları soru altında ayrı bölümde gösterilir. Yazarın üniversitesi, bölümü, öğrenci/mezun durumu ve varsa mesleği görünür. Eğitim doğrulaması cevabın ilk yayınındaki geçmişi yansıtır; güncel çalışma bilgileri kişisel beyandır.",
+      "Adminler sayfasından kişilerin açık profillerine ve cevapladıkları sorulara ulaşılır. Yetki kaldırıldığında yeni Admin cevabı verilemez; eski cevap kaldırılabilir, güncel yetki olmadan geri yüklenemez."
+    ]
+  },
+  {
+    "title": "Popülerler",
+    "summary": "Günlük, haftalık, aylık veya yıllık dönemi seçerek ilgi gören soruları bul.",
+    "details": [
+      "Günlük son 24 saat, haftalık son 7 gün, aylık son 30 gün ve yıllık son 365 günün etkileşimlerini değerlendirir. Eski bir soru yeni etkileşim alırsa yeniden öne çıkabilir.",
+      "Sıralama yalnız beğeniye göre yapılmaz. Görüntülenme, beğeni, topluluk ve Admin cevapları birlikte değerlendirilir; Admin cevaplarının ağırlığı daha yüksektir. Zaman geçtikçe etkileşimin ağırlığı azalır.",
+      "Soru kartlarındaki sayılar tüm zamanların görünür toplamlarıdır; seçilen dönemin puanı veya yalnız o dönemin etkileşim sayıları değildir. Formülün ağırlıkları uygulama geliştirilirken değişebilir."
+    ]
+  },
+  {
+    "title": "Manager, katalog ve moderasyon",
+    "summary": "Manager ayrı yönetim panelinde başvuruları, kullanıcıları, katalogları ve moderasyonu yönetir; içerik katkısı yapmaz.",
+    "details": [
+      "Manager girişinde doğrudan yönetim özeti açılır. Solda Özet, Başvurular, Kullanıcılar, Sorular ve Cevaplar, Üniversiteler ve Bölümler, Tagler, İşlem Geçmişi ve Hesabım bulunur. Mobilde Menü düğmesini kullan. Özet kartları yapılacak işlerin listesine götürür.",
+      "Manager soru, topluluk cevabı veya Admin cevabı yayımlayamaz; beğeni bırakamaz, soruya atanamaz ve Admin başvurusu yapamaz. İlk Manager yerel yönetim işlemiyle atanır; kayıt formundan seçilmez.",
+      "Başvurular bekleyen, onaylanan veya reddedilen durumuna göre filtrelenir. Başvuru detayında gönderilmiş bilgiler, belge ve önceki başvurular incelenir. Ret ve Admin yetkisi kaldırma gerekçe ister. Admin yetkisi belgeye dayanan başvuru onayı üzerinden verilir.",
+      "Kullanıcı detayında eğitim, hesap durumu, e-posta doğrulaması, Admin yetkisi ve katkı sayıları bulunur. Hesap pasifleştirme oturumları kapatır; geri açma eski oturum veya Admin yetkisini geri getirmez.",
+      "Soru incelemesinde topluluk ve Admin cevapları birlikte gösterilir. Manager gerekçeyle içeriği gizler veya geri açar; soru kapsamı ve taglerini düzeltir. Yazarın soru/cevap metni değiştirilmez. Sahibinin kaldırması ile Manager gizlemesi ayrı tutulur.",
+      "Üniversite seçildiğinde bağlı bölümler açılır; ortak bölüm listesinden eşleştirme yapılır. Katalog veya tag durumunu değiştirirken bağlı profil ve soru sayıları gösterilir. Kullanılan kayıtlar geçmiş bağlantıları korunarak pasifleştirilir. Katalog ekleme ve değişiklikleri gerekçe ister.",
+      "İşlem Geçmişi listesinde kişi, gerekçe, işlem veya hedef üzerinden filtreleme yapılır. Detay kimin, ne zaman, hangi kayıtta, hangi gerekçeyle işlem yaptığını gösterir.",
+      "Manager Hesabım yalnız ad-soyad, fotoğraf, e-posta bilgisi ve hesap güvenliği işlemlerini içerir. Eğitim tamamlama gerekmez; Sorularım, Yorumlarım, Admin katkıları ve başvuru bağlantıları bulunmaz."
+    ]
+  },
+  {
+    "title": "Saklama, sınırlar ve yardım",
+    "summary": "Kaldırılan kayıtlar soft delete ile görünümden çıkar. Özel mesajlaşma ve ücretli danışmanlık bu sürümde yoktur.",
+    "details": [
+      "Kullanıcı içerikleri, başvurular ve yönetim geçmişi korunur; kaldırma verinin diskten tamamen yok edildiği anlamına gelmez. Katalog kayıtları geçmiş bağlantıları korunarak pasifleştirilir. Teknik kayıt ve test verisi temizliği ayrı bakım işlemidir; panelde genel silme veya veritabanı sıfırlama düğmesi bulunmaz. Doğrulama belgeleri özel erişimle korunur.",
+      "İlk sürümde Admin cevabına özel Faydalı Oldu, belirli kişiye özel soru, özel mesajlaşma, birebir görüşme ve ücretli danışmanlık yoktur. Platformun odağı herkese açık soru ve deneyim havuzudur.",
+      "Bağlantı hatasında işlem sonucunu kontrol edip yeniden deneyebilirsin. Süresi dolmuş oturumda tekrar giriş gerekir. Eski sürüm uyarısında güncel kayıt yüklenir. Ekrandaki hata ve işlem durumu mesajları, işlemin sonucunu anlamak için gösterilir.",
+      "Bu rehber yerel kullanım sürümünü anlatır. Üniversite katalogları, kota ve ürün özellikleri ilerleyen geliştirmelerde güncellenebilir. Güncel kullanım özeti Hakkımızda sayfasında, ayrıntılar bu PDF’te yer alır."
+    ]
+  }
+]

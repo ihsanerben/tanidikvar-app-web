@@ -18,7 +18,7 @@ export function StatusPage() {
     return () => { cancelled = true; controller.abort(); window.clearTimeout(timeout) }
   }, [attempt])
   return <section className="status-page">
-    <span className="eyebrow">TANIDIKVAR</span>
+
     <h1>Sistem durumu</h1>
     <div className="status-card" role="status" aria-live="polite">
       <span className={`status-dot ${status}`} aria-hidden="true" />

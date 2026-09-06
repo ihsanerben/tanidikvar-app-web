@@ -2,7 +2,7 @@ import { QuestionStats } from '../engagement/QuestionStats'
 import { Link } from 'react-router-dom'
 import { scopeLabels,questionDate,type Question } from './questionApi'
 export function QuestionContext({question:q}:{question:Question}) {
-  return <div className="question-context"><span>{scopeLabels[q.scope]}</span>{q.universityName && <span>{q.universityName}{q.departmentName?` · ${q.departmentName}`:''}</span>}
+  return <div className="question-context"><span className={`scope-badge scope-${q.scope.toLowerCase()}`}>{scopeLabels[q.scope]}</span>{q.universityName && <span>{q.universityName}{q.departmentName?` · ${q.departmentName}`:''}</span>}
     {q.tags.map(tag=><span className="question-tag" key={tag.id}>{tag.name}{!tag.available?' (pasif)':''}</span>)}</div>
 }
 export function QuestionCard({question:q}:{question:Question}) {

@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('home is responsive and connects to the actual API', async ({ page }, testInfo) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  await page.goto('/')
+  await page.goto('/about')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Tercih yolunda')
   await expect(page.getByRole('link', { name: 'Kayıt ol', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -23,5 +23,5 @@ test('direct navigation and unknown pages work', async ({ page }) => {
   await page.goto('/olmayan-sayfa')
   await expect(page.getByRole('heading', { name: 'Bu sayfayı bulamadık.' })).toBeVisible()
   await page.getByRole('link', { name: 'Ana sayfaya dön' }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Tercih yolunda')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Sorular')
 })

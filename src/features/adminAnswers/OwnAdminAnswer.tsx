@@ -14,7 +14,7 @@ export function OwnAdminAnswer({questionId,archived,reload}:{questionId:string;a
  const {own,quota}=data,a=own.answer,active=quota.activeAdmin
  if(!active&&!a&&!own.assignment.assigned)return null
  if(!auth.user?.profileCompleted)return <p>Katkını yönetmek için <Link to="/profile">profilini tamamla</Link>.</p>
- return <div className="own-answer"><h3>Admin katkın</h3>{active?<p role="status">Kalan cevap hakkın: {quota.remaining} / {quota.limit} · Türkiye saatiyle gece yarısında yenilenir.</p>:<p>Artık Admin değilsin. Eski cevabını kaldırabilirsin.</p>}
+ return <div className="own-answer"><h3>Admin katkın</h3>{active?<p role="status">Kalan cevap hakkın: {quota.remaining} / {quota.limit}</p>:<p>Artık Admin değilsin. Eski cevabını kaldırabilirsin.</p>}
  <AuthFormError error={error}/>{error&&<button onClick={reload}>Güncel Admin bilgilerini yükle</button>}
  <div className="answer-actions">{active&&!archived&&!own.assignment.assigned&&<button className="button" disabled={pending} onClick={()=>void action(()=>assign(own.assignment,true))}>Cevaplayacağım</button>}
  {own.assignment.assigned&&<><span>Bu soru cevaplayacakların arasında.</span><button disabled={pending} onClick={()=>void action(()=>assign(own.assignment,false))}>Atamayı iptal et</button></>}</div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { OwnProfileAvatar } from './ProfileAvatar'
 import { AvatarEditor } from './AvatarEditor'
 import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
@@ -17,6 +18,7 @@ export function ProfilePage() {
   return <ProfileLoader key={auth.user.id} />
 }
 function ProfileLoader(){
+  const auth=useAuth()
   const [profile,setProfile]=useState<Profile|null>(null)
   const [error,setError]=useState<ApiError|null>(null)
   const [revision,setRevision]=useState(0)
@@ -27,7 +29,7 @@ function ProfileLoader(){
   },[revision])
   if(error) return <section className="status-page"><h1>Profil yüklenemedi.</h1><AuthFormError error={error}/><button className="button" onClick={()=>{setError(null);setRevision(revision+1)}}>Tekrar dene</button></section>
   if(!profile) return <section className="status-page" role="status">Profil yükleniyor…</section>
-  return <><ProfileForm key={profile.version} initial={profile} reload={()=>{setProfile(null);setRevision(revision+1)}}/>{profile.completed&&<div className="profile-page"><AvatarEditor/><Link to="/applications">Admin başvurularım</Link></div>}</>
+  return <><ProfileForm key={profile.version} initial={profile} reload={()=>{setProfile(null);setRevision(revision+1)}}/>{<div className="profile-page"><AvatarEditor/>{profile.completed&&auth.user?.role!=='ADMIN'&&<Link className="button button-secondary profile-application-link" to="/applications">Admin başvurularım <span aria-hidden="true">↗</span></Link>}</div>}</>
 }
 function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const auth=useAuth()
@@ -40,6 +42,7 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const [biography,setBiography]=useState(initial.biography??'')
   const [occupation,setOccupation]=useState(initial.occupation??'')
   const [company,setCompany]=useState(initial.company??'')
+  const [linkedinUrl,setLinkedin]=useState(initial.linkedinUrl??''),[portfolioUrl,setPortfolio]=useState(initial.portfolioUrl??'')
   const [version,setVersion]=useState(initial.version)
   const [pending,setPending]=useState(false)
   const [saved,setSaved]=useState(false)
@@ -51,15 +54,15 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
     submitting.current=true;setPending(true);setError(null);setSaved(false)
     try{
       const result=await saveProfile({firstName,lastName,educationStatus:status,universityDepartmentId:status==='YKS_ADAYI'?null:department?.id??null,
-        graduationYear:status==='MEZUN' && year?Number(year):null,biography,occupation,company,version})
-      setVersion(result.version);setSaved(true)
+        graduationYear:status==='MEZUN' && year?Number(year):null,biography,occupation,company,linkedinUrl,portfolioUrl,version})
+      setVersion(result.version);setSaved(true);window.dispatchEvent(new Event('profile:updated'))
       if(auth.user) auth.setUser({...auth.user,profileCompleted:result.completed,role:['ADMIN','MANAGER'].includes(auth.user.role)?auth.user.role:result.educationStatus??'USER'})
     }catch(reason){setError(formError(reason));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{submitting.current=false;setPending(false)}
   }
   function fieldError(name:string){return error?.fieldErrors[name] && <p className="field-error" id={`${name}-error`}>{error.fieldErrors[name]}</p>}
-  return <section className="profile-page"><div className="profile-heading"><div className="profile-avatar" aria-label="Profil baş harfleri">{(firstName[0]??'?')+(lastName[0]??'')}</div>
-    <div><span className="eyebrow">SENİ TANIYALIM</span><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1><p>Okumak için profil gerekmez. Soru sormak ve deneyim paylaşmak için kendini tanıt.</p></div></div>
+  return <section className="profile-page"><div className="profile-heading"><OwnProfileAvatar name={firstName+" "+lastName}/>
+    <div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
     <form className="auth-card profile-form" onSubmit={submit} ref={form} onChange={()=>setSaved(false)}>
       <fieldset disabled={pending}><legend>Temel bilgiler</legend><div className="form-columns">
         <div><label htmlFor="firstName">Ad</label><input id="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e=>setFirst(e.target.value)} aria-invalid={!!error?.fieldErrors.firstName} aria-describedby={error?.fieldErrors.firstName?'firstName-error':undefined}/>{fieldError('firstName')}</div>
@@ -68,8 +71,8 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
         {Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}
       </select>{fieldError('educationStatus')}
       {status!=='YKS_ADAYI' && <div className="form-columns">
-        <RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={value=>{setUniversity(value);setDepartment(null)}}/>
-        <RemotePicker key={university?.id??'none'} label="Bölüm" endpoint={`/api/universities/${university?.id}/departments`} education value={department} disabled={!university}
+        <RemotePicker compact label="Üniversite" endpoint="/api/universities" value={university} onChange={value=>{setUniversity(value);setDepartment(null)}}/>
+        <RemotePicker compact key={university?.id??'none'} label="Bölüm" endpoint={`/api/universities/${university?.id}/departments`} education value={department} disabled={!university}
           onChange={setDepartment} error={error?.fieldErrors.universityDepartmentId}/>
       </div>}
       {initial.education && !initial.education.available && department?.id===initial.education.id && status!=='YKS_ADAYI' && <p className="field-help">Mevcut eğitim kaydın korunuyor; bu eşleşme artık yeni seçimlere açık değil.</p>}
@@ -79,6 +82,9 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
         <label htmlFor="biography">Kısa biyografi</label><textarea id="biography" maxLength={1000} rows={4} value={biography} onChange={e=>setBiography(e.target.value)}/>{fieldError('biography')}
         <div className="form-columns"><div><label htmlFor="occupation">Meslek</label><input id="occupation" maxLength={120} value={occupation} onChange={e=>setOccupation(e.target.value)}/>{fieldError('occupation')}</div>
         <div><label htmlFor="company">Şirket</label><input id="company" maxLength={120} value={company} onChange={e=>setCompany(e.target.value)}/>{fieldError('company')}</div></div>
+        <label htmlFor="linkedinUrl">LinkedIn bağlantısı</label><input id="linkedinUrl" type="url" maxLength={2048} placeholder="https://www.linkedin.com/in/…" value={linkedinUrl} onChange={e=>setLinkedin(e.target.value)} aria-invalid={!!error?.fieldErrors.linkedinUrl} aria-describedby={error?.fieldErrors.linkedinUrl?'linkedinUrl-error':undefined}/>{fieldError('linkedinUrl')}
+        <label htmlFor="portfolioUrl">Portfolyo sitesi</label><input id="portfolioUrl" type="url" maxLength={2048} placeholder="https://…" value={portfolioUrl} onChange={e=>setPortfolio(e.target.value)} aria-invalid={!!error?.fieldErrors.portfolioUrl} aria-describedby={error?.fieldErrors.portfolioUrl?'portfolioUrl-error':undefined}/>{fieldError('portfolioUrl')}
+        <p className="field-help">Bu bağlantılar profilinde herkese açık görünür.</p>
       </fieldset>
       <AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button type="button" onClick={reload}>Güncel profili yükle</button>}
       {saved && <p className="success-notice" role="status">Profilin kaydedildi.</p>}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import type { Application } from './applicationApi'
 import { decide, revoke, downloadDocument } from './applicationApi'
@@ -9,7 +10,7 @@ export function ApplicationCard({application:a,manager,reload}:{application:Appl
  const [action,setAction]=useState<'APPROVED'|'REJECTED'|'REVOKE'|null>(null)
  const [reason,setReason]=useState(''),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null)
  async function confirm(){if(!action||pending)return;setPending(true);setError(null);try{if(action==='REVOKE')await revoke(a,reason);else await decide(a,action,reason);setAction(null);reload()}catch(e){setError(formError(e))}finally{setPending(false)}}
- return <article className="auth-card application-card"><div><span className="eyebrow">{labels[a.status]}</span><h2>{a.firstName} {a.lastName}</h2>
+ return <article className="auth-card application-card"><div><span className="eyebrow">{labels[a.status]}</span><h2>{manager?<Link to={`/manager/applications/${a.id}`}>{a.firstName} {a.lastName}</Link>:<>{a.firstName} {a.lastName}</>}</h2>
  <p>{a.universityName} · {a.departmentName}</p><p>{a.educationStatus==='MEZUN'?`${a.graduationYear} Mezunu`:'Üniversite Öğrencisi'}</p>
  {(a.occupation||a.company)&&<p>{a.occupation} {a.company&&`· ${a.company}`} <small>(kişisel beyan)</small></p>}
  <p>Gönderildi: <time dateTime={a.submittedAt}>{new Date(a.submittedAt).toLocaleString('tr-TR')}</time></p>

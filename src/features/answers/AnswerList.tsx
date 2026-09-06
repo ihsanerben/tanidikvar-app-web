@@ -1,3 +1,4 @@
+import { ProfileTrigger } from '../profile/PublicProfilePopup'
 import { useEffect,useState } from 'react'
 import { ApiError } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
@@ -19,7 +20,7 @@ export function AnswerList({questionId,revision}:{questionId:string;revision:num
   if(loaded!==key)return <p role="status">Cevaplar yükleniyor…</p>
   if(error)return <div><AuthFormError error={error}/><button onClick={()=>setRetry(r=>r+1)}>Cevapları tekrar yükle</button></div>
   return <div className="community-list"><p className="answer-total" role="status">{data?.totalElements??0} topluluk cevabı</p>
-    {data?.items.length===0?<p className="answer-empty">Henüz topluluk cevabı yok.</p>:data?.items.map(a=><article className="answer-card" key={a.id}><div className="answer-author"><span className="answer-avatar" aria-hidden="true">{a.authorName.slice(0,1).toLocaleUpperCase('tr')}</span><div><h3>{a.authorName}</h3><div className="question-meta"><time dateTime={a.publishedAt}>{questionDate(a.publishedAt)}</time>{a.editedAt && <span>Cevap düzenlendi · <time dateTime={a.editedAt}>{questionDate(a.editedAt)}</time></span>}</div></div></div><p className="answer-body">{a.body}</p></article>)}
+    {data?.items.length===0?<p className="answer-empty">Henüz topluluk cevabı yok.</p>:data?.items.map(a=><article className="answer-card" key={a.id}><div className="answer-author"><div><h3><ProfileTrigger id={a.authorId} name={a.authorName} avatarFileId={a.avatarFileId}/></h3><div className="question-meta"><time dateTime={a.publishedAt}>{questionDate(a.publishedAt)}</time>{a.editedAt && <span>Cevap düzenlendi · <time dateTime={a.editedAt}>{questionDate(a.editedAt)}</time></span>}</div></div></div><p className="answer-body">{a.body}</p></article>)}
     {data && data.totalElements>data.size && <div className="pagination"><button disabled={page===0} onClick={()=>setPage(p=>p-1)}>Önceki cevaplar</button><span>Sayfa {page+1} / {Math.ceil(data.totalElements/data.size)}</span><button disabled={(page+1)*data.size>=data.totalElements} onClick={()=>setPage(p=>p+1)}>Sonraki cevaplar</button></div>}
   </div>
 }

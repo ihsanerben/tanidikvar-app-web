@@ -34,12 +34,9 @@ export function EmailActionPage({ mode }: { mode: Mode }) {
       requestAnimationFrame(() => form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())
     } finally { submitting.current = false; setPending(false) }
   }
-  return <section className="auth-page"><div className="auth-intro"><span className="eyebrow">HESABIN SENDE KALSIN</span>
+  return <section className="auth-page"><div className="auth-intro">
     <h1>{done ? needsEmail ? 'E-postanı kontrol et.' : mode === 'verify' ? 'E-postan doğrulandı.' : 'Şifren yenilendi.' : titles[mode]}</h1>
-    <p>{done ? needsEmail ? 'Adresine bağlı uygun bir hesap varsa bağlantı göndereceğiz. Spam klasörünü de kontrol et.'
-      : mode === 'verify' ? 'Artık hesabına giriş yapabilirsin.' : 'Tüm oturumların kapatıldı. Yeni şifrenle giriş yapabilirsin.'
-      : needsEmail ? 'Hesabında kullandığın e-posta adresini yaz.' : mode === 'verify'
-        ? 'E-posta adresini onaylamak için aşağıdaki düğmeye bas.' : 'Daha önce kullanmadığın güçlü bir şifre seç.'}</p></div>
+</div>
     {done ? <div className="auth-card"><Link className="button" to="/login">Giriş yap</Link></div>
       : !needsEmail && !token ? <div className="auth-card"><p role="alert">E-postandaki bağlantıyı aç veya yeni bağlantı iste.</p><Link to={mode === 'verify' ? '/resend-verification' : '/forgot-password'}>Yeni bağlantı iste</Link></div>
       : <form className="auth-card" onSubmit={submit} ref={form}>
@@ -47,8 +44,8 @@ export function EmailActionPage({ mode }: { mode: Mode }) {
           value={email} onChange={event => setEmail(event.target.value)} aria-invalid={!!error?.fieldErrors.email} aria-describedby={error?.fieldErrors.email ? 'email-error' : undefined} />
           {error?.fieldErrors.email && <p id="email-error" className="field-error">{error.fieldErrors.email}</p>}</>}
         {mode === 'reset' && <><label htmlFor="password">Yeni şifre</label><input id="password" type="password" autoComplete="new-password" required minLength={10} maxLength={72}
-          value={password} onChange={event => setPassword(event.target.value)} aria-invalid={!!error?.fieldErrors.password} aria-describedby="password-help" />
-          <p id="password-help" className="field-help">{error?.fieldErrors.password ?? 'En az 10 karakter kullan.'}</p></>}
+          value={password} onChange={event => setPassword(event.target.value)} aria-invalid={!!error?.fieldErrors.password} aria-describedby={error?.fieldErrors.password?'password-help':undefined} />
+          {error?.fieldErrors.password&&<p id="password-help" className="field-error">{error.fieldErrors.password}</p>}</>}
         <AuthFormError error={error} />
         <button className="button" disabled={pending}>{pending ? 'Lütfen bekle…' : needsEmail ? 'Bağlantı gönder' : mode === 'verify' ? 'E-postamı doğrula' : 'Şifremi yenile'}</button>
         {error?.code === 'INVALID_ACTION_TOKEN' && <Link to={mode === 'verify' ? '/resend-verification' : '/forgot-password'}>Yeni bağlantı iste</Link>}

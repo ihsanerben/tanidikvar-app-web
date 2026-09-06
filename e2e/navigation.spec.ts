@@ -1,0 +1,17 @@
+import { test,expect } from '@playwright/test'
+test('opens questions, offers list filters and provides the about guide PDF',async({page,request},testInfo)=>{
+ await page.goto('/');await expect(page).toHaveURL(/\/questions$/);await expect(page.getByRole('heading',{name:'Sorular',exact:true})).toBeVisible()
+ await expect(page.locator('.questions-heading p')).toHaveCount(0)
+ await page.getByText('Soruları filtrele',{exact:true}).click()
+ for(const label of ['Üniversite ara','Bölüm ara','Tag ara'])await expect(page.getByLabel(label,{exact:true})).toHaveCount(0)
+ await page.getByLabel('Üniversite',{exact:true}).selectOption({label:'Dokuz Eylül Üniversitesi'})
+ await page.getByLabel('Bölüm',{exact:true}).selectOption({label:'Bilgisayar Mühendisliği'})
+ await page.getByLabel('Tag seç',{exact:true}).selectOption({label:'Erasmus'})
+ await expect(page).toHaveURL(/tagId=/)
+ await page.getByRole('navigation',{name:'Ana menü'}).getByRole('link',{name:'Hakkımızda'}).click()
+ await expect(page.getByRole('heading',{name:'Sistem nasıl kullanılır?'})).toBeVisible()
+ const link=page.getByRole('link',{name:'Detaylı kullanım rehberini indir (PDF)'})
+ const url=await link.getAttribute('href');const pdf=await request.get(url!);expect(pdf.status()).toBe(200);expect(pdf.headers()['content-type']).toContain('application/pdf');expect((await pdf.body()).subarray(0,5).toString()).toBe('%PDF-')
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+ await page.screenshot({path:testInfo.outputPath('about.png'),fullPage:true})
+})
