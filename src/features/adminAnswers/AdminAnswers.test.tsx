@@ -16,7 +16,7 @@ function section(archived=false){return render(<MemoryRouter><AdminAnswerSection
 it('shows anonymous readers verified safe text and historical education without private controls',async()=>{
  setUser(null);vi.stubGlobal('fetch',vi.fn(async()=>list([{...original,body:'<script>alert(1)</script>'}])));section()
  expect(await screen.findByText('<script>alert(1)</script>')).toBeVisible();expect(document.querySelector('script')).toBeNull()
- expect(screen.getByRole('link',{name:'Ada Yılmaz'})).toHaveAttribute('href','/admins/admin')
+ expect(screen.getByRole('button',{name:'Ada Yılmaz profilini görüntüle'})).toBeVisible()
  expect(screen.getByText(/ilk yayınındaki doğrulama/)).toBeVisible();expect(screen.queryByRole('button',{name:'Cevaplayacağım'})).not.toBeInTheDocument()
 })
 it('assigns before publishing, uses CSRF and displays remaining quota',async()=>{

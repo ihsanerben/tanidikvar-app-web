@@ -13,8 +13,8 @@ export function AnswerEditor({questionId,initial,onSaved,onCancel,reload,reloadQ
     finally{busy.current=false;setPending(false)}
   }
   return <form className="answer-editor" onSubmit={submit} ref={form}><label htmlFor="answer-body">{initial?'Cevabını düzenle':'Cevabın'}</label>
-    <p className="field-help" id="answer-help">Deneyimini kendi cümlelerinle paylaş. 10–5.000 karakter; soru başına tek topluluk cevabı.</p>
-    <textarea id="answer-body" rows={6} required minLength={10} maxLength={5000} value={body} disabled={pending} onChange={e=>setBody(e.target.value)} aria-invalid={!!error?.fieldErrors.body} aria-describedby={error?.fieldErrors.body?'answer-help answer-body-error':'answer-help'}/>
+
+    <textarea id="answer-body" rows={6} required minLength={10} maxLength={5000} value={body} disabled={pending} onChange={e=>setBody(e.target.value)} aria-invalid={!!error?.fieldErrors.body} aria-describedby={error?.fieldErrors.body?'answer-body-error':undefined}/>
     {error?.fieldErrors.body && <p className="field-error" id="answer-body-error">{error.fieldErrors.body}</p>}
     <AuthFormError error={error}/>{error && ['STALE_VERSION','ANSWER_EXISTS','ANSWER_REMOVED'].includes(error.code) && <button type="button" onClick={reload}>Güncel cevabımı yükle</button>}
     {error?.code==='QUESTION_ARCHIVED' && <button type="button" onClick={reloadQuestion}>Güncel soruyu yükle</button>}

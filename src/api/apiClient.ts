@@ -37,7 +37,7 @@ const messages: Record<string, string> = {
   STALE_VERSION: 'Bu kayıt başka bir ekranda değişmiş. Güncel bilgileri yükleyip tekrar dene.',
   CATALOG_CONFLICT: 'Bu kayıt zaten var. Pasif kayıtları da kontrol et.',
   INACTIVE_EDUCATION: 'Bu üniversite/bölüm yeni seçimlere kapalı. Aktif bir eşleşme seç.',
-  REQUEST_CONFLICT: 'Bu gönderim daha önce kaydedilmiş. Sorularım sayfasından kontrol et.',
+  REQUEST_CONFLICT: 'Bu gönderim daha önce kaydedilmiş. Sorunun detayını kontrol et.',
   QUESTION_ARCHIVED: 'Arşivlenmiş soru yeni cevap, beğeni, düzenleme veya geri yüklemeye kapalı.',
   ANSWER_EXISTS: 'Bu soruya zaten cevap verdin. Mevcut cevabını düzenle.',
   ANSWER_REMOVED: 'Bu sorudaki cevabını kaldırmışsın. Yeni kayıt yerine aynı cevabı geri yükleyebilirsin.',

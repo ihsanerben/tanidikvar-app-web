@@ -1,4 +1,4 @@
-import { render,screen,fireEvent,act } from '@testing-library/react'
+import { render,screen,fireEvent,act,within,waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { ProfilePage } from './ProfilePage'
@@ -7,6 +7,35 @@ const empty={firstName:null,lastName:null,educationStatus:null,education:null,gr
 const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status})
 beforeEach(()=>setUser({id:'user',email:'test@example.test',role:'USER',profileCompleted:false}))
 afterEach(()=>vi.unstubAllGlobals())
+it('offers ten university choices without search or paging and resets the department when university changes',async()=>{
+  const universities=Array.from({length:10},(_,i)=>({id:`u${i}`,name:`Üniversite ${i}`,version:0,deletedAt:null}))
+  const fetch=vi.fn(async(url:string)=>{
+    if(url.includes('/departments')){
+      const universityId=url.includes('/u0/')?'u0':'u1'
+      return json({items:[{id:`${universityId}-d`,universityId,universityName:'Üniversite',departmentId:'d',departmentName:'Bilgisayar Mühendisliği',available:true,version:0,deletedAt:null}],page:0,size:10,totalElements:1})
+    }
+    if(url.includes('/universities'))return json({items:universities,page:0,size:10,totalElements:30})
+    return json(empty)
+  })
+  vi.stubGlobal('fetch',fetch)
+  render(<MemoryRouter><ProfilePage/></MemoryRouter>)
+  fireEvent.change(await screen.findByLabelText('Eğitim durumu'),{target:{value:'UNIVERSITE_OGRENCISI'}})
+  await waitFor(()=>expect(screen.getByLabelText('Üniversite')).toBeEnabled())
+  expect(within(screen.getByLabelText('Üniversite')).getAllByRole('option')).toHaveLength(11)
+  expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
+  expect(screen.queryByRole('button',{name:'Önceki'})).not.toBeInTheDocument()
+  expect(screen.queryByRole('button',{name:'Sonraki'})).not.toBeInTheDocument()
+  expect(screen.getByLabelText('Bölüm')).toBeDisabled()
+  fireEvent.change(screen.getByLabelText('Üniversite'),{target:{value:'u0'}})
+  await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
+  fireEvent.change(screen.getByLabelText('Bölüm'),{target:{value:'u0-d'}})
+  expect(screen.getByLabelText('Bölüm')).toHaveValue('u0-d')
+  fireEvent.change(screen.getByLabelText('Üniversite'),{target:{value:'u1'}})
+  await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
+  expect(screen.getByLabelText('Bölüm')).toHaveValue('')
+  expect(within(screen.getByLabelText('Bölüm')).queryByRole('option',{name:'Bilgisayar Mühendisliği'})).toHaveValue('u1-d')
+  expect(fetch.mock.calls.filter(([url])=>url.includes('/universities')).every(([url])=>url.includes('page=0&size=10'))).toBe(true)
+})
 it('keeps unsaved profile fields during a background session check',async()=>{
   let completeSession!: (response:Response)=>void
   vi.stubGlobal('fetch',vi.fn(async(url:string)=>{
@@ -71,4 +100,12 @@ it('offers reloading instead of silently overwriting a stale profile',async()=>{
   fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
   expect(await screen.findByRole('button',{name:'Güncel profili yükle'})).toBeVisible()
   expect(screen.getByLabelText('Ad')).toHaveValue('Ada')
+})
+
+it('offers photo and social links before first profile save',async()=>{
+ vi.stubGlobal('fetch',vi.fn(async(url:string)=>json(url.endsWith('/avatar')?{fileId:null}:empty)))
+ render(<MemoryRouter><ProfilePage/></MemoryRouter>)
+ expect(await screen.findByLabelText('Fotoğraf seç')).toBeInTheDocument()
+ expect(screen.getByLabelText('LinkedIn bağlantısı')).toHaveAttribute('type','url')
+ expect(screen.getByLabelText('Portfolyo sitesi')).not.toBeRequired()
 })

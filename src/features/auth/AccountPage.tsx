@@ -1,27 +1,34 @@
+import { ProfileLinks } from '../profile/PublicProfilePopup'
+import { OwnProfileAvatar } from '../profile/ProfileAvatar'
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { useAuth } from './useAuth'
 import { AuthFormError } from './AuthFormError'
 import { formError } from './formError'
-
-export function AccountPage() {
-  const auth = useAuth()
-  const [error, setError] = useState<ApiError | null>(null)
-  if (auth.status === 'loading') return <section className="status-page" role="status">Hesabın yükleniyor…</section>
-  if (auth.status === 'error') return <section className="status-page"><h1>Hesabına ulaşılamadı.</h1><AuthFormError error={error} /><button className="button" onClick={auth.reload}>Tekrar dene</button></section>
-  if (!auth.user) return <Navigate to="/login" replace />
-  return <section className="auth-page"><div className="auth-intro"><span className="eyebrow">TANIDIKVAR'A HOŞ GELDİN</span>
-    <h1>İyi ki geldin.</h1><p>Üniversiteyi, onu yaşayanlardan tanımaya bir adım daha yakınsın.</p></div>
-    <div className="auth-card"><h2>Hesabım</h2><dl><dt>E-posta adresi</dt><dd>{auth.user.email}</dd><dt>Hesap durumu</dt><dd>E-posta doğrulandı</dd></dl>
-      <p>{auth.user.profileCompleted?'Profilin tamamlandı.':'Soru sormak ve deneyim paylaşmak için profilini tamamla.'}</p>
-      <Link className="button" to="/profile">{auth.user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link>
-      {auth.user.role==='MANAGER' && <Link to="/manager">Manager Panel</Link>}
-      {auth.user.role==='ADMIN' && <Link to="/admin/tags">Tag yönetimi</Link>}
-      <Link to="/my-questions">Sorularım</Link><Link to="/questions/new">Soru sor</Link>
-      <Link to="/admin">Admin katkılarım</Link>
-      {auth.user.role==='MANAGER'?<Link to="/manager/applications">Admin başvurularını incele</Link>:<Link to="/applications">Admin başvurularım</Link>}
-      <AuthFormError error={error} /><Link className="button" to="/">Ana sayfaya dön</Link>
-      <button className="button button-secondary" onClick={() => { setError(null); void auth.logout().catch(reason => setError(formError(reason))) }}>Çıkış yap</button>
-    </div></section>
+import { useProfileSummary,roleLabels } from '../profile/useProfileSummary'
+export function AccountPage({status=false}:{status?:boolean}) {
+ const auth=useAuth()
+ if(auth.status==='loading')return <section className="status-page" role="status">Hesabın yükleniyor…</section>
+ if(auth.status==='error')return <section className="status-page"><h1>Hesabına ulaşılamadı.</h1><button className="button" onClick={auth.reload}>Tekrar dene</button></section>
+ if(!auth.user)return <Navigate to="/login" replace/>
+ return <Account key={auth.user.id} status={status}/>
+}
+function Account({status}:{status:boolean}){
+ const auth=useAuth(),{profile,error,reload}=useProfileSummary(auth.user!.id)
+ const [failure,setFailure]=useState<ApiError|null>(null)
+ const user=auth.user!
+ return <section className="account-page"><h1>{status?'Hesap durumu':'Hesabım'}</h1>
+ <div className="auth-card">{status?<><ul className="account-status-list"><li><span>E-posta doğrulama</span><strong className="status-badge">Tamamlandı</strong></li><li><span>Profil tamamlama</span><strong className={`status-badge ${user.profileCompleted?'':'status-pending'}`}>{user.profileCompleted?'Tamamlandı':'Eksik'}</strong></li></ul>
+ {!user.profileCompleted&&<Link className="button" to="/profile">Profilini tamamla</Link>}<Link className="button button-secondary" to="/account">Hesabıma dön</Link></>:<>
+ {error?<><AuthFormError error={error}/><button className="button" onClick={reload}>Bilgileri yeniden yükle</button></>:!profile?<p role="status">Bilgiler yükleniyor…</p>:<><div className="account-photo"><OwnProfileAvatar name={[profile.firstName,profile.lastName].filter(Boolean).join(' ')}/></div><dl className="account-summary">
+ <div><dt>Ad Soyad</dt><dd>{[profile.firstName,profile.lastName].filter(Boolean).join(' ')||'—'}</dd></div><div><dt>E-posta</dt><dd>{user.email}</dd></div><div><dt>Üniversite</dt><dd>{profile.education?.universityName||'—'}</dd></div><div><dt>Bölüm</dt><dd>{profile.education?.departmentName||'—'}</dd></div><div><dt>Rol</dt><dd>{roleLabels[user.role]||user.role}</dd></div></dl><ProfileLinks linkedinUrl={profile.linkedinUrl} portfolioUrl={profile.portfolioUrl}/></>}
+ <nav className="account-actions" aria-label="Hesap işlemleri"><Link className="button button-secondary" to="/profile">{user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link><Link className="button button-secondary" to="/account/status">Hesap durumu</Link>
+ <Link className="button button-secondary" to="/my-answers">Yorumlarım</Link>{user.role!=='ADMIN'&&<Link className="button button-secondary" to="/questions/new">Soru sor</Link>}
+ {user.role==='MANAGER'&&<Link className="button button-secondary" to="/manager">Manager Panel</Link>}
+ {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin/tags">Tag yönetimi</Link>}
+ {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin">Cevaplarım</Link>}
+ {user.role!=='ADMIN'&&<Link className="button button-secondary" to={user.role==='MANAGER'?'/manager/applications':'/applications'}>{user.role==='MANAGER'?'Admin başvurularını incele':'Admin başvurularım'}</Link>}</nav>
+ <AuthFormError error={failure}/><button className="button button-danger account-logout" onClick={()=>{setFailure(null);void auth.logout().catch(e=>setFailure(formError(e)))}}>Çıkış yap</button></>}
+ </div></section>
 }

@@ -20,7 +20,7 @@ function QuestionOpening({id}:{id:string}) {
   return <QuestionLoader id={id}>{(q,reload)=><QuestionDetail key={`${q.id}-${q.version}`} question={q} reload={reload} opening={opening}/>}</QuestionLoader>
 }
 function QuestionDetail({question:q,reload,opening}:{question:Question;reload:()=>void;opening:Opening}) {
-  const auth=useAuth(),busy=useRef(false),[answersRevision,setAnswersRevision]=useState(0)
+  const auth=useAuth(),busy=useRef(false),[answersRevision,setAnswersRevision]=useState(0),[answerTab,setAnswerTab]=useState('admin')
   const [confirm,setConfirm]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null)
   async function archive(){if(busy.current)return;busy.current=true;setPending(true);setError(null);try{await archiveQuestion(q.id,q.version);reload()}catch(e){setError(formError(e))}finally{busy.current=false;setPending(false)}}
   return <article className="question-detail"><Link className="back-link" to="/questions">← Sorulara dön</Link><QuestionContext question={q}/><h1>{q.title}</h1>
@@ -32,7 +32,8 @@ function QuestionDetail({question:q,reload,opening}:{question:Question;reload:()
     </div>}
     <AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button onClick={reload}>Güncel soruyu yükle</button>}
     <QuestionEngagement questionId={q.id} initial={q.statistics} archived={!!q.archivedAt} opening={opening} answersRevision={answersRevision}/>
-    <AdminAnswerSection questionId={q.id} archived={!!q.archivedAt} onChanged={()=>setAnswersRevision(r=>r+1)}/>
-    <AnswerSection questionId={q.id} archived={!!q.archivedAt} reloadQuestion={reload} onChanged={()=>setAnswersRevision(r=>r+1)}/>
+    <div className="answer-tabs" role="tablist" aria-label="Cevap türü">{[['admin','Admin cevapları'],['community','Topluluk cevapları']].map(([value,label])=><button key={value} type="button" role="tab" id={'tab-'+value} aria-selected={answerTab===value} aria-controls={'panel-'+value} onClick={()=>setAnswerTab(value)}>{label}</button>)}</div>
+    <div role="tabpanel" id={'panel-'+answerTab} aria-labelledby={'tab-'+answerTab}>
+    {answerTab==='admin'?<AdminAnswerSection questionId={q.id} archived={!!q.archivedAt} onChanged={()=>setAnswersRevision(r=>r+1)}/>:<AnswerSection questionId={q.id} archived={!!q.archivedAt} reloadQuestion={reload} onChanged={()=>setAnswersRevision(r=>r+1)}/>}</div>
   </article>
 }

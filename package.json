@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "generate:guide": "node scripts/generate-guide.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

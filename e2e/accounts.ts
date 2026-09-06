@@ -12,7 +12,7 @@ export async function account(page:Page,request:APIRequestContext){
   await page.goto(await mailLink(request,email,'verify-email'));await page.getByRole('button',{name:'E-postamı doğrula'}).click()
   await expect(page.getByRole('heading',{name:'E-postan doğrulandı.'})).toBeVisible()
   await page.goto('/login');await page.getByLabel('E-posta adresi').fill(email);await page.getByLabel('Şifre',{exact:true}).fill('Browser-profile-password!')
-  await page.getByRole('button',{name:'Giriş yap'}).click();await expect(page.getByRole('heading',{name:'İyi ki geldin.'})).toBeVisible()
+  await page.getByRole('button',{name:'Giriş yap'}).click();await expect(page.getByRole('heading',{name:'Hesabım'})).toBeVisible()
   return email
 }
 export function promoteTestManager(email:string){

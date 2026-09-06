@@ -15,9 +15,9 @@ export function ApplicationForm({onSaved}:{onSaved:()=>void}){
  return <form className="auth-card" onSubmit={e=>{e.preventDefault();if(!file||busy.current)return;if(file.size>10*1024*1024||!file.name.toLowerCase().endsWith('.pdf')){setError(new ApiError(400,'INVALID_FILE','En fazla 10 MB boyutunda PDF seç.'));return}busy.current=true;setPending(true);setError(null);void submitApplication(request.current,profile.version,file).then(onSaved).catch(e=>setError(formError(e))).finally(()=>{busy.current=false;setPending(false)})}}>
  <h2>Admin başvurusu</h2><p>{profile.firstName} {profile.lastName} · {profile.education?.universityName} · {profile.education?.departmentName}</p>
  <p>{profile.educationStatus==='MEZUN'?`${profile.graduationYear} Mezunu`:'Üniversite Öğrencisi'}</p>
- <p>Gönderilen bilgiler ve belge değiştirilemez. Eğitim bilgilerin değiştiyse önce <Link to="/profile">profilini güncelle</Link>. Yeniden başvuruda önceki onay, yeni karar verilene kadar korunur.</p>
+
  <label htmlFor="document">e-Devlet öğrenci / mezun belgesi</label><input id="document" type="file" accept=".pdf,application/pdf" required disabled={pending} onChange={e=>{setFile(e.target.files?.[0]??null);request.current=crypto.randomUUID()}}/>
- <p className="field-help">PDF · en fazla 10 MB. Belgeyi yalnız sen ve Manager indirebilir.</p><AuthFormError error={error}/>
+ <AuthFormError error={error}/>
  {error?.status===409&&<button type="button" className="button button-secondary" onClick={reload}>Güncel profili yükle</button>}
  <button className="button" disabled={pending}>{pending?'Gönderiliyor…':'Başvuruyu gönder'}</button></form>
 }

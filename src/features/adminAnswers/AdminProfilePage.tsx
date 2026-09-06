@@ -1,3 +1,4 @@
+import { ProfileLinks } from '../profile/PublicProfilePopup'
 import { useEffect,useState } from 'react'
 import { Link,useParams } from 'react-router-dom'
 import { getAdmin,avatarUrl,type AdminProfile } from './adminAnswerApi'
@@ -15,6 +16,6 @@ function ProfileLoader({id}:{id:string}){
  return <section className="profile-page"><Link to="/questions">← Sorulara dön</Link><div className="profile-heading">{p.avatarFileId&&<img className="profile-photo" src={avatarUrl(p.avatarFileId)} alt=""/>}<div><span className="eyebrow">{p.activeAdmin?'DOĞRULANMIŞ ADMIN':'ARTIK ADMIN DEĞİL'}</span><h1>{p.name}</h1><p>{p.universityName} · {p.departmentName}</p><p>{p.educationStatus==='MEZUN'?`${p.graduationYear} Mezunu`:'Üniversite Öğrencisi'}</p></div></div>
  {!p.activeAdmin&&<p>Bu profil geçmiş doğrulama bilgilerini gösterir. Kişinin güncel Admin yetkisi yoktur.</p>}
  {(p.occupation||p.company)&&<p>{p.occupation} {p.company&&'· '+p.company} <small>(güncel kişisel beyan)</small></p>}
- {p.biography&&<p className="answer-body">{p.biography}</p>}<h2>Cevapladığı sorular</h2><p>{p.answerCount} görünür Admin cevabı</p><AdminAnswerFeed path={'/api/admins/'+id+'/answers'} showQuestion/></section>
+ {p.biography&&<p className="answer-body">{p.biography}</p>}<ProfileLinks linkedinUrl={p.linkedinUrl} portfolioUrl={p.portfolioUrl}/><h2>Cevapladığı sorular</h2><p>{p.answerCount} görünür Admin cevabı</p><AdminAnswerFeed path={'/api/admins/'+id+'/answers'} showQuestion/></section>
 }
 

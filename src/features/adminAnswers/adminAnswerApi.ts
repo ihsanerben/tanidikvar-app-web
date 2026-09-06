@@ -4,7 +4,7 @@ export interface AdminAnswer {id:string;questionId:string;questionTitle:string;a
 export interface Assignment {questionId:string;questionTitle:string;assigned:boolean;version:number;assignedAt:string|null;archivedAt:string|null}
 export interface Quota {activeAdmin:boolean;day:string;used:number;limit:number;remaining:number;resetsAt:string}
 export interface OwnAdminAnswer {answer:AdminAnswer|null;assignment:Assignment}
-export interface AdminProfile {id:string;name:string;activeAdmin:boolean;universityName:string;departmentName:string;educationStatus:string;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;avatarFileId:string|null;answerCount:number}
+export interface AdminProfile {linkedinUrl?:string|null;portfolioUrl?:string|null;id:string;name:string;activeAdmin:boolean;universityName:string;departmentName:string;educationStatus:string;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;avatarFileId:string|null;answerCount:number}
 const invalid=()=>new ApiError(200,'INVALID_RESPONSE','Admin bilgileri alınamadı.')
 export function adminAnswer(v:unknown):AdminAnswer {
  if(!isRecord(v)||!['id','questionId','questionTitle','authorName','body','publishedAt'].every(k=>typeof v[k]==='string')||!['authorId','universityName','departmentName','educationStatus','avatarFileId','occupation','company','editedAt','deletedAt','moderatedAt'].every(k=>v[k]===null||typeof v[k]==='string')||typeof v.activeAdmin!=='boolean'||!Number.isSafeInteger(v.version)||!(v.graduationYear===null||Number.isInteger(v.graduationYear)))throw invalid()

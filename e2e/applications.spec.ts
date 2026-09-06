@@ -1,33 +1,41 @@
 import { expect,test, type APIRequestContext } from '@playwright/test'
 import { randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { account,promoteTestManager } from './accounts'
 async function create(request:APIRequestContext,path:string,body:unknown){const csrf=await (await request.get('/api/auth/csrf')).json();const r=await request.post(path,{data:body,headers:{'X-XSRF-TOKEN':csrf.token}});const result=await r.json();expect(r.status(),String(result.code??path)).toBe(201);return result}
 test('private application review, reverification, revocation and avatar lifecycle',async({page,request,browser},testInfo)=>{
- const email=await account(page,request);promoteTestManager(email);await page.reload();await expect(page.getByRole('link',{name:'Manager Panel',exact:true})).toBeVisible()
+ const email=await account(page,request);promoteTestManager(email);await page.reload();await expect(page.getByRole('heading',{name:'Hesabım',exact:true})).toBeVisible()
  const suffix=randomUUID().slice(0,8)
- const u=await create(page.request,'/api/manager/catalog/UNIVERSITY',{name:'Başvuru Üniversitesi '+suffix})
- const d=await create(page.request,'/api/manager/catalog/DEPARTMENT',{name:'Başvuru Bölümü '+suffix})
- await create(page.request,'/api/manager/university-departments',{universityId:u.id,departmentId:d.id})
  const context=await browser.newContext({baseURL:testInfo.project.use.baseURL,viewport:testInfo.project.use.viewport})
  const student=await context.newPage()
  try{
   const studentEmail=await account(student,request);await student.goto('/profile')
   await student.getByLabel('Ad',{exact:true}).fill('Ada');await student.getByLabel('Soyad',{exact:true}).fill('Başvuru '+suffix)
   await student.getByLabel('Eğitim durumu').selectOption('UNIVERSITE_OGRENCISI')
-  await student.getByLabel('Üniversite ara',{exact:true}).fill(suffix)
-  await student.getByLabel('Üniversite',{exact:true}).selectOption({label:u.name})
-  await student.getByLabel('Bölüm',{exact:true}).selectOption({label:d.name})
+  await student.getByLabel('Üniversite',{exact:true}).selectOption({label:'Dokuz Eylül Üniversitesi'})
+  await student.getByLabel('Bölüm',{exact:true}).selectOption({label:'Bilgisayar Mühendisliği'})
   await student.getByRole('button',{name:'Profili kaydet'}).click();await expect(student.getByText('Profilin kaydedildi.')).toBeVisible()
   await student.reload()
   const png=await student.evaluate(()=>{const c=document.createElement('canvas');c.width=20;c.height=20;const g=c.getContext('2d')!;g.fillStyle='#00805a';g.fillRect(0,0,20,20);return c.toDataURL('image/png').split(',')[1]})
   await student.getByLabel('Fotoğraf seç').setInputFiles({name:'avatar.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')})
+  await expect(student.getByAltText('Seçilen fotoğrafın önizlemesi')).toBeVisible()
+  await student.evaluate(()=>window.dispatchEvent(new Event('focus')))
+  await expect(student.getByRole('button',{name:'Fotoğrafı kaydet'})).toBeEnabled()
   await student.getByRole('button',{name:'Fotoğrafı kaydet'}).click();await expect(student.getByText('Fotoğraf güncellendi.')).toBeVisible()
   const avatar=student.getByAltText('Profil fotoğrafın');await expect(avatar).toBeVisible();const avatarUrl=(await avatar.getAttribute('src'))!
   expect((await request.get(avatarUrl)).status()).toBe(200)
+  await expect(student.locator('.profile-heading img')).toHaveAttribute('src',avatarUrl)
+  await student.goto('/account');await expect(student.locator('.account-photo img')).toHaveAttribute('src',avatarUrl)
+  const photoQuestion=await create(student.request,'/api/questions',{requestId:randomUUID(),content:{title:'Fotoğraflı cevap deneyimi nasıl görünüyor?',scope:'GENERAL',tagIds:[]}})
+  await create(student.request,'/api/questions/'+photoQuestion.id+'/answers',{body:'Profil fotoğrafımla paylaştığım topluluk deneyimi.'})
+  await student.goto('/questions/'+photoQuestion.id);await expect(student.locator('.community-list .answer-avatar')).toHaveAttribute('src',avatarUrl)
+  await student.goto('/my-answers');await expect(student.locator('.answer-avatar')).toHaveAttribute('src',avatarUrl)
+  await student.goto('/profile')
   await student.getByRole('button',{name:'Fotoğrafı kaldır'}).click();await expect(avatar).toHaveCount(0)
+  await expect(student.locator('.profile-heading img')).toHaveCount(0)
   expect((await request.get(avatarUrl)).status()).toBe(404)
   await student.goto('/applications')
-  const file={name:'belge.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n')}
+  const file={name:'belge.pdf',mimeType:'application/pdf',buffer:readFileSync(new URL('../public/guides/tanidikvar-kullanim-rehberi.pdf',import.meta.url))}
   async function submit(){await student.getByLabel('e-Devlet öğrenci / mezun belgesi').setInputFiles(file);await student.getByRole('button',{name:'Başvuruyu gönder'}).click();await expect(student.getByText('Başvurun alındı. Manager incelemesini burada takip edebilirsin.')).toBeVisible();await expect(student.getByText('İnceleme bekliyor',{exact:true})).toBeVisible()}
   await submit()
   const first=(await (await student.request.get('/api/me/admin-applications')).json()).items[0]
@@ -35,9 +43,13 @@ test('private application review, reverification, revocation and avatar lifecycl
   const download=student.waitForEvent('download');await student.getByRole('button',{name:'Belgeyi indir'}).click();expect((await download).suggestedFilename()).toBe('belge.pdf')
   await page.goto('/manager/applications')
   let card=page.getByRole('article').filter({hasText:'Başvuru '+suffix})
-  await expect(card).toBeVisible();await card.getByRole('button',{name:'Reddet',exact:true}).click()
+  await expect(card).toBeVisible();await card.getByRole('link',{name:'Ada Başvuru '+suffix}).click()
+  await expect(page.getByTitle('Başvuru belgesi')).toBeVisible();await expect(page.getByRole('heading',{name:'Başvuru geçmişi'})).toBeVisible()
+  await page.screenshot({path:testInfo.outputPath('manager-application-detail.png'),fullPage:true})
+  card=page.locator('.application-review-grid article');await card.getByRole('button',{name:'Reddet',exact:true}).click()
   await card.getByLabel('Gerekçe').fill('Belgeyi daha okunaklı yükle.')
-  await card.getByRole('button',{name:'Kararı onayla'}).click();await expect(card).toHaveCount(0)
+  await card.getByRole('button',{name:'Kararı onayla'}).click();await expect(card.getByText('Reddedildi',{exact:true})).toBeVisible()
+  await page.goto('/manager/applications')
   await student.reload();await expect(student.getByText('Ret gerekçesi: Belgeyi daha okunaklı yükle.')).toBeVisible()
   await submit()
   await page.reload();card=page.getByRole('article').filter({hasText:'Başvuru '+suffix})
@@ -93,6 +105,8 @@ test('private application review, reverification, revocation and avatar lifecycl
   await student.screenshot({path:testInfo.outputPath('applications.png'),fullPage:true})
   await page.screenshot({path:testInfo.outputPath('manager-applications.png'),fullPage:true})
   await page.goto('/manager/users?q='+encodeURIComponent(studentEmail))
+  await page.getByRole('link',{name:'Ada Başvuru '+suffix,exact:true}).click()
+  await expect(page.getByRole('heading',{name:'Kullanıcı detayı'})).toBeVisible()
   await page.getByRole('button',{name:'Hesabı pasifleştir',exact:true}).click()
   await page.getByLabel('İşlem gerekçesi').fill('Hesap yönetimi tarayıcı testi.')
   await page.getByRole('button',{name:'Hesabı pasifleştir — onayla'}).click()
@@ -106,9 +120,9 @@ test('private application review, reverification, revocation and avatar lifecycl
   await page.getByRole('button',{name:'Hesabı geri yükle — onayla'}).click()
   await expect(page.getByRole('button',{name:'Hesabı pasifleştir',exact:true})).toBeVisible()
   expect((await student.request.get('/api/me')).status()).toBe(401)
-  await page.getByRole('link',{name:'Genel bakış',exact:true}).click()
-  await expect(page.getByRole('heading',{name:'İşlem geçmişi'})).toBeVisible()
-  await expect(page.getByText('Hesap geri yüklendi',{exact:true}).first()).toBeVisible()
+  await page.goto('/manager')
+  await expect(page.getByRole('heading',{name:'Son yönetim işlemleri'})).toBeVisible()
+  await expect(page.getByText('Hesap geri açıldı',{exact:true}).first()).toBeVisible()
   await page.screenshot({path:testInfo.outputPath('manager-dashboard.png'),fullPage:true})
  }finally{await context.close()}
 })

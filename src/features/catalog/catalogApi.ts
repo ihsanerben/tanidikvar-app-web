@@ -23,18 +23,18 @@ export function pageOf<T>(value: unknown, parse: (value: unknown) => T): Page<T>
 function invalid() { return new ApiError(200,'INVALID_RESPONSE','Liste bilgileri alınamadı.') }
 export async function getCatalog(path: string, signal?: AbortSignal) { return pageOf(await apiGet(path,signal),catalogEntry) }
 export async function getEducation(path: string, signal?: AbortSignal) { return pageOf(await apiGet(path,signal),education) }
-export async function createEntry(kind: Kind, name: string, admin = false) {
-  return catalogEntry(await apiMutation(admin ? '/api/tags' : `/api/manager/catalog/${kind}`,'POST',{name}))
+export async function createEntry(kind: Kind, name: string, admin = false, reason?:string) {
+  return catalogEntry(await apiMutation(admin ? '/api/tags' : `/api/manager/catalog/${kind}`,'POST',{name,reason}))
 }
-export async function renameEntry(kind: Kind, entry: CatalogEntry, name: string) {
-  return catalogEntry(await apiMutation(`/api/manager/catalog/${kind}/${entry.id}`,'PUT',{name,version:entry.version}))
+export async function renameEntry(kind: Kind, entry: CatalogEntry, name: string,reason:string) {
+  return catalogEntry(await apiMutation(`/api/manager/catalog/${kind}/${entry.id}`,'PUT',{name,version:entry.version,reason}))
 }
-export async function setEntryStatus(kind: Kind, entry: CatalogEntry) {
-  return catalogEntry(await apiMutation(`/api/manager/catalog/${kind}/${entry.id}/status`,'PUT',{deleted:!entry.deletedAt,version:entry.version}))
+export async function setEntryStatus(kind: Kind, entry: CatalogEntry,reason:string) {
+  return catalogEntry(await apiMutation(`/api/manager/catalog/${kind}/${entry.id}/status`,'PUT',{deleted:!entry.deletedAt,version:entry.version,reason}))
 }
-export async function createEducation(universityId: string, departmentId: string) {
-  return education(await apiMutation('/api/manager/university-departments','POST',{universityId,departmentId}))
+export async function createEducation(universityId: string, departmentId: string,reason:string) {
+  return education(await apiMutation('/api/manager/university-departments','POST',{universityId,departmentId,reason}))
 }
-export async function setEducationStatus(entry: Education) {
-  return education(await apiMutation(`/api/manager/university-departments/${entry.id}/status`,'PUT',{deleted:!entry.deletedAt,version:entry.version}))
+export async function setEducationStatus(entry: Education,reason:string) {
+  return education(await apiMutation(`/api/manager/university-departments/${entry.id}/status`,'PUT',{deleted:!entry.deletedAt,version:entry.version,reason}))
 }
