@@ -1,6 +1,6 @@
 import { render } from '../../test/render'
 import { screen,fireEvent,act,within,waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { ProfilePage } from './ProfilePage'
 import { setUser,reload } from '../auth/authStore'
@@ -62,12 +62,13 @@ it('completes a candidate profile without asking for university details',async()
     return json(empty)
   })
   vi.stubGlobal('fetch',fetch)
-  render(<MemoryRouter><ProfilePage/></MemoryRouter>)
+  function Location(){return <output data-testid="location">{useLocation().pathname}</output>}
+  render(<MemoryRouter initialEntries={['/profile']}><Routes><Route path="/profile" element={<ProfilePage/>}/><Route path="/account" element={<Location/>}/></Routes></MemoryRouter>)
   await screen.findByLabelText('Ad')
   expect(screen.queryByLabelText('Üniversite')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Ad'),{target:{value:'Ada'}});fireEvent.change(screen.getByLabelText('Soyad'),{target:{value:'Yılmaz'}})
   fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
-  await screen.findByText('Bilgiler kaydedildi.')
+  expect(await screen.findByTestId('location')).toHaveTextContent('/account')
   const call=fetch.mock.calls.find(([,options])=>options.method==='PUT')!
   expect(JSON.parse(call[1].body as string)).toMatchObject({educationStatus:'YKS_ADAYI',universityDepartmentId:null,graduationYear:null,version:0})
   expect(call[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})

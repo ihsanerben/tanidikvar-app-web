@@ -52,7 +52,7 @@ it('does not display an old response after a newer search succeeds',async()=>{
 })
 it('searches admins and opens their public profile with summary counts',async()=>{
  const fetch=server();render(<MemoryRouter initialEntries={['/admins?page=2']}><AdminDirectoryPage/></MemoryRouter>)
- const card=await screen.findByRole('link',{name:'Çağrı Işık profilini aç'});expect(card).toHaveTextContent('8 Admin yorumu');expect(card).toHaveTextContent('3 topluluk yorumu')
+ const card=await screen.findByRole('link',{name:'Çağrı Işık profilini aç'});expect(card).toHaveTextContent('8 Admin cevabı');expect(card).toHaveTextContent('3 topluluk yorumu')
  fireEvent.change(screen.getByLabelText('Admin adı ara'),{target:{value:'cagri'}});fireEvent.click(screen.getByRole('button',{name:'Ara'}));await waitFor(()=>expect(fetch.mock.calls.some(([url])=>url.endsWith('/api/admins?q=cagri'))).toBe(true))
  expect(screen.getByRole('link',{name:'Çağrı Işık profilini aç'})).toHaveAttribute('href','/profiles/admin')
 })

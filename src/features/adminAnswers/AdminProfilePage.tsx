@@ -17,5 +17,5 @@ function ProfileLoader({id}:{id:string}){
  return <section className="profile-page"><Link to="/questions">← Sorulara dön</Link><div className="profile-heading"><ProfileAvatar fileId={p.avatarFileId} name={p.name} isAdmin={p.activeAdmin}/><div><span className="eyebrow">{p.activeAdmin?'ADMIN':'ARTIK ADMIN DEĞİL'}</span><h1>{p.name}</h1><p>{p.universityName} · {p.departmentName}</p><p>{p.educationStatus==='MEZUN'?`${p.graduationYear} Mezunu`:'Üniversite Öğrencisi'}</p></div></div>
  {!p.activeAdmin&&<p>Kişinin güncel Admin yetkisi yoktur.</p>}
  {(p.occupation||p.company)&&<p>{p.occupation} {p.company&&'· '+p.company} <small>(güncel kişisel beyan)</small></p>}
- {p.biography&&<p className="answer-body">{p.biography}</p>}<ProfileLinks linkedinUrl={p.linkedinUrl} portfolioUrl={p.portfolioUrl}/><h2>Yorum yaptığı sorular</h2><p>{p.answerCount} görünür Admin yorumu</p><AdminAnswerFeed path={'/api/admins/'+id+'/answers'} showQuestion/></section>
+ {p.biography&&<p className="answer-body">{p.biography}</p>}<ProfileLinks linkedinUrl={p.linkedinUrl} portfolioUrl={p.portfolioUrl}/><h2>Cevap verdiği sorular</h2><p>{p.answerCount} görünür Admin cevabı</p><AdminAnswerFeed path={'/api/admins/'+id+'/answers'} showQuestion/></section>
 }

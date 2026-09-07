@@ -20,8 +20,8 @@ it('marks an incomplete profile as missing',()=>{
 it('admin account offers answers and comments without questions or applications',async()=>{
  setUser({id:'user',email:'test@example.test',role:'ADMIN',profileCompleted:true})
  render(<MemoryRouter><AccountPage/></MemoryRouter>);await screen.findByText('Deniz Yılmaz')
- expect(screen.getByRole('link',{name:'Admin yorumlarım'})).toHaveAttribute('href','/admin')
+ expect(screen.getByRole('link',{name:'Admin cevaplarım'})).toHaveAttribute('href','/admin')
  expect(screen.getByRole('link',{name:'Topluluk yorumlarım'})).toBeVisible()
- expect(screen.queryByRole('link',{name:'Soru sor'})).not.toBeInTheDocument()
- expect(screen.getByRole('link',{name:'Admin başvurularım'})).toHaveAttribute('href','/applications')
+ expect(screen.queryByRole('link',{name:'Sorularım'})).not.toBeInTheDocument()
+ expect(screen.queryByRole('link',{name:'Admin başvurularım'})).not.toBeInTheDocument()
 })
