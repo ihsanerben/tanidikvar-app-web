@@ -23,5 +23,5 @@ export function adminProfile(v:unknown):AdminProfile{
  return v as unknown as AdminProfile
 }
 export async function getAdmin(id:string,signal?:AbortSignal):Promise<AdminProfile>{return adminProfile(await apiGet(`/api/admins/${encodeURIComponent(id)}`,signal))}
-export async function listAdmins(query:string,signal?:AbortSignal){return pageOf(await apiGet('/api/admins?'+query,signal),adminProfile)}
+export async function listAdmins(query:string,activeOnly=false,signal?:AbortSignal){const params=new URLSearchParams(query);if(activeOnly)params.set('activeOnly','true');return pageOf(await apiGet('/api/admins?'+params,signal),adminProfile)}
 export function avatarUrl(id:string){return (import.meta.env.VITE_API_BASE_URL||'http://localhost:8080').replace(/\/$/,'')+'/api/avatars/'+encodeURIComponent(id)}

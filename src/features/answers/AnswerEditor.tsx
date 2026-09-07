@@ -19,6 +19,6 @@ export function AnswerEditor({questionId,initial,onSaved,onCancel,reload,reloadQ
     <AuthFormError error={error}/>{error && ['STALE_VERSION','ANSWER_EXISTS','ANSWER_REMOVED'].includes(error.code) && <button type="button" onClick={reload}>Güncel yorumumu yükle</button>}
     {error?.code==='QUESTION_ARCHIVED' && <button type="button" onClick={reloadQuestion}>Güncel soruyu yükle</button>}
     {error?.code==='PROFILE_REQUIRED' && <Link to="/profile">Profilini tamamla</Link>}
-    <div className="answer-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Yorum değişikliklerini kaydet':'Yorumu yayınla'}</button>{onCancel && <button type="button" disabled={pending} onClick={onCancel}>Vazgeç</button>}</div>
+    <div className="answer-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Yorum değişikliklerini kaydet':'Yorumu yayınla'}</button>{onCancel && <button type="button" className="button button-secondary answer-cancel-button" disabled={pending} onClick={onCancel}>Vazgeç</button>}</div>
   </form>
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { OwnProfileAvatar } from './ProfileAvatar'
 import { ComposerDialog } from '../answers/ComposerDialog'
 import { AvatarEditor } from './AvatarEditor'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { apiGet, ApiError, isRecord } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
@@ -41,6 +41,7 @@ function ProfilePhotoPicker({name,isAdmin,required,onChanged}:{name:string;isAdm
 }
 function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const auth=useAuth()
+  const navigate=useNavigate()
   const [firstName,setFirst]=useState(initial.firstName??'')
   const [lastName,setLast]=useState(initial.lastName??'')
   const [status,setStatus]=useState<EducationStatus>(initial.educationStatus??'YKS_ADAYI')
@@ -53,7 +54,6 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const [linkedinUrl,setLinkedin]=useState(initial.linkedinUrl??''),[portfolioUrl,setPortfolio]=useState(initial.portfolioUrl??'')
   const [version,setVersion]=useState(initial.version)
   const [pending,setPending]=useState(false)
-  const [,setSaved]=useState(false)
   const [error,setError]=useState<ApiError|null>(null)
   const [avatarId,setAvatarId]=useState<string|null|undefined>(undefined)
   const submitting=useRef(false)
@@ -64,12 +64,13 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
     let currentAvatar=avatarId
     if(currentAvatar===undefined){try{const value=await apiGet('/api/me/avatar');currentAvatar=isRecord(value)&&(value.fileId===null||typeof value.fileId==='string')?value.fileId as string|null:null;setAvatarId(currentAvatar)}catch{currentAvatar=null;setAvatarId(null)}}
     if(!currentAvatar){setError(new ApiError(400,'VALIDATION_FAILED','Profilini tamamlamak için profil fotoğrafı ekle.',undefined,{avatarFileId:'Profilini tamamlamak için profil fotoğrafı ekle.'}));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[data-avatar-required] button')?.focus());return}
-    submitting.current=true;setPending(true);setError(null);setSaved(false)
+    submitting.current=true;setPending(true);setError(null)
     try{
       const result=await saveProfile({firstName,lastName,educationStatus:status,universityDepartmentId:status==='YKS_ADAYI'?null:department?.id??null,
         graduationYear:status==='MEZUN' && year?Number(year):null,biography,occupation:status==='MEZUN'?occupation:'',company:status==='MEZUN'?company:'',linkedinUrl,portfolioUrl,version})
-      setVersion(result.version);setSaved(true);window.dispatchEvent(new Event('profile:updated'))
+      setVersion(result.version);window.dispatchEvent(new Event('profile:updated'))
       if(auth.user) auth.setUser({...auth.user,profileCompleted:result.completed,role:['ADMIN','MANAGER'].includes(auth.user.role)?auth.user.role:result.educationStatus??'USER'})
+      navigate('/account',{replace:true})
     }catch(reason){setError(formError(reason));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{submitting.current=false;setPending(false)}
   }
@@ -77,7 +78,7 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const isAdmin=auth.user?.role==='ADMIN'
   return <section className="profile-page"><div className="profile-heading">{initial.completed&&<ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} onChanged={setAvatarId}/>}
     <div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
-    <form className="auth-card profile-form" onSubmit={submit} ref={form} onChange={()=>setSaved(false)}>
+    <form className="auth-card profile-form" onSubmit={submit} ref={form}>
       <fieldset disabled={pending}><legend>Temel bilgiler</legend>{!initial.completed&&<><ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} required onChanged={setAvatarId}/>{fieldError('avatarFileId')}</>}<div className="form-columns">
         <div><label htmlFor="firstName">Ad</label><input id="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e=>setFirst(e.target.value)} aria-invalid={!!error?.fieldErrors.firstName} aria-describedby={error?.fieldErrors.firstName?'firstName-error':undefined}/>{fieldError('firstName')}</div>
         <div><label htmlFor="lastName">Soyad</label><input id="lastName" autoComplete="family-name" required maxLength={80} value={lastName} onChange={e=>setLast(e.target.value)} aria-invalid={!!error?.fieldErrors.lastName} aria-describedby={error?.fieldErrors.lastName?'lastName-error':undefined}/>{fieldError('lastName')}</div>

@@ -30,8 +30,8 @@ export function AvatarEditor(){
  return <section className="auth-card avatar-editor"><h2>Profil fotoğrafı</h2>
  <div className="avatar-preview">{preview?<img className="profile-photo" src={preview} alt="Seçilen fotoğrafın önizlemesi"/>:id?<img className="profile-photo" src={base+'/api/avatars/'+encodeURIComponent(id)} alt="Profil fotoğrafın"/>:null}</div>
  <AuthFormError error={error}/>
- {!loaded?error?<button className="button" onClick={()=>{setError(null);setRevision(r=>r+1)}}>Tekrar dene</button>:<p role="status">Fotoğraf yükleniyor…</p>:<form noValidate onSubmit={e=>{e.preventDefault();void save()}}>
+ {!loaded?error?<button className="button" onClick={()=>{setError(null);setRevision(r=>r+1)}}>Tekrar dene</button>:<p role="status">Fotoğraf yükleniyor…</p>:<div>
  <label htmlFor="avatar-file">Fotoğraf seç</label><input ref={input} id="avatar-file" type="file" accept="image/jpeg,image/png" disabled={pending} onChange={e=>choose(e.target.files?.[0]??null)}/>
- <div className="application-actions"><button type="submit" className="button" disabled={pending} aria-busy={pending}>{pending?'Kaydediliyor…':'Fotoğrafı kaydet'}</button>{id&&<button type="button" className="button button-secondary" disabled={pending} onClick={()=>void save(true)}>Fotoğrafı kaldır</button>}</div></form>}
+ <div className="application-actions"><button type="button" className="button" disabled={pending} aria-busy={pending} onClick={()=>void save()}>{pending?'Kaydediliyor…':'Fotoğrafı kaydet'}</button>{id&&<button type="button" className="button button-secondary" disabled={pending} onClick={()=>void save(true)}>Fotoğrafı kaldır</button>}</div></div>}
  </section>
 }

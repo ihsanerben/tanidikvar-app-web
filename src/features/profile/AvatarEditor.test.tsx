@@ -40,3 +40,15 @@ it('rejects oversized or unsupported selections before sending a request',async(
  expect(await screen.findByRole('alert')).toHaveTextContent('JPEG veya PNG')
  expect(fetch).toHaveBeenCalledTimes(1)
 })
+it('uploads when the editor is embedded in the profile form',async()=>{
+ const fetch=vi.fn(async(url:string,options:RequestInit)=>{
+  if(url.endsWith('/csrf'))return json({token:'csrf'})
+  if(options.method==='POST')return json({fileId:'saved'})
+  return json({fileId:null})
+ })
+ vi.stubGlobal('fetch',fetch);const {container}=render(<form><AvatarEditor/></form>)
+ fireEvent.change(await screen.findByLabelText('Fotoğraf seç'),{target:{files:[new File(['photo'],'photo.png',{type:'image/png'})]}})
+ fireEvent.click(screen.getByRole('button',{name:'Fotoğrafı kaydet'}))
+ await waitFor(()=>expect(fetch.mock.calls.some(([url,options])=>String(url).endsWith('/api/me/avatar')&&(options as RequestInit).method==='POST')).toBe(true))
+ expect(container.querySelectorAll('form')).toHaveLength(1)
+})

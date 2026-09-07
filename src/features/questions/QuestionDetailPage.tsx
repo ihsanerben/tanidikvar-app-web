@@ -33,7 +33,7 @@ function QuestionDetail({question:q,reload,opening}:{question:Question;reload:()
       {confirm && <div className="archive-confirm"><p>Soru listelerden kalkacak ve düzenlemeye kapanacak. Bağlantıdan okunmaya devam edecek.</p><button className="button" disabled={pending} onClick={()=>void archive()}>Arşivlemeyi onayla</button><button disabled={pending} onClick={()=>setConfirm(false)}>Vazgeç</button></div>}
     </div>}
     <AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button onClick={reload}>Güncel soruyu yükle</button>}
-    <div className="answer-tabs" role="tablist" aria-label="Yorum türü">{[['admin','Admin yorumları'],['community','Topluluk yorumları']].map(([value,label])=><button key={value} type="button" role="tab" id={'tab-'+value} aria-selected={answerTab===value} aria-controls={'panel-'+value} onMouseDown={e=>e.preventDefault()} onClick={()=>setAnswerTab(value)}>{label}</button>)}</div>
+    <div className="answer-tabs" role="tablist" aria-label="Katkı türü">{[['admin','Admin cevapları'],['community','Topluluk yorumları']].map(([value,label])=><button key={value} type="button" role="tab" id={'tab-'+value} aria-selected={answerTab===value} aria-controls={'panel-'+value} onMouseDown={e=>e.preventDefault()} onClick={()=>setAnswerTab(value)}>{label}</button>)}</div>
     <div style={{minHeight:panelHeight}}><div ref={panel} role="tabpanel" id={'panel-'+answerTab} aria-labelledby={'tab-'+answerTab}>
     {answerTab==='admin'?<AdminAnswerSection questionId={q.id} archived={!!q.archivedAt} onChanged={()=>setAnswersRevision(r=>r+1)}/>:<AnswerSection questionId={q.id} archived={!!q.archivedAt} reloadQuestion={reload} onChanged={()=>setAnswersRevision(r=>r+1)}/>}</div></div>
   </article>

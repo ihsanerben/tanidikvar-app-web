@@ -22,10 +22,10 @@
   },
   {
     "title": "Profil ve fotoğraf",
-    "summary": "Adını, soyadını ve eğitim durumunu tamamla. Öğrenci veya mezunsan üniversite ve bölüm seç; istersen fotoğraf ekle.",
+    "summary": "Adını, soyadını, eğitim durumunu ve profil fotoğrafını tamamla. Öğrenci veya mezunsan üniversite ve bölüm seç.",
     "details": [
       "Yeni kayıt USER durumundadır. Eğitim seçenekleri YKS Adayı, Üniversite Öğrencisi ve Mezun’dur. Ad ve soyad zorunludur. Üniversite öğrencisi için üniversite-bölüm; mezun için bunlara ek olarak mezuniyet yılı gerekir.",
-      "Profil tamamlanmadan soru sorma, cevap verme ve beğenme yapılamaz. Fotoğraf, kısa biyografi, meslek ve şirket isteğe bağlıdır. Hesabım sayfası ad-soyad, e-posta, üniversite, bölüm ve rolü özetler.",
+      "Profil tamamlanmadan soru sorma, cevap verme ve beğenme yapılamaz. Profil fotoğrafı zorunludur; kısa biyografi, meslek ve şirket isteğe bağlıdır. Hesabım sayfası ad-soyad, e-posta, üniversite, bölüm ve rolü özetler.",
       "Üniversite değiştirildiğinde bölüm seçimi sıfırlanır. Geçmişte seçilmiş ve sonradan pasife alınmış bir eğitim kaydı korunabilir; yeni seçimler aktif listeden yapılır.",
       "Fotoğraf seç ile JPEG veya PNG dosyası seçilir; önizleme kontrol edilip Fotoğrafı kaydet düğmesine basılır. Dosya en fazla 5 MB ve 16 milyon piksel olabilir. Başarılı kayıt sonrasında fotoğraf gösterilir; Fotoğrafı kaldır görünürlüğünü kapatır.",
       "Profil fotoğrafı herkese açıktır. Sunucu görseli yeniden işler ve en uzun kenarı en fazla 512 piksel olacak şekilde saklar. Belgeler profil fotoğrafı olarak yüklenmemelidir.",
@@ -76,7 +76,7 @@
       "Manager soruları Adminlere dağıtmaz. Admin, soruları üniversite, bölüm ve taglere göre keşfedip kendi seçtiği soruya atanır. Aynı soruya birden fazla Admin atanabilir ve ayrı ayrı cevap verebilir.",
       "Her Admin aynı soru için tek Admin cevabına sahiptir. Günlük hak ilk kez Admin cevabı yayımlanan beş farklı soruyu kapsar. Gün Türkiye saatiyle gece yarısında yenilenir.",
       "Mevcut cevabın düzenlenmesi yeni soru hakkı tüketmez. Cevabı kaldırmak, geri yüklemek veya atamayı iptal etmek kullanılmış hakkı geri getirmez. Düzenlemelerde Düzenlendi ve tarih gösterilir.",
-      "Admin Panel’de kalan hak, cevaplanacak sorular, eski cevaplar, profil ve kendi sorularına bağlantılar bulunur. Atama iptal edilebilir; yayımlanmış cevap otomatik kaldırılmaz.",
+      "Admin Panel’de kalan hak, cevaplanacak sorular, eski cevaplar, profil ve topluluk yorumlarına bağlantılar bulunur. Admin hesapları soru oluşturmaz veya Sorularım akışını kullanmaz. Atama iptal edilebilir; yayımlanmış cevap otomatik kaldırılmaz.",
       "Admin cevapları soru altında ayrı bölümde gösterilir. Yazarın üniversitesi, bölümü, öğrenci/mezun durumu ve varsa mesleği görünür. Eğitim doğrulaması cevabın ilk yayınındaki geçmişi yansıtır; güncel çalışma bilgileri kişisel beyandır.",
       "Adminler sayfasından kişilerin açık profillerine ve cevapladıkları sorulara ulaşılır. Yetki kaldırıldığında yeni Admin cevabı verilemez; eski cevap kaldırılabilir, güncel yetki olmadan geri yüklenemez."
     ]

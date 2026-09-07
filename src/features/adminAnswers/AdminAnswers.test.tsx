@@ -29,24 +29,24 @@ it('assigns before publishing, uses CSRF and displays remaining quota',async()=>
   if(o.method==='POST'){saved=true;return json(original,201)}
   return list(saved?[original]:[])
  });vi.stubGlobal('fetch',fetch);section()
- fireEvent.click(await screen.findByRole('button',{name:'Admin yorumu yap'}))
- fireEvent.change(await screen.findByLabelText('Admin yorumun'),{target:{value:original.body}})
- fireEvent.click(screen.getByRole('button',{name:'Admin yorumunu yayınla'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Admin cevabı yaz'}))
+ fireEvent.change(await screen.findByLabelText('Admin cevabın'),{target:{value:original.body}})
+ fireEvent.click(screen.getByRole('button',{name:'Admin cevabını yayınla'}))
  await screen.findByRole('button',{name:'Düzenle'})
  expect(fetch.mock.calls.find(([,o])=>o.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
 it('quota exhaustion prevents a new editor but does not block assignment cancellation',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:null,assignment:{...initialAssignment,assigned:true,version:1}}):list()));section()
- expect(await screen.findByText(/Bugünkü beş yorum hakkını kullandın/)).toBeVisible()
- expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Admin yorumu yap'})).toBeDisabled()
+ expect(await screen.findByText(/Bugünkü beş cevap hakkını kullandın/)).toBeVisible()
+ expect(screen.queryByLabelText('Admin cevabın')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Admin cevabı yaz'})).toBeDisabled()
 })
 it('existing answers can be edited with no quota or assignment and keep drafts on stale errors',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string,o:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):o.method==='PUT'?json({code:'STALE_VERSION'},409):url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:original,assignment:initialAssignment}):list([original])))
  section();fireEvent.click(await screen.findByRole('button',{name:'Düzenle'}))
- fireEvent.change(screen.getByLabelText('Admin yorumunu düzenle'),{target:{value:'Kaydedilmeyen yeni Admin deneyimim.'}})
- fireEvent.click(screen.getByRole('button',{name:'Admin yorum değişikliklerini kaydet'}))
+ fireEvent.change(screen.getByLabelText('Admin cevabını düzenle'),{target:{value:'Kaydedilmeyen yeni Admin deneyimim.'}})
+ fireEvent.click(screen.getByRole('button',{name:'Admin cevap değişikliklerini kaydet'}))
  await screen.findByRole('button',{name:'Güncel Admin bilgilerini yükle'})
- expect(screen.getByLabelText('Admin yorumunu düzenle')).toHaveValue('Kaydedilmeyen yeni Admin deneyimim.')
+ expect(screen.getByLabelText('Admin cevabını düzenle')).toHaveValue('Kaydedilmeyen yeni Admin deneyimim.')
 })
 it('requires removal confirmation and restores the same versioned answer',async()=>{
  let a={...original}
@@ -92,4 +92,4 @@ it('renders removed authors anonymously without links or educational data',()=>{
 })
 
 
-it('blocks editing and restoration of a Manager-hidden Admin answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json(quota):url.endsWith('/my-admin-answer')?json({answer:{...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt},assignment:{...initialAssignment,assigned:true,version:1}}):list()));section();await screen.findByText(/Admin yorumun Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Düzenle'})).not.toBeInTheDocument()})
+it('blocks editing and restoration of a Manager-hidden Admin answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json(quota):url.endsWith('/my-admin-answer')?json({answer:{...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt},assignment:{...initialAssignment,assigned:true,version:1}}):list()));section();await screen.findByText(/Admin cevabın Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Düzenle'})).not.toBeInTheDocument()})
