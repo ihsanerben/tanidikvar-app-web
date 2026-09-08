@@ -13,7 +13,7 @@ export function OwnAdminAnswer({questionId,archived,reload,onLoaded}:{questionId
  useEffect(()=>{const c=new AbortController();Promise.all([getOwn(questionId,c.signal),getQuota(c.signal)]).then(([own,quota])=>{if(!c.signal.aborted){setData({own,quota});onLoaded?.(own.answer?.id??null)}}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[questionId,onLoaded])
  async function change(deleted:boolean){if(pending||!data?.own.answer)return;setPending(true);try{await setStatus(data.own.answer,deleted);reload()}catch(e){setError(formError(e))}finally{setPending(false)}}
  if(!data)return error?<><AuthFormError error={error}/><button onClick={reload}>Admin bilgilerini yeniden yükle</button></>:null
- const a=data.own.answer,active=data.quota.activeAdmin
+ const a=data.own.answer,active=data.quota.activeAdmin||auth.user?.role==='ADMIN'
  if(!active&&!a)return null
  if(!auth.user?.profileCompleted)return <Link to="/profile">Profilini tamamla</Link>
  return <div className="own-answer compact-own-answer">

@@ -40,6 +40,10 @@ it('quota exhaustion prevents a new editor but does not block assignment cancell
  expect(await screen.findByText(/Bugünkü beş yorum hakkını kullandın/)).toBeVisible()
  expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Admin yorumu yaz'})).toBeDisabled()
 })
+it('keeps the compose action visible when the session role is Admin while quota status is stale',async()=>{
+ vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,activeAdmin:false}):url.endsWith('/my-admin-answer')?json({answer:null,assignment:initialAssignment}):list()));section()
+ expect(await screen.findByRole('button',{name:'Admin yorumu yaz'})).toBeEnabled()
+})
 it('existing answers can be edited with no quota or assignment and keep drafts on stale errors',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string,o:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):o.method==='PUT'?json({code:'STALE_VERSION'},409):url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:original,assignment:initialAssignment}):list([original])))
  section();fireEvent.click(await screen.findByRole('button',{name:'Düzenle'}))
