@@ -28,7 +28,7 @@
       "Üniversite değişince bölüm seçimi temizlenir. Yeni eğitim seçimleri aktif katalogdan yapılır; daha önce seçilen ve sonradan pasifleştirilen mevcut eğitim bağlantısı korunabilir. Listede bulunmayan programı başka programmış gibi seçme.",
       "Biyografi, LinkedIn ve Portfolyo isteğe bağlıdır. Mezun profiline meslek ve şirket de eklenebilir. Bu alanlar herkese açık profilinde görünür; paylaşmak istediğin bilgileri yaz.",
       "Hesabım ad-soyad, e-posta ve eğitim özetini toplar. Eğitim kutusu ile üstteki Hesabım düğmesi aynı rol rengini kullanır: YKS adayı mavi, öğrenci yeşil, mezun kırmızı. Rol ayrıca yazıyla belirtilir.",
-      "Pilot sürümünde fotoğraf yükleme kapalıdır ve profil fotoğrafsız tamamlanır. Manager kendi Yönetim hesabım ekranında eğitim seçmeden ad-soyad ve hesap güvenliğini yönetir."
+      "Profil fotoğrafı yükleme kapalı olduğunda profil fotoğrafsız tamamlanabilir. Manager kendi Yönetim hesabım ekranında eğitim seçmeden ad-soyad ve hesap güvenliğini yönetir."
     ]
   },
   {
@@ -85,7 +85,7 @@
       "Başvurularım karar, tarih, varsa ret gerekçesi ve belge indirme işlemini sunar. Geçmiş kayıtlar sayfalanır. Aynı anda tek bekleyen başvuru olabilir; aktif Admin için yeni başvuru formu gösterilmez.",
       "Reddedilen başvurudan sonra bilgilerini kontrol ederek yeniden başvurabilirsin. Admin yetkisi kaldırıldıktan sonra uygun öğrenci/mezun hesabı yeniden başvurabilir; eski onay tek başına engel değildir.",
       "Belge herkese açık değildir; yetkili sahibi ve Manager erişebilir. Diğer Adminler belgeyi göremez. Gönderim anındaki doğrulama geçmişi korunur; yorum kartındaki profil bilgileri ise kişinin güncel profilinden gösterilir.",
-      "Pilot sürümünde belge yükleme ve Admin başvurusu kapalıdır. Arayüz bu durumu açıklar; normal sürümün başvuru adımları pilotta uygulanamaz."
+      "Admin başvurusu belge eklenerek veya belgesiz gönderilebilir. Eklenen PDF yalnız kullanıcı ve Manager tarafından görüntülenir; belge olmadan verilen kararda Manager profil bilgilerini esas alır."
     ]
   },
   {
@@ -126,9 +126,9 @@
   },
   {
     "title": "Sürüm farkları, saklama ve yardım",
-    "summary": "Hata mesajındaki yönlendirmeyi izle; bağlantıyı Sistem durumu’ndan kontrol et. Pilot ile normal sürümün dosya özellikleri farklıdır.",
+    "summary": "Hata mesajındaki yönlendirmeyi izle ve bağlantıyı Sistem durumu sayfasından kontrol et.",
     "details": [
-      "Bu rehber mevcut yerel uygulamayı ve arayüzde belirtilen pilot istisnalarını anlatır. Normal sürüm fotoğraf ve özel başvuru belgesini destekler. Pilot sürümünde bu yüklemeler kapalı, profil fotoğraf şartı kaldırılmıştır.",
+      "Profil fotoğrafı yükleme şu anda kapalıdır ve profil fotoğraf şartı olmadan tamamlanabilir. Admin başvurusu isteğe bağlı PDF belgeyle gönderilebilir.",
       "İçerik kaldırma veya katalog pasifleştirme verinin tüm geçmişten fiziksel silinmesi demek değildir. Geçmiş ilişkiler, başvurular ve yönetim kararları korunur. Panelde genel veritabanı sıfırlama işlemi bulunmaz.",
       "Bağlantı sorunu yaşarsan Sistem durumu sayfasını aç. İşlem sırasında hata aldıysan kaydın güncel durumunu kontrol et; ekrandaki Tekrar dene veya Güncel kaydı yükle yönlendirmesini izle. Kaydetmediğin metni korumadan sayfayı yenileme.",
       "Pencereler kapat düğmesi veya Escape ile kapanır. Dar ekranlarda alanlar alt alta geçebilir. Sayfaların başlıkları ve durum mesajları klavye ve ekran okuyucu kullanımını destekler.",

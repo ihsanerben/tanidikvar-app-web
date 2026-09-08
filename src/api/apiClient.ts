@@ -21,7 +21,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const messages: Record<string, string> = {
-  PILOT_RESTRICTION: 'Pilot sürümünde dosya yükleme ve Admin başvuruları kapalıdır.',
+  PILOT_RESTRICTION: 'Bu dosya işlemi şu anda kullanılamıyor.',
   INVALID_DATE_RANGE: 'Başlangıç bitişten sonra olamaz. Grafikler için en fazla 366 gün seç.',
   INVALID_SORT: 'Geçerli bir sıralama seçeneği seç.',
   UNKNOWN_UNIVERSITY: 'Eşleşmedeki üniversiteyi önce kataloğa veya toplu listeye ekle.',

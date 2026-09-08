@@ -15,7 +15,7 @@ function page(manager=false){return render(<MemoryRouter><ApplicationsPage manag
 it('shows immutable pending details without a second submission form',async()=>{
  vi.stubGlobal('fetch',vi.fn(async()=>list([{...app,firstName:'<script>alert(1)</script>'}])));page()
  expect(await screen.findByText('<script>alert(1)</script> Yılmaz')).toBeVisible()
- expect(document.querySelector('script')).toBeNull();expect(screen.queryByLabelText('e-Devlet öğrenci / mezun belgesi')).not.toBeInTheDocument()
+ expect(document.querySelector('script')).toBeNull();expect(screen.queryByLabelText('e-Devlet öğrenci / mezun belgesi (isteğe bağlı)')).not.toBeInTheDocument()
  expect(screen.queryByRole('button',{name:'Kabul et'})).not.toBeInTheDocument()
 })
 it('submits multipart with CSRF and leaves the browser to set the boundary',async()=>{
@@ -26,13 +26,22 @@ it('submits multipart with CSRF and leaves the browser to set the boundary',asyn
   if(options.method==='POST'){saved=true;return json(app,201)}
   return list(saved?[app]:[])
  });vi.stubGlobal('fetch',fetch);page()
- fireEvent.change(await screen.findByLabelText('e-Devlet öğrenci / mezun belgesi'),{target:{files:[new File(['%PDF-1.4\n%%EOF'],'belge.pdf',{type:'application/pdf'})]}})
+ fireEvent.change(await screen.findByLabelText('e-Devlet öğrenci / mezun belgesi (isteğe bağlı)'),{target:{files:[new File(['%PDF-1.4\n%%EOF'],'belge.pdf',{type:'application/pdf'})]}})
  fireEvent.submit(screen.getByRole('button',{name:'Başvuruyu gönder'}).closest('form')!)
  await screen.findByText('İşlem tamamlandı.')
  const call=fetch.mock.calls.find(([,o])=>o.method==='POST')!
  expect(call[1].body).toBeInstanceOf(FormData)
  expect(call[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
  expect(call[1].headers).not.toHaveProperty('Content-Type')
+})
+it('submits an application without a document',async()=>{
+ let saved=false
+ const fetch=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):url.endsWith('/profile')?json(profile):options.method==='POST'?(saved=true,json({...app,documentFileId:null},201)):list(saved?[{...app,documentFileId:null}]:[]))
+ vi.stubGlobal('fetch',fetch);page()
+ fireEvent.click(await screen.findByRole('button',{name:'Başvuruyu gönder'}))
+ await screen.findByText('Bu başvuruya belge eklenmedi.')
+ const data=fetch.mock.calls.find(([,o])=>o.method==='POST')![1].body as FormData
+ expect(data.get('request')).toBeInstanceOf(Blob);expect(data.get('document')).toBeNull()
 })
 it('preserves the submission key on network retry',async()=>{
  const fetch=vi.fn(async(url:string,options:RequestInit)=>{
@@ -41,7 +50,7 @@ it('preserves the submission key on network retry',async()=>{
   if(options.method==='POST')throw new TypeError('offline')
   return list()
  });vi.stubGlobal('fetch',fetch);page()
- fireEvent.change(await screen.findByLabelText('e-Devlet öğrenci / mezun belgesi'),{target:{files:[new File(['pdf'],'belge.pdf')]}})
+ fireEvent.change(await screen.findByLabelText('e-Devlet öğrenci / mezun belgesi (isteğe bağlı)'),{target:{files:[new File(['pdf'],'belge.pdf')]}})
  fireEvent.submit(screen.getByRole('button',{name:'Başvuruyu gönder'}).closest('form')!);await screen.findByText('Bağlantı kurulamadı. Lütfen tekrar dene.')
  fireEvent.submit(screen.getByRole('button',{name:'Başvuruyu gönder'}).closest('form')!)
  await waitFor(()=>expect(fetch.mock.calls.filter(([,o])=>o.method==='POST')).toHaveLength(2))

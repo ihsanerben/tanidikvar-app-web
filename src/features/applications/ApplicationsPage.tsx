@@ -7,7 +7,6 @@ import type { ApiError } from '../../api/apiClient'
 import { listApplications, type Applications } from './applicationApi'
 import { ApplicationCard } from './ApplicationCard'
 import { ApplicationForm } from './ApplicationForm'
-import { pilotMode } from '../../config/pilot'
 export function ApplicationsPage({manager=false}:{manager?:boolean}){
  const auth=useAuth()
  if(auth.status==='loading')return <section className="status-page" role="status">Hesap yükleniyor…</section>
@@ -27,7 +26,7 @@ function ApplicationsList({manager,canApply}:{manager:boolean;canApply:boolean})
 
  {error?<div className="auth-card"><AuthFormError error={error}/><button className="button" onClick={reload}>Tekrar dene</button></div>:!data?<p role="status">Başvurular yükleniyor…</p>:<><div className="application-list">{data.items.length===0?<p>Henüz başvuru yok.</p>:data.items.map(a=><ApplicationCard key={a.id+'-'+a.version+'-'+a.activeVerification} application={a} manager={manager} reload={reload}/>)}</div>
  {<nav className="application-actions" aria-label="Başvuru sayfaları"><button className="button button-secondary" disabled={page===0} onClick={()=>{setPage(page-1);setData(null)}}>Önceki</button><span>Sayfa {page+1} · {data.totalElements} başvuru</span><button className="button button-secondary" disabled={(page+1)*data.size>=data.totalElements} onClick={()=>{setPage(page+1);setData(null)}}>Sonraki</button></nav>}
- {!manager&&canApply&&page===0&&!pending&&!approved&&(pilotMode?<section className="auth-card"><h2>Admin başvuruları</h2><p>Pilot sürümünde belge yükleme ve Admin başvuruları kapalıdır.</p></section>:<ApplicationForm onSaved={()=>{setSaved(true);reload()}}/>)}</>}
+ {!manager&&canApply&&page===0&&!pending&&!approved&&<ApplicationForm onSaved={()=>{setSaved(true);reload()}}/>}</>}
  {!manager&&<Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link>}
  </section>
 }

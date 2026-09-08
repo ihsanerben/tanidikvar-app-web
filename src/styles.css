@@ -224,5 +224,3 @@ button[data-action-tone="danger"]{background:#bd3e4d;color:white;border-color:#b
 .usage-details summary:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
 .manager-account-grid { grid-template-columns: minmax(0, 760px); }
 .manager-account-grid .manager-avatar-trigger { justify-self: start; display: inline-flex; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
-.pilot-notice { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 18px; padding: 12px 24px; background: #fff3d4; color: #563e13; font-size: .85rem; line-height: 1.5; }
-.pilot-notice a { color: inherit; text-underline-offset: 3px; }

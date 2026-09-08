@@ -6,7 +6,7 @@ import { pilotMode } from '../../config/pilot'
 function parse(v:unknown):string|null{if(!isRecord(v)||!(v.fileId===null||typeof v.fileId==='string'))throw new ApiError(200,'INVALID_RESPONSE','Fotoğraf bilgisi alınamadı.');return v.fileId as string|null}
 const base=(import.meta.env.VITE_API_BASE_URL||'http://localhost:8080').replace(/\/$/,'')
 export function AvatarEditor(){
- if(pilotMode)return <section className="auth-card avatar-editor"><h2>Profil fotoğrafı</h2><p>Pilot sürümünde kalıcı dosya depolama bulunmadığı için profil fotoğrafı yükleme kapalıdır.</p></section>
+ if(pilotMode)return <section className="auth-card avatar-editor"><h2>Profil fotoğrafı</h2><p>Profil fotoğrafı yükleme şu anda kapalıdır.</p></section>
  return <AvatarEditorForm/>
 }
 function AvatarEditorForm(){
