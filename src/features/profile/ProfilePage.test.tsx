@@ -8,21 +8,21 @@ const empty={firstName:null,lastName:null,educationStatus:null,education:null,gr
 const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status})
 beforeEach(()=>setUser({id:'user',email:'test@example.test',role:'USER',profileCompleted:false}))
 afterEach(()=>vi.unstubAllGlobals())
-it('offers ten university choices without search or paging and resets the department when university changes',async()=>{
-  const universities=Array.from({length:10},(_,i)=>({id:`u${i}`,name:`Üniversite ${i}`,version:0,deletedAt:null}))
+it('loads every university page and resets the department when university changes',async()=>{
+  const universities=Array.from({length:130},(_,i)=>({id:`u${i}`,name:`Üniversite ${i}`,version:0,deletedAt:null}))
   const fetch=vi.fn(async(url:string)=>{
     if(url.includes('/departments')){
       const universityId=url.includes('/u0/')?'u0':'u1'
-      return json({items:[{id:`${universityId}-d`,universityId,universityName:'Üniversite',departmentId:'d',departmentName:'Bilgisayar Mühendisliği',available:true,version:0,deletedAt:null}],page:0,size:10,totalElements:1})
+      return json({items:[{id:`${universityId}-d`,universityId,universityName:'Üniversite',departmentId:'d',departmentName:'Bilgisayar Mühendisliği',available:true,version:0,deletedAt:null}],page:0,size:100,totalElements:1})
     }
-    if(url.includes('/universities'))return json({items:universities,page:0,size:10,totalElements:30})
+    if(url.includes('/universities')){const page=Number(new URL(url,'https://example.test').searchParams.get('page'));return json({items:universities.slice(page*100,(page+1)*100),page,size:100,totalElements:universities.length})}
     return json(empty)
   })
   vi.stubGlobal('fetch',fetch)
   render(<MemoryRouter><ProfilePage/></MemoryRouter>)
   fireEvent.change(await screen.findByLabelText('Eğitim durumu'),{target:{value:'UNIVERSITE_OGRENCISI'}})
   await waitFor(()=>expect(screen.getByLabelText('Üniversite')).toBeEnabled())
-  expect(within(screen.getByLabelText('Üniversite')).getAllByRole('option')).toHaveLength(11)
+  expect(within(screen.getByLabelText('Üniversite')).getAllByRole('option')).toHaveLength(131)
   expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
   expect(screen.queryByRole('button',{name:'Önceki'})).not.toBeInTheDocument()
   expect(screen.queryByRole('button',{name:'Sonraki'})).not.toBeInTheDocument()
@@ -35,7 +35,7 @@ it('offers ten university choices without search or paging and resets the depart
   await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
   expect(screen.getByLabelText('Bölüm')).toHaveValue('')
   expect(within(screen.getByLabelText('Bölüm')).queryByRole('option',{name:'Bilgisayar Mühendisliği'})).toHaveValue('u1-d')
-  expect(fetch.mock.calls.filter(([url])=>url.includes('/universities')).every(([url])=>url.includes('page=0&size=10'))).toBe(true)
+  expect(fetch.mock.calls.some(([url])=>url.includes('/universities?page=1&size=100'))).toBe(true)
 })
 it('keeps unsaved profile fields during a background session check',async()=>{
   let completeSession!: (response:Response)=>void

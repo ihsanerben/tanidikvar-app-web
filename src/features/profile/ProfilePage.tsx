@@ -88,8 +88,8 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
         {Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}
       </select>{fieldError('educationStatus')}
       {status!=='YKS_ADAYI' && <div className="form-columns">
-        <RemotePicker compact label="Üniversite" endpoint="/api/universities" value={university} onChange={value=>{setUniversity(value);setDepartment(null)}}/>
-        <RemotePicker compact key={university?.id??'none'} label="Bölüm" endpoint={`/api/universities/${university?.id}/departments`} education value={department} disabled={!university}
+        <RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={value=>{setUniversity(value);setDepartment(null)}}/>
+        <RemotePicker key={university?.id??'none'} label="Bölüm" endpoint={`/api/universities/${university?.id}/departments`} education value={department} disabled={!university}
           onChange={setDepartment} error={error?.fieldErrors.universityDepartmentId}/>
       </div>}
       {initial.education && !initial.education.available && department?.id===initial.education.id && status!=='YKS_ADAYI' && <p className="field-help">Mevcut eğitim kaydın korunuyor; bu eşleşme artık yeni seçimlere açık değil.</p>}
