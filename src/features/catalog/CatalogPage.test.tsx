@@ -1,4 +1,4 @@
-import { render,screen,fireEvent } from '@testing-library/react'
+import { render,screen,fireEvent,waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach,expect,it,vi } from 'vitest'
 import { CatalogPage } from './CatalogPage'
@@ -28,4 +28,20 @@ it('allows a manager to create a university and renders the returned catalog',as
   fireEvent.click(screen.getByRole('button',{name:'Ekle'}))
   await screen.findByText('Test Üniversitesi')
   expect(fetch.mock.calls.some(([url,options])=>url.endsWith('/api/manager/catalog/UNIVERSITY') && options.method==='POST')).toBe(true)
+})
+it('allows a manager to add multiple tags one per line',async()=>{
+  setUser({id:'id',email:'test@example.test',role:'MANAGER',profileCompleted:false})
+  const fetch=vi.fn(async(url:string,options:RequestInit={})=>{
+    if(url.endsWith('/csrf'))return json({token:'csrf'})
+    if(url.endsWith('/api/manager/catalog/tags/bulk-import')&&options.method==='POST')return json({tagsCreated:2,skipped:1})
+    return json({items:[],page:0,size:100,totalElements:0})
+  })
+  vi.stubGlobal('fetch',fetch)
+  render(<MemoryRouter initialEntries={['/manager/tags']}><CatalogPage tags/></MemoryRouter>)
+  fireEvent.click(screen.getByText('Toplu tag ekle'))
+  fireEvent.change(screen.getByLabelText('Tagler'),{target:{value:'Erasmus\nKampüs hayatı\nErasmus'}})
+  fireEvent.change(screen.getByLabelText('İşlem gerekçesi'),{target:{value:'Yeni konu listesi'}})
+  fireEvent.click(screen.getByRole('button',{name:'Kontrol et ve toplu ekle'}))
+  await screen.findByText('2 tag eklendi. 1 mevcut veya yinelenen tag atlandı.')
+  await waitFor(()=>expect(fetch.mock.calls.some(([url,options])=>url.endsWith('/api/manager/catalog/tags/bulk-import')&&options?.method==='POST'&&JSON.parse(String(options?.body)).tags.length===3)).toBe(true))
 })
