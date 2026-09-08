@@ -36,9 +36,9 @@ it('publishes with CSRF and replaces the form with own-answer actions',async()=>
 it('keeps edited text when the server rejects a stale version',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):options.method==='PUT'?json({code:'STALE_VERSION'},409):url.endsWith('/my-answer')?json(original):list([original])))
   section();fireEvent.click(await screen.findByRole('button',{name:'Düzenle'}))
-  fireEvent.change(screen.getByLabelText('Yorumunu düzenle'),{target:{value:'Kaydedilmeyen yeni yorum içeriği'}})
+  fireEvent.change(screen.getByRole('textbox',{name:'Yorumunu düzenle'}),{target:{value:'Kaydedilmeyen yeni yorum içeriği'}})
   fireEvent.click(screen.getByRole('button',{name:'Yorum değişikliklerini kaydet'}));await screen.findByRole('button',{name:'Güncel yorumumu yükle'})
-  expect(screen.getByLabelText('Yorumunu düzenle')).toHaveValue('Kaydedilmeyen yeni yorum içeriği')
+  expect(screen.getByRole('textbox',{name:'Yorumunu düzenle'})).toHaveValue('Kaydedilmeyen yeni yorum içeriği')
 })
 it('removes only after confirmation and restores the same answer without another POST',async()=>{
   let current:Omit<typeof original,'deletedAt'> & {deletedAt:string|null}={...original}

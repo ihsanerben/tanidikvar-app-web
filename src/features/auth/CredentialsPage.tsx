@@ -32,7 +32,7 @@ export function CredentialsPage({ mode }: { mode: 'login' | 'register' }) {
   }
   return <section className="auth-page"><div className="auth-intro">
     <h1>{sent ? 'E-postanı kontrol et.' : isRegister ? 'Aramıza katıl.' : 'Tekrar hoş geldin.'}</h1>
-</div>
+<p>{sent?'Adresin kayıt için uygunsa doğrulama bağlantısı gönderildi. Gelen kutunu ve spam klasörünü kontrol et.':isRegister?'Üniversite deneyimlerini keşfetmek ve sorularını paylaşmak için hesabını oluştur.':'Sorularına, yorumlarına ve hesabına kaldığın yerden devam et.'}</p></div>
     {sent ? <div className="auth-card">
       <Link className="button" to="/login">Giriş yap</Link><Link to="/resend-verification">Doğrulama bağlantısını yeniden iste</Link></div>
       : <form className="auth-card" onSubmit={submit} ref={form}>
@@ -42,6 +42,7 @@ export function CredentialsPage({ mode }: { mode: 'login' | 'register' }) {
         <label htmlFor="password">Şifre</label><input id="password" type="password" autoComplete={isRegister ? 'new-password' : 'current-password'}
           required minLength={isRegister ? 10 : undefined} maxLength={72} value={password} onChange={event => setPassword(event.target.value)}
           aria-invalid={!!error?.fieldErrors.password} aria-describedby={error?.fieldErrors.password?'password-help':undefined} />
+        {isRegister&&!error?.fieldErrors.password&&<p className="field-help">En az 10 karakterden oluşan, başka bir hesapta kullanmadığın bir şifre seç.</p>}
         {error?.fieldErrors.password&&<p className="field-error" id="password-help">{error.fieldErrors.password}</p>}
         <AuthFormError error={error} />
         {error?.code === 'EMAIL_UNVERIFIED' && <Link to="/resend-verification">Doğrulama bağlantısı iste</Link>}

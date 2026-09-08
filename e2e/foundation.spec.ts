@@ -9,7 +9,7 @@ test('home is responsive and connects to the actual API', async ({ page }, testI
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('home.png'), fullPage: true })
   await page.getByRole('link', { name: 'TanıdıkVar’ı keşfet' }).click()
-  await expect(page).toHaveURL(/#nasil-calisir$/)
+  await expect(page).toHaveURL(/\/about#nasil-calisir$/)
   await page.getByRole('link', { name: 'Sistem durumu' }).click()
   await expect(page.getByRole('heading', { name: 'Bağlantı hazır' })).toBeVisible()
   expect(errors).toEqual([])

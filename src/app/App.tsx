@@ -1,3 +1,4 @@
+import { PilotNotice } from './PilotNotice'
 import { ManagerShell } from '../features/management/ManagerShell'
 import { useProfileSummary,roleLabels } from '../features/profile/useProfileSummary'
 import { AdminStars } from '../features/profile/ProfileAvatar'
@@ -30,7 +31,7 @@ export function App() {
     <header className="site-header"><Link className="brand" to="/" aria-label="TanıdıkVar sorular"><span className="brand-mark" aria-hidden="true">t.</span>tanıdık<span>var</span></Link>
       <nav className="primary-nav" aria-label="Ana menü"><NavLink to="/questions">Sorular</NavLink><NavLink to="/popular">Popülerler</NavLink><NavLink to="/admins">Adminler</NavLink><NavLink to="/about">Hakkımızda</NavLink></nav>
       <nav className="auth-nav" aria-label="Hesap">{auth.user?<HeaderIdentity key={auth.user.id} userId={auth.user.id} role={auth.user.role}/>:<><Link to="/login">Giriş yap</Link><Link className="button" to="/register">Kayıt ol</Link></>}</nav></header>
-    <main id="main"><Routes>
+    <main id="main"><PilotNotice/><Routes>
       <Route path="/login" element={<CredentialsPage key="login" mode="login" />} />
       <Route path="/register" element={<CredentialsPage key="register" mode="register" />} />
       <Route path="/verify-email" element={<EmailActionPage key="verify" mode="verify" />} />

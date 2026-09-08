@@ -10,7 +10,7 @@ export function AvatarEditor(){
  return <AvatarEditorForm/>
 }
 function AvatarEditorForm(){
- const [id,setId]=useState<string|null>(null),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState<string|null>(null),[loaded,setLoaded]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null),[revision,setRevision]=useState(0),[,setSaved]=useState(false)
+ const [id,setId]=useState<string|null>(null),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState<string|null>(null),[loaded,setLoaded]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null),[revision,setRevision]=useState(0),[saved,setSaved]=useState(false)
  const busy=useRef(false),input=useRef<HTMLInputElement>(null),previewUrl=useRef<string|null>(null)
  useEffect(()=>{const c=new AbortController();apiGet('/api/me/avatar',c.signal).then(v=>{if(!c.signal.aborted){setId(parse(v));setLoaded(true)}}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[revision])
  useEffect(()=>()=>{if(previewUrl.current)URL.revokeObjectURL(previewUrl.current)},[])
@@ -34,6 +34,8 @@ function AvatarEditorForm(){
  }
  return <section className="auth-card avatar-editor"><h2>Profil fotoğrafı</h2>
  <div className="avatar-preview">{preview?<img className="profile-photo" src={preview} alt="Seçilen fotoğrafın önizlemesi"/>:id?<img className="profile-photo" src={base+'/api/avatars/'+encodeURIComponent(id)} alt="Profil fotoğrafın"/>:null}</div>
+ {saved&&<p role="status">{id?'Fotoğraf güncellendi.':'Fotoğraf kaldırıldı.'}</p>}
+ <p className="field-help">JPEG veya PNG, en fazla 5 MB. Fotoğrafın herkese açık profilinde görünür.</p>
  <AuthFormError error={error}/>
  {!loaded?error?<button className="button" onClick={()=>{setError(null);setRevision(r=>r+1)}}>Tekrar dene</button>:<p role="status">Fotoğraf yükleniyor…</p>:<div>
  <label htmlFor="avatar-file">Fotoğraf seç</label><input ref={input} id="avatar-file" type="file" accept="image/jpeg,image/png" disabled={pending} onChange={e=>choose(e.target.files?.[0]??null)}/>

@@ -36,7 +36,8 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   const [loadedQuery,setLoadedQuery]=useState<string|null>(null)
   const [filtersOpen,setFiltersOpen]=useState(false)
   const [questionComposerOpen,setQuestionComposerOpen]=useState(false)
-  const activeFilterCount=['scope','universityId','universityDepartmentId','departmentId','tagId'].filter(key=>params.has(key)).length
+  const activeFilterCount=['scope','universityId','universityDepartmentId','departmentId','tagId','adminId'].filter(key=>params.has(key)).length
+  const canClear=activeFilterCount>0||params.has('q')||params.has('sort')
   const waiting=loading||loadedQuery!==query
   useEffect(()=>{
     const controller=new AbortController()
@@ -60,8 +61,8 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
       <RemotePicker key={university?.id??'none'} label="Bu üniversitedeki bölüm" education disabled={!university} endpoint={`/api/universities/${university?.id}/departments`} value={education} onChange={v=>{setEducation(v);filter('universityDepartmentId',v?.id??null)}}/></div>
       <RemotePicker label="Bölüm (tüm üniversitelerde)" endpoint="/api/departments" value={department} onChange={v=>{setDepartment(v);filter('departmentId',v?.id??null)}}/>
       <RemotePicker label="Etiket" endpoint="/api/tags" value={tag} onChange={v=>{setTag(v);filter('tagId',v?.id??null)}}/>
-    </div><div className="question-filter-footer"><p>{activeFilterCount?'Seçimler sonuçlara otomatik uygulanır.':'Şu anda tüm sorular gösteriliyor.'}</p><button className="filter-clear-button" type="button" disabled={!activeFilterCount&&!params.has('sort')} onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setEducation(null);setTag(null);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Tümünü temizle</button></div></section>}
-    {!mine && ['scope','universityId','universityDepartmentId','departmentId','tagId'].some(key=>params.has(key))&&<p className="active-filter-summary">Filtreler uygulanıyor. Filtreleri temizle düğmesiyle tümünü kaldırabilirsin.</p>}
+    </div><div className="question-filter-footer"><p>{activeFilterCount?'Seçimler sonuçlara otomatik uygulanır.':'Şu anda tüm sorular gösteriliyor.'}</p><button className="filter-clear-button" type="button" disabled={!canClear} onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setEducation(null);setTag(null);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Tümünü temizle</button></div></section>}
+    {!mine && ['scope','universityId','universityDepartmentId','departmentId','tagId'].some(key=>params.has(key))&&<p className="active-filter-summary">Filtreler uygulanıyor. Tümünü temizle düğmesiyle tümünü kaldırabilirsin.</p>}
     {error?<div className="auth-card"><AuthFormError error={error}/><button onClick={()=>{setLoading(true);setRevision(r=>r+1)}}>Tekrar dene</button></div>:waiting?<p role="status">Sorular yükleniyor…</p>:result?.items.length===0?<div className="question-empty"><h2>{popular?'Bu dönemde popüler soru yok.':'Henüz soru yok.'}</h2></div>:<div className="question-list">{result?.items.map(q=><QuestionCard key={q.id} question={q}/>)}</div>}
     {result && !error && <div className="pagination"><button disabled={waiting||result.page===0} onClick={()=>page(result.page-1)}>Önceki sayfa</button><span>{result.totalElements} soru · Sayfa {result.page+1}</span><button disabled={waiting||(result.page+1)*result.size>=result.totalElements} onClick={()=>page(result.page+1)}>Sonraki sayfa</button></div>}
     {mine&&<Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link>}

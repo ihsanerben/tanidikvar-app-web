@@ -17,6 +17,7 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
   const navigate=useNavigate(),busy=useRef(false),form=useRef<HTMLFormElement>(null)
   const [requestId]=useState(()=>crypto.randomUUID())
   const [title,setTitle]=useState(initial?.title??'')
+  const [body,setBody]=useState(initial?.body??'')
   const [scope,setScope]=useState<Scope>(initial?.scope??'GENERAL')
   const [university,setUniversity]=useState<Choice|null>(initial?.universityId?{id:initial.universityId,label:initial.universityName!}:null)
   const [education,setEducation]=useState<Choice|null>(initial?.universityDepartmentId?{id:initial.universityDepartmentId,label:initial.departmentName!}:null)
@@ -27,7 +28,7 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
   async function submit(event:FormEvent){event.preventDefault();if(busy.current)return
     if(scope==='UNIVERSITY'&&!university || scope==='UNIVERSITY_DEPARTMENT'&&!education){setError(new ApiError(400,'VALIDATION_FAILED','Kapsama uygun üniversite ve bölüm seç.',undefined,{scope:'Kapsama uygun üniversite ve bölüm seç.'}));return}
     busy.current=true;setPending(true);setError(null)
-    const content={title,body:'',scope,universityId:scope==='UNIVERSITY'?university?.id??null:null,universityDepartmentId:scope==='UNIVERSITY_DEPARTMENT'?education?.id??null:null,tagIds:tags.map(t=>t.id)}
+    const content={title,body,scope,universityId:scope==='UNIVERSITY'?university?.id??null:null,universityDepartmentId:scope==='UNIVERSITY_DEPARTMENT'?education?.id??null:null,tagIds:tags.map(t=>t.id)}
     try{const q=initial?await updateQuestion(initial.id,initial.version,content):await createQuestion(requestId,content);navigate(`/questions/${q.id}`)}
     catch(e){setError(formError(e));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{busy.current=false;setPending(false)}
@@ -35,6 +36,9 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
   return <section className="question-form-page"><h1>{initial?'Sorunu düzenle.':'Aklında ne var?'}</h1>
     <form className="auth-card" onSubmit={submit} ref={form}><fieldset disabled={pending}><legend>Soru bilgileri</legend>
       <label htmlFor="question-title">Soru başlığı</label><input id="question-title" required minLength={10} maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} aria-invalid={!!field('title')} aria-describedby={field('title')?'question-title-error':undefined}/>{message('title')}
+      <p className="field-help">Tek bir konuyu açıkça sor. Başlık 10–200 karakter olmalı.</p>
+      <label htmlFor="question-body">Açıklama (isteğe bağlı)</label><textarea id="question-body" rows={4} maxLength={5000} value={body} onChange={e=>setBody(e.target.value)} aria-invalid={!!field('body')} aria-describedby={field('body')?'question-body-error':'question-body-help'}/>{message('body')}
+      <p className="field-help" id="question-body-help">Yanıtlayanlara yardımcı olacak ayrıntıları ekle. {body.length.toLocaleString('tr-TR')} / 5.000 karakter.</p>
       <label htmlFor="question-scope">Soru kapsamı</label><select id="question-scope" value={scope} onChange={e=>setScope(e.target.value as Scope)} aria-invalid={!!field('scope')} aria-describedby={field('scope')?'question-scope-error':undefined}>{Object.entries(scopeLabels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>{message('scope')}
       {scope!=='GENERAL' && <div className="form-columns"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={v=>{setUniversity(v);setEducation(null)}} error={field('universityId')}/>
       {scope==='UNIVERSITY_DEPARTMENT' && <RemotePicker key={university?.id??'none'} label="Bölüm" education endpoint={`/api/universities/${university?.id}/departments`} disabled={!university} value={education} onChange={setEducation} error={field('universityDepartmentId')}/>}</div>}

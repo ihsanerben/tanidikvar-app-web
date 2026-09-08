@@ -22,11 +22,11 @@ npm install
 `run.sh`, yoksa `.env.example` dosyasını `.env` olarak kopyalar; mevcut ayarları korur. Yalnız web uygulamasını başlatır. `.env` içindeki `VITE_API_BASE_URL` backend adresi, `WEB_PORT` web portudur. API ayrıca çalıştırılmalıdır. Backend CORS ayarı web origin'ine izin vermelidir.
 
 - Web: http://localhost:5173
-- `/`: Platform tanıtımı.
+- `/`: `/questions` yönlendirmesi; platform tanıtımı `/about` sayfasındadır.
 - `/register`, `/login`, `/account`: kayıt, giriş ve korumalı hesap ekranı.
 - `/profile`: eğitim durumuna göre profil tamamlama/düzenleme.
-- `/manager`: üniversite/bölüm/tag ve eşleşme yönetimi.
-- `/admin/tags`: Admin için yeni tag oluşturma.
+- `/manager`: yönetim özeti; diğer yönetim ekranları ayrı menülerdedir.
+- `/manager/tags`: Manager için gerekçeli tag yönetimi.
 - `/verify-email`, `/resend-verification`: e-posta doğrulama.
 - `/forgot-password`, `/reset-password`: şifre sıfırlama.
 - `/durum`: Gerçek backend health API'si; API kapalıysa hata ve yeniden deneme gösterir.
@@ -42,22 +42,29 @@ npm run lint
 npm run build
 ```
 
-API ve web çalışırken gerçek tarayıcı testleri:
+Günlük kullanıcı verilerinden ayrı Compose projesinde API, web, Mailpit ve elle yüklenmiş başlangıç kataloğu hazırken gerçek tarayıcı testleri:
 
 ```bash
 npx playwright install chromium
-npm run test:e2e
+export E2E_BASE_URL=http://localhost:15173
+export E2E_MAILPIT_URL=http://localhost:8125
+export E2E_POSTGRES_CONTAINER=tanidikvar-full-review-postgres-1
+export E2E_DB_USER=review
+export E2E_DB_NAME=tanidikvar_review
+npm run test:e2e -- --project=desktop
+# Mobil grup öncesinde yalnız test API’sinin hız limitinin sıfırlanmasını bekle.
+npm run test:e2e -- --project=mobile
 ```
 
-Özel web adresinde `E2E_BASE_URL` kullanılır. Backend hiçbir yerel klasör yoluyla bulunmaz; web'in `VITE_API_BASE_URL` adresinden erişilir.
+Bu beş değişken zorunludur; örnekteki adres/isimleri kendi izole Compose ortamına göre ayarla. Ortamı doğrulamadan günlük uygulamanın adreslerini yazma. Testler tek worker kullanır. Backend hiçbir yerel klasör yoluyla bulunmaz; web'in `VITE_API_BASE_URL` adresinden erişilir.
 
 Kayıt otomatik oturum açmaz; e-posta doğrulaması gerekir. Yerel backend Mailpit kullanır: http://localhost:8025 adresindeki e-postadan bağlantıyı aç. E-posta bağlantısı yalnız açılınca tüketilmez; doğrulama/sıfırlama düğmesiyle tamamlanır.
 
 Merkezi API client credentials, CSRF, güvenli hata/field error/Retry-After ve en fazla bir 401 tekrarını yönetir. Eşzamanlı refresh ortak promise ile, sekmeler arası auth işlemleri localhost/HTTPS üzerinde Web Locks ile koordine edilir. Web Locks bulunmayan tarayıcılarda aynı sekme kilidi çalışır; sekmeler arası yarışın güvenli sonucu yeniden giriş gerektirebilir. JWT browser storage'a yazılmaz veya JavaScript ile okunmaz. Sekme tekrar odaklandığında hesap sunucudan doğrulanır.
 
-Tarayıcı auth testleri API, web ve Mailpit'in çalışmasını gerektirir. `E2E_MAILPIT_URL` varsayılanı `http://localhost:8025`; `FRONTEND_URL` e-posta bağlantıları için test web origin'iyle eşleşmelidir. Testler rastgele `@example.test` hesapları ve yerel e-postalar oluşturur; fiziksel veri temizliği yapmaz. Rate limit nedeniyle kısa sürede çok sayıda test tekrarı `429` üretebilir; `Retry-After` süresini bekle.
+Tarayıcı auth testleri API, web ve Mailpit'in çalışmasını gerektirir. `E2E_MAILPIT_URL` zorunludur; `FRONTEND_URL` e-posta bağlantıları için test web origin'iyle eşleşmelidir. Testler rastgele `@example.test` hesapları ve yerel e-postalar oluşturur; fiziksel veri temizliği yapmaz. Rate limit nedeniyle kısa sürede çok sayıda test tekrarı `429` üretebilir; `Retry-After` süresini bekle.
 
-Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; topluluk cevapları da uygulanmıştır; doğrulanmış Admin cevapları ve Admin katkı paneli de uygulanmıştır; kalan Manager/panel işlevleri sonraki teslimlerdir. Tamamlanmış profil ekranında fotoğraf yükleme/kaldırma vardır; fotoğrafsız sunumlarda baş harf avatarı kullanılabilir.
+Profil tamamlama, katalog ve Manager katalog paneli uygulanmıştır. Soru yönetimi de uygulanmıştır; topluluk cevapları da uygulanmıştır; doğrulanmış Admin cevapları ve Admin katkı paneli de uygulanmıştır; ayrı Manager çalışma alanı da uygulanmıştır. Tamamlanmış profil ekranında fotoğraf yükleme/kaldırma vardır; fotoğrafsız sunumlarda baş harf avatarı kullanılabilir.
 
 Profil/katalog mutasyonları merkezi CSRF ve en fazla bir 401 retry kullanır. Network hatasında yazma tekrar edilmez. Kayıt version'ı stale ise form korunur ve yeniden yükleme önerilir. Üniversite/bölüm seçimleri arama ve sayfalama destekler; yalnız ilk sayfanın kayıtlarıyla sınırlı seçim yoktur.
 
@@ -187,7 +194,7 @@ Profil fotoğrafı profil başlığında, Hesabım, Yorumlarım ve cevap kartlar
 
 Manager girişinde `/manager` açılır; public menünün yerine `ManagerShell` sabit başlık, sol menü ve mobil açılır menü sunar. Özet, Başvurular, Kullanıcılar, Sorular ve Cevaplar, Üniversiteler ve Bölümler, Tagler, İşlem Geçmişi, Hesabım buradadır. Katkı/atama/başvuru bağlantıları yoktur; backend de işlemleri reddeder.
 
-`/manager/applications/:id` belge ve bilgileri birlikte, önceki başvurularla gösterir. `/manager/users/:id` eğitim/hesap/doğrulama/katkı özeti ve gerekçeli yönetim işlemlerini toplar. `/manager/questions/:id` gizli içerik dahil iki cevap türünü inceler; yalnız görünürlük ve soru kapsam/tagleri değiştirilebilir. Soru incelemesi görüntülenme bildirimi göndermez.
+`/manager/applications/:id` belge ve bilgileri birlikte, önceki başvurularla gösterir. `/manager/users/:id` eğitim/hesap/doğrulama/katkı özeti ve gerekçeli yönetim işlemlerini toplar. `/manager/questions/:id` gizli içerik dahil iki cevap türünü inceler; görünürlük ile soru başlık/açıklama/kapsam/tagleri gerekçeyle değiştirilebilir; yorum metinleri korunur. Soru incelemesi görüntülenme bildirimi göndermez.
 
 Katalog durum kararından önce bağlı profil/soru sayıları görünür. Ekleme/ad/durum/eşleştirme gerekçeleri backend’e gönderilir. `/manager/actions` filtreli liste, `/manager/actions/:id` aktör/zaman/hedef/gerekçe detayıdır. `/manager/account` ad-soyad, fotoğraf, e-posta ve parola güvenliği içerir; eğitim tamamlama gerektirmez.
 
@@ -198,4 +205,10 @@ Güncel Manager teslimi doğrulaması: 123 backend, 109 frontend testi ve 8 masa
 
 ## Sosyal profil ve cevaplar
 
-Profil düzenlemede LinkedIn ve Portfolyo bağlantıları isteğe bağlıdır; ilk profil kaydından önce de fotoğraf yüklenebilir. Cevap kartındaki kişi adına tıklayınca public bilgiler ve güvenli dış bağlantılar popup’ta açılır. Soru detayında Admin cevapları varsayılan sekmedir; Topluluk cevapları ikinci sekmede yüklenir. Kalp düğmesi beğeniyi açar/kapatır. Admin hesabında soru oluşturma, Sorularım ve Admin başvurusu bağlantıları yoktur; Cevaplarım günlük Admin cevap kotasını, Yorumlarım topluluk cevaplarını gösterir.
+Profil düzenlemede LinkedIn ve Portfolyo bağlantıları isteğe bağlıdır; ilk profil kaydından önce de fotoğraf yüklenebilir. Cevap kartındaki kişi adına tıklayınca public bilgiler ve güvenli dış bağlantılar popup’ta açılır. Soru detayında Admin cevapları varsayılan sekmedir; Topluluk cevapları ikinci sekmede yüklenir. Kalp düğmesi beğeniyi açar/kapatır. Admin soru oluşturabilir ve başvuru geçmişini görebilir; aktif Admin için yeni başvuru formu gösterilmez; Cevaplarım günlük Admin cevap kotasını, Yorumlarım topluluk cevaplarını gösterir.
+
+## 8 Eylül sistem incelemesi
+
+Soru açıklaması düzenleme sırasında korunur. Ortak diyaloglar native modal, Escape, odak iadesi ve kaydırma kilidi kullanır. Grafiklerde tek günlük noktalar ve tüm metrikleri içeren veri tablosu vardır. Katalog pasifleştirme/geri alma, etki sayıları ve kullanıcı tarafından yazılan gerekçeyle onaylanır. Başvuru geçmişi sayfalanır; eski onay yeniden başvuruyu tek başına engellemez. Pilot profili fotoğraf gerektirmez. Sayfa başlıkları ve hata sınırı eklendi. E2E günlük veritabanına varsayılan bağlantı kurmaz.
+
+Manager hesabında fotoğrafa tıklamak düzenleme penceresini açar. Soru düzenleme penceresi başlık ve açıklamayı da gerekçe/version ile API’ye gönderir; eski sürümde form korunur.

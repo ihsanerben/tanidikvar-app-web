@@ -16,6 +16,7 @@ export function ApplicationForm({onSaved}:{onSaved:()=>void}){
  <h2>Admin başvurusu</h2><p>{profile.firstName} {profile.lastName} · {profile.education?.universityName} · {profile.education?.departmentName}</p>
  <p>{profile.educationStatus==='MEZUN'?`${profile.graduationYear} Mezunu`:'Üniversite Öğrencisi'}</p>
 
+ <p className="field-help">PDF, en fazla 10 MB. Belgeyi yalnız sen ve Manager görebilir. Gönderilen bilgiler ve belge sonradan değiştirilemez.</p>
  <label htmlFor="document">e-Devlet öğrenci / mezun belgesi</label><input id="document" type="file" accept=".pdf,application/pdf" required disabled={pending} onChange={e=>{setFile(e.target.files?.[0]??null);request.current=crypto.randomUUID()}}/>
  <AuthFormError error={error}/>
  {error?.status===409&&<button type="button" className="button button-secondary" onClick={reload}>Güncel profili yükle</button>}

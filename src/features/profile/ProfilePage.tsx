@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { OwnProfileAvatar } from './ProfileAvatar'
 import { ComposerDialog } from '../answers/ComposerDialog'
 import { AvatarEditor } from './AvatarEditor'
+import { pilotMode } from '../../config/pilot'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { apiGet, ApiError, isRecord } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
@@ -61,9 +62,10 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   useEffect(()=>{const controller=new AbortController();apiGet('/api/me/avatar',controller.signal).then(value=>{if(!controller.signal.aborted&&isRecord(value)&&(value.fileId===null||typeof value.fileId==='string'))setAvatarId(value.fileId as string|null)}).catch(()=>{if(!controller.signal.aborted)setAvatarId(null)});return()=>controller.abort()},[])
   async function submit(event:FormEvent){
     event.preventDefault();if(submitting.current)return
+    submitting.current=true;setPending(true);setError(null)
     let currentAvatar=avatarId
-    if(currentAvatar===undefined){try{const value=await apiGet('/api/me/avatar');currentAvatar=isRecord(value)&&(value.fileId===null||typeof value.fileId==='string')?value.fileId as string|null:null;setAvatarId(currentAvatar)}catch{currentAvatar=null;setAvatarId(null)}}
-    if(!currentAvatar){setError(new ApiError(400,'VALIDATION_FAILED','Profilini tamamlamak için profil fotoğrafı ekle.',undefined,{avatarFileId:'Profilini tamamlamak için profil fotoğrafı ekle.'}));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[data-avatar-required] button')?.focus());return}
+    if(!pilotMode&&currentAvatar===undefined){try{const value=await apiGet('/api/me/avatar');currentAvatar=isRecord(value)&&(value.fileId===null||typeof value.fileId==='string')?value.fileId as string|null:null;setAvatarId(currentAvatar)}catch{currentAvatar=null;setAvatarId(null)}}
+    if(!pilotMode&&!currentAvatar){submitting.current=false;setPending(false);setError(new ApiError(400,'VALIDATION_FAILED','Profilini tamamlamak için profil fotoğrafı ekle.',undefined,{avatarFileId:'Profilini tamamlamak için profil fotoğrafı ekle.'}));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[data-avatar-required] button')?.focus());return}
     submitting.current=true;setPending(true);setError(null)
     try{
       const result=await saveProfile({firstName,lastName,educationStatus:status,universityDepartmentId:status==='YKS_ADAYI'?null:department?.id??null,
@@ -76,10 +78,10 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   }
   function fieldError(name:string){return error?.fieldErrors[name] && <p className="field-error" id={`${name}-error`}>{error.fieldErrors[name]}</p>}
   const isAdmin=auth.user?.role==='ADMIN'
-  return <section className="profile-page"><div className="profile-heading">{initial.completed&&<ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} onChanged={setAvatarId}/>}
+  return <section className="profile-page"><div className="profile-heading">{initial.completed&&!pilotMode&&<ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} onChanged={setAvatarId}/>}
     <div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
     <form className="auth-card profile-form" onSubmit={submit} ref={form}>
-      <fieldset disabled={pending}><legend>Temel bilgiler</legend>{!initial.completed&&<><ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} required onChanged={setAvatarId}/>{fieldError('avatarFileId')}</>}<div className="form-columns">
+      <fieldset disabled={pending}><legend>Temel bilgiler</legend>{pilotMode&&<p className="field-help">Pilot sürümünde fotoğraf yükleme kapalıdır; profilini fotoğrafsız tamamlayabilirsin.</p>}{!initial.completed&&!pilotMode&&<><ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} required onChanged={setAvatarId}/>{fieldError('avatarFileId')}</>}<div className="form-columns">
         <div><label htmlFor="firstName">Ad</label><input id="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e=>setFirst(e.target.value)} aria-invalid={!!error?.fieldErrors.firstName} aria-describedby={error?.fieldErrors.firstName?'firstName-error':undefined}/>{fieldError('firstName')}</div>
         <div><label htmlFor="lastName">Soyad</label><input id="lastName" autoComplete="family-name" required maxLength={80} value={lastName} onChange={e=>setLast(e.target.value)} aria-invalid={!!error?.fieldErrors.lastName} aria-describedby={error?.fieldErrors.lastName?'lastName-error':undefined}/>{fieldError('lastName')}</div>
       </div><label htmlFor="educationStatus">Eğitim durumu</label><select id="educationStatus" value={status} onChange={e=>{setStatus(e.target.value as EducationStatus);setYear('')}}>

@@ -1,3 +1,4 @@
+import { PilotNotice } from '../../app/PilotNotice'
 import { useEffect,useRef,useState } from 'react'
 import { Link,NavLink,Navigate,Route,Routes,useLocation,useParams } from 'react-router-dom'
 import { ManagerPage } from './ManagerPage'
@@ -17,7 +18,7 @@ export function ManagerShell(){
  return <div className="manager-shell"><a className="skip-link" href="#manager-main">İçeriğe geç</a>
  <header className="manager-header"><button ref={toggle} className="manager-menu-toggle" aria-expanded={open} aria-controls="manager-sidebar" onClick={()=>setOpenedAt(open?null:routeKey)}>Menü</button><Link to="/manager" className="manager-brand">tanıdıkvar <span>Yönetim</span></Link><Link to="/manager/account">Yönetim hesabım</Link></header>
  <aside id="manager-sidebar" className={`manager-sidebar ${open?'is-open':''}`}><p>YÖNETİM PANELİ</p><nav aria-label="Yönetim menüsü">{links.map(([to,label])=><NavLink key={to} to={to} end={to==='/manager'}>{label}</NavLink>)}</nav></aside>
- <main id="manager-main" className="manager-main"><Routes>
+ <main id="manager-main" className="manager-main"><PilotNotice/><Routes>
  <Route path="/manager" element={<ManagerPage/>}/><Route path="/manager/users" element={<ManagerPage view="users"/>}/><Route path="/manager/content" element={<ManagerPage view="content"/>}/>
  <Route path="/manager/analytics" element={<AnalyticsPage/>}/>
  <Route path="/manager/applications" element={<ApplicationsPage manager/>}/><Route path="/manager/applications/:id" element={<ApplicationReviewPage key={location.pathname}/>}/>
@@ -26,7 +27,7 @@ export function ManagerShell(){
  <Route path="/manager/actions" element={<ActionHistoryPage key={location.search}/>}/><Route path="/manager/actions/:id" element={<ActionDetailPage key={location.pathname}/>}/>
  <Route path="/manager/account" element={<ManagerAccountPage/>}/><Route path="/account" element={<Navigate to="/manager/account" replace/>}/><Route path="/profile" element={<Navigate to="/manager/account" replace/>}/>
  <Route path="/questions/new" element={<Navigate to="/manager" replace/>}/><Route path="/questions/:id" element={<ModerationRedirect/>}/><Route path="/forgot-password" element={<EmailActionPage mode="forgot"/>}/><Route path="/reset-password" element={<EmailActionPage mode="reset"/>}/>
- <Route path="*" element={<Navigate to="/manager" replace/>}/>
+ <Route path="/" element={<Navigate to="/manager" replace/>}/><Route path="/login" element={<Navigate to="/manager" replace/>}/><Route path="*" element={<section className="status-page"><h1>Bu sayfayı bulamadık.</h1><p>Bağlantı değişmiş veya adres yanlış yazılmış olabilir.</p><Link className="button" to="/manager">Yönetim özetine dön</Link></section>}/>
  </Routes></main></div>
 }
 function ModerationRedirect(){const {id}=useParams();return <Navigate to={`/manager/questions/${id}`} replace/>}

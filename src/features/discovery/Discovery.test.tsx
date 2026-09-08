@@ -22,7 +22,7 @@ it('submits search with existing filters and resets pagination without writing v
 })
 it('loads popular periods and keeps card totals independent of the selected period',async()=>{
  const fetch=server();renderList('/popular?period=DAILY&page=3&q=kampus',true)
- await screen.findByText('15.000 görüntülenme');expect(screen.getByText('Admin: 8')).toBeVisible()
+ await screen.findByText('15.000 görüntülenme');expect(screen.getByText('12 yorum')).toBeVisible()
  fireEvent.change(screen.getByLabelText('Zaman aralığı'),{target:{value:'YEARLY'}})
  await waitFor(()=>expect(fetch.mock.calls.some(([url])=>url.includes('period=YEARLY'))).toBe(true))
  const url=new URL(fetch.mock.calls.filter(([url])=>url.includes('/api/popular')).at(-1)![0]);expect(url.searchParams.get('q')).toBe('kampus');expect(url.searchParams.has('page')).toBe(false)
@@ -31,7 +31,7 @@ it('loads popular periods and keeps card totals independent of the selected peri
 it('preserves the period when clearing filters and supports empty results',async()=>{
  const fetch=server();fetch.mockImplementation(async()=>json(page()));renderList('/popular?period=MONTHLY&q=deneme&adminId=admin',true)
  await screen.findByRole('heading',{name:'Bu dönemde popüler soru yok.'})
- fireEvent.click(screen.getByText('Filtrele'));fireEvent.click(screen.getByRole('button',{name:'Filtreleri temizle'}))
+ fireEvent.click(screen.getByRole('button',{name:/^Filtrele/}));fireEvent.click(screen.getByRole('button',{name:'Tümünü temizle'}))
  await waitFor(()=>expect(fetch.mock.calls.some(([url])=>url.endsWith('/api/popular?period=MONTHLY'))).toBe(true))
  expect(screen.getByLabelText('Soru ara')).toHaveValue('');expect(screen.queryByRole('button',{name:'Admin filtresini kaldır'})).not.toBeInTheDocument()
 })

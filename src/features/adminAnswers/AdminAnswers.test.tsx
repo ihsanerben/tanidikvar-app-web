@@ -31,7 +31,7 @@ it('assigns before publishing, uses CSRF and displays remaining quota',async()=>
  });vi.stubGlobal('fetch',fetch);section()
  fireEvent.click(await screen.findByRole('button',{name:'Admin yorumu yaz'}))
  fireEvent.change(await screen.findByLabelText('Admin yorumun'),{target:{value:original.body}})
- fireEvent.click(screen.getByRole('button',{name:'Admin yorumunı yayınla'}))
+ fireEvent.click(screen.getByRole('button',{name:'Admin yorumunu yayınla'}))
  await screen.findByRole('button',{name:'Düzenle'})
  expect(fetch.mock.calls.find(([,o])=>o.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
@@ -43,10 +43,10 @@ it('quota exhaustion prevents a new editor but does not block assignment cancell
 it('existing answers can be edited with no quota or assignment and keep drafts on stale errors',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string,o:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):o.method==='PUT'?json({code:'STALE_VERSION'},409):url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:original,assignment:initialAssignment}):list([original])))
  section();fireEvent.click(await screen.findByRole('button',{name:'Düzenle'}))
- fireEvent.change(screen.getByLabelText('Admin yorumunı düzenle'),{target:{value:'Kaydedilmeyen yeni Admin deneyimim.'}})
+ fireEvent.change(screen.getByRole('textbox',{name:'Admin yorumunu düzenle'}),{target:{value:'Kaydedilmeyen yeni Admin deneyimim.'}})
  fireEvent.click(screen.getByRole('button',{name:'Admin yorum değişikliklerini kaydet'}))
  await screen.findByRole('button',{name:'Güncel Admin bilgilerini yükle'})
- expect(screen.getByLabelText('Admin yorumunı düzenle')).toHaveValue('Kaydedilmeyen yeni Admin deneyimim.')
+ expect(screen.getByRole('textbox',{name:'Admin yorumunu düzenle'})).toHaveValue('Kaydedilmeyen yeni Admin deneyimim.')
 })
 it('requires removal confirmation and restores the same versioned answer',async()=>{
  let a={...original}

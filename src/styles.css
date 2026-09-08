@@ -156,3 +156,73 @@ button[data-action-tone="danger"]{background:#bd3e4d;color:white;border-color:#b
 
 /* Account summary and popular period placement */
 .questions-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;min-width:0}.questions-heading-actions .popular-period{margin:0;padding:8px 10px;gap:10px}.questions-heading-actions .popular-period select{flex:0 1 auto;min-width:180px;min-height:40px;padding:0 36px 0 12px;font-size:.88rem}.account-profile-overview{flex-direction:column;align-items:center;gap:14px;margin-bottom:28px;padding:6px 0;text-align:center}.account-photo{justify-content:center}.account-photo .profile-photo{width:104px;height:104px}.account-contact{justify-items:center}.account-contact .profile-links{justify-content:center;margin-top:8px}.account-contact .profile-links a{min-height:36px;padding:7px 12px;border-radius:9px;font-size:.82rem}@media(max-width:640px){.questions-heading-actions{width:100%;justify-content:flex-start}.questions-heading-actions .popular-period{flex:1;justify-content:space-between}.questions-heading-actions .popular-period select{flex:1;min-width:0}}@media(max-width:600px){.account-photo .profile-photo{width:84px;height:84px}}
+
+/* Shared review improvements: readable focus, forms and modal layout. */
+:root{--focus-ring:#617f3d}
+:where(button,a,input,select,textarea,summary):focus-visible{outline:3px solid var(--focus-ring);outline-offset:3px}
+.auth-intro p{max-width:48ch;color:var(--muted,#637369);line-height:1.7;margin-top:18px}
+.composer-dialog{overscroll-behavior:contain;scrollbar-gutter:stable}
+.composer-dialog .auth-card{padding:0;border:0;box-shadow:none;background:transparent}
+.composer-dialog .question-form-page{padding:0;max-width:none;margin:0}
+.composer-dialog .question-form-page h1{font-size:1.35rem;margin:0 0 20px}
+.composer-dialog .profile-photo{max-width:160px;max-height:160px}
+.composer-dialog .composer-close,.profile-close{min-width:44px;min-height:44px}
+.manager-shell{--focus-ring:#7957bb}
+.manager-main .button:not(.button-secondary):not(.button-danger):not(.button-warning):not(.button-success):not(.button-info):not([data-action-tone]){background:#6242a6;color:#fff;border-color:#6242a6}
+.manager-main .catalog-tabs [aria-current=page]{background:#ede5ff;color:#503285;border-color:#9a80c8}
+.manager-record-decision:has(.management-decision){position:static!important;margin-top:20px!important}
+.manager-record-decision .management-decision>p{display:block!important}
+.manager-content-card,.manager-record-list,.account-summary dd,.application-reason{overflow-wrap:anywhere;min-width:0}
+.managed-user-card .status-badge{display:inline-flex;margin:0 0 12px;font-size:.75rem}
+.analytics-table caption{text-align:left;font-weight:700;padding:12px 0}
+.analytics-table th,.analytics-table td{white-space:nowrap}
+.analytics-chart{min-height:140px}
+@media(max-width:600px){
+ .composer-dialog{width:calc(100vw - 20px);max-height:calc(100dvh - 24px);padding:22px 18px;border-radius:16px}
+ .composer-dialog h2{font-size:1.35rem;margin-right:48px}
+ .manager-header{gap:10px}.manager-header>a:last-child{font-size:.75rem}
+ .manager-main .pagination,.manager-main .answer-actions{gap:10px;flex-wrap:wrap}
+ .manager-main .pagination button,.catalog-tabs button,.row-actions button{min-height:44px}
+ .auth-page{padding-top:36px}.auth-intro p{margin:12px 0 0}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* The dialog already supplies the photo editor's accessible heading. */
+.composer-dialog .avatar-editor > h2 { display: none; }
+.public-profile-popup-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px 32px; margin-top: 18px; }
+.public-profile-popup-actions .profile-links { margin-top: 0; }
+.public-profile-popup-actions .profile-links:empty { display: none; }
+.public-profile-popup-actions .public-profile-detail-action { margin-left: auto; flex-shrink: 0; }
+.public-profile-hero { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
+.public-profile-info { min-width: 0; }
+.public-profile-info h1 { overflow-wrap: anywhere; }
+.public-profile-info .public-profile-details { display: flex; flex-wrap: wrap; gap: 16px 28px; margin: 20px 0 0; }
+.public-profile-details dt { color: var(--muted); font-size: .85rem; }
+.public-profile-details dd { margin: 4px 0 0; font-weight: 650; overflow-wrap: anywhere; }
+.public-profile-info .profile-biography { margin-top: 18px; }
+.public-profile-hero > .profile-links { flex-direction: column; flex-wrap: nowrap; align-self: center; margin: 0 0 0 8px; }
+.public-profile-hero > .profile-links:empty { display: none; }
+.public-profile-hero > .profile-links .button { text-align: center; white-space: nowrap; }
+@media (max-width: 760px) {
+  .public-profile-hero { grid-template-columns: auto minmax(0, 1fr); }
+  .public-profile-hero > .profile-links { grid-column: 1 / -1; justify-self: end; margin: 0; }
+}
+@media (max-width: 440px) {
+  .public-profile-hero { grid-template-columns: minmax(0, 1fr); }
+}
+.account-page .account-summary.role-MEZUN { background: #c8102e; border-color: #c8102e; color: #fff; }
+.account-page .account-summary.role-MEZUN dt { color: #fff; }
+.account-page .account-summary.role-MEZUN > div { border-bottom-color: #ffffff40; }
+.account-page .account-summary.role-UNIVERSITE_OGRENCISI { background: #2f8f57; border-color: #2f8f57; color: #fff; }
+.account-page .account-summary.role-YKS_ADAYI { background: #3f83c5; border-color: #3f83c5; color: #fff; }
+.account-page .account-summary:is(.role-UNIVERSITE_OGRENCISI, .role-YKS_ADAYI) dt { color: #fff; }
+.account-page .account-summary:is(.role-UNIVERSITE_OGRENCISI, .role-YKS_ADAYI) > div { border-bottom-color: #ffffff40; }
+.usage-details { margin-top: 18px; }
+.usage-details summary { cursor: pointer; color: var(--green); font-weight: 650; line-height: 1.5; }
+.usage-details p { line-height: 1.7; overflow-wrap: anywhere; }
+.usage-details summary:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
+.manager-account-grid { grid-template-columns: minmax(0, 760px); }
+.manager-account-grid .manager-avatar-trigger { justify-self: start; display: inline-flex; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.pilot-notice { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 18px; padding: 12px 24px; background: #fff3d4; color: #563e13; font-size: .85rem; line-height: 1.5; }
+.pilot-notice a { color: inherit; text-underline-offset: 3px; }

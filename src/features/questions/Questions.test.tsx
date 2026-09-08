@@ -45,6 +45,15 @@ it('preserves edits and offers an explicit reload for stale versions',async()=>{
   fireEvent.click(screen.getByRole('button',{name:'Değişiklikleri kaydet'}));await screen.findByRole('button',{name:'Güncel soruyu yükle'})
   expect(screen.getByLabelText('Soru başlığı')).toHaveValue('Kaydedilmeyen yeni soru başlığı')
 })
+it('keeps the existing question description when only its title changes',async()=>{
+  const fetch=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):options.method==='PUT'?json({...q,title:'Yeni ve açıklayıcı soru başlığı'}):json(url.endsWith('/api/questions/question')?q:empty))
+  vi.stubGlobal('fetch',fetch);form(true)
+  expect(await screen.findByLabelText('Açıklama (isteğe bağlı)')).toHaveValue(q.body)
+  fireEvent.change(screen.getByLabelText('Soru başlığı'),{target:{value:'Yeni ve açıklayıcı soru başlığı'}})
+  fireEvent.click(screen.getByRole('button',{name:'Değişiklikleri kaydet'}))
+  await waitFor(()=>expect(fetch.mock.calls.some(([,o])=>o.method==='PUT')).toBe(true))
+  expect(JSON.parse(fetch.mock.calls.find(([,o])=>o.method==='PUT')![1].body as string)).toMatchObject({version:0,content:{body:q.body,title:'Yeni ve açıklayıcı soru başlığı'}})
+})
 it('renders user text safely and hides owner actions from other accounts',async()=>{
   setUser({id:'other',email:'other@example.test',role:'ADMIN',profileCompleted:true})
   vi.stubGlobal('fetch',vi.fn(async()=>json(q)))

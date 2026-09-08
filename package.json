@@ -11,7 +11,8 @@
     "test": "vitest run",
     "typecheck": "tsc -b",
     "test:e2e": "playwright test",
-    "generate:guide": "node scripts/generate-guide.mjs"
+    "generate:guide": "node scripts/generate-guide.mjs",
+    "configure:pilot": "node scripts/configure-pilot.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

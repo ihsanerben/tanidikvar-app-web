@@ -21,6 +21,12 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const messages: Record<string, string> = {
+  PILOT_RESTRICTION: 'Pilot sürümünde dosya yükleme ve Admin başvuruları kapalıdır.',
+  INVALID_DATE_RANGE: 'Başlangıç bitişten sonra olamaz. Grafikler için en fazla 366 gün seç.',
+  INVALID_SORT: 'Geçerli bir sıralama seçeneği seç.',
+  UNKNOWN_UNIVERSITY: 'Eşleşmedeki üniversiteyi önce kataloğa veya toplu listeye ekle.',
+  UNKNOWN_DEPARTMENT: 'Eşleşmedeki bölümü önce kataloğa veya toplu listeye ekle.',
+  ANSWER_MODERATED: 'Bu yorum Manager tarafından gizlendi; düzenlenemez veya geri yüklenemez.',
   ADMIN_REQUIRED: 'Güncel Admin yetkisi ve doğrulaması gerekiyor.',
   ASSIGNMENT_REQUIRED: 'Bu soru için yorum yapma yetkin yok.',
   DAILY_LIMIT: 'Bugünkü beş farklı soru hakkını kullandın. Geçmiş yorumlarını düzenleyebilirsin.',
@@ -79,6 +85,9 @@ async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown,
         firstName: 'Adını yaz (en fazla 80 karakter).', lastName: 'Soyadını yaz (en fazla 80 karakter).', educationStatus: 'Eğitim durumunu seç.',
         universityDepartmentId: 'Durumuna uygun, aktif bir üniversite/bölüm seç.', graduationYear: 'Geçerli bir mezuniyet yılı yaz.',
         avatarFileId: 'Profilini tamamlamak için profil fotoğrafı ekle.',
+        linkedinUrl: 'Kimlik bilgisi içermeyen geçerli bir LinkedIn adresi yaz (https://www.linkedin.com/…).',
+        portfolioUrl: 'http veya https ile başlayan, kimlik bilgisi içermeyen bir site adresi yaz.',
+        reason: 'İşlem gerekçesi 1–1000 karakter olmalı.',
         biography: 'Biyografi en fazla 1000 karakter olabilir.', occupation: 'Meslek en fazla 120 karakter olabilir.', company: 'Şirket en fazla 120 karakter olabilir.',
         title: 'Soru başlığı 10–200 karakter olmalı.', body: path.includes('answers')?'Yorum 10–5000 karakter olmalı.':'Açıklama en fazla 5000 karakter olabilir.', scope: 'Kapsama uygun üniversite ve bölüm seç.', tagIds: 'En fazla 5 farklı tag seç.', universityId: 'Aktif bir üniversite seç.',
         name: 'Ad 1–200 karakter olmalı.', version: 'Güncel kaydı yükleyip tekrar dene.',

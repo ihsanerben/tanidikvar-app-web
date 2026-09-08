@@ -36,7 +36,7 @@ export function EmailActionPage({ mode }: { mode: Mode }) {
   }
   return <section className="auth-page"><div className="auth-intro">
     <h1>{done ? needsEmail ? 'E-postanı kontrol et.' : mode === 'verify' ? 'E-postan doğrulandı.' : 'Şifren yenilendi.' : titles[mode]}</h1>
-</div>
+<p>{done?needsEmail?'Adresin bu işlem için uygunsa bağlantı gönderildi. Gelen kutunu ve spam klasörünü kontrol et.':mode==='verify'?'Artık hesabına giriş yapabilirsin.':'Önceki oturumların kapatıldı. Yeni şifrenle giriş yapabilirsin.':needsEmail?'Hesabında kullandığın e-posta adresini yaz.':mode==='verify'?'Hesabını etkinleştirmek için aşağıdaki düğmeye bas.':'En az 10 karakterden oluşan yeni bir şifre seç.'}</p></div>
     {done ? <div className="auth-card"><Link className="button" to="/login">Giriş yap</Link></div>
       : !needsEmail && !token ? <div className="auth-card"><p role="alert">E-postandaki bağlantıyı aç veya yeni bağlantı iste.</p><Link to={mode === 'verify' ? '/resend-verification' : '/forgot-password'}>Yeni bağlantı iste</Link></div>
       : <form className="auth-card" onSubmit={submit} ref={form}>

@@ -12,3 +12,12 @@ it('renders period totals, accessible charts and applies a custom range',async()
  await waitFor(()=>expect(fetch.mock.calls.some(([url])=>String(url).includes('dateFrom=2026-09-01&dateTo=2026-09-03'))).toBe(true))
  fireEvent.click(screen.getByText('Günlük verileri tablo olarak göster'));expect(screen.getByRole('table')).toBeVisible()
 })
+it('clears a previous error while a new date preset loads',async()=>{
+ let resolve!:(value:Response)=>void,calls=0
+ vi.stubGlobal('fetch',vi.fn(async()=>++calls===1?new Response(JSON.stringify({code:'INVALID_DATE_RANGE'}),{status:400}):new Promise<Response>(r=>{resolve=r})))
+ render(<AnalyticsPage/>);await screen.findByRole('alert')
+ fireEvent.click(screen.getByRole('button',{name:'Son 7 gün'}))
+ expect(screen.queryByRole('alert')).not.toBeInTheDocument();expect(screen.getByText('Grafikler yükleniyor…')).toBeVisible()
+ await waitFor(()=>expect(calls).toBe(2));resolve(new Response(JSON.stringify(response)))
+ await screen.findByRole('heading',{name:'Büyüme'})
+})

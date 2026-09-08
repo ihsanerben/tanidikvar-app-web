@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { CatalogStatusDecision } from '../management/CatalogStatusDecision'
 import { ApiError } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
@@ -15,6 +16,7 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
   const [pending,setPending]=useState(false)
   const [revision,setRevision]=useState(0)
   const [,setNotice]=useState('')
+  const [decision,setDecision]=useState<CatalogEntry|null>(null)
   const [editing,setEditing]=useState<CatalogEntry|null>(null)
   const [editName,setEditName]=useState('')
   const busy=useRef(false)
@@ -49,7 +51,8 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
         <label>Değişiklik gerekçesi<input required maxLength={1000} value={editReason} onChange={e=>setEditReason(e.target.value)}/></label><button className="button" disabled={pending||!editReason.trim()}>Kaydet</button><button type="button" onClick={()=>setEditing(null)}>Vazgeç</button>
       </form>:<><span className="catalog-name">{entry.name}<small>{entry.deletedAt?'Pasif':'Aktif'}</small></span>
         {!admin && <div className="row-actions"><button type="button" disabled={pending} onClick={()=>{setEditing(entry);setEditName(entry.name)}}>Düzenle</button>
-          <button type="button" disabled={pending} onClick={()=>void mutate(()=>setEntryStatus(kind,entry,'Yönetim panelinden durum değiştirildi.'),entry.deletedAt?'Kayıt aktifleştirildi.':'Kayıt pasife alındı.')}>{entry.deletedAt?'Aktife al':'Pasife al'}</button></div>}</>}
+          <button type="button" disabled={pending} onClick={()=>setDecision(entry)}>{entry.deletedAt?'Aktife al':'Pasife al'}</button></div>}</>}
+      {decision?.id===entry.id&&<CatalogStatusDecision key={entry.version} kind={kind} id={entry.id} deleted={!!entry.deletedAt} apply={reason=>setEntryStatus(kind,entry,reason)} reload={()=>{setDecision(null);refresh()}} cancel={()=>setDecision(null)}/>}
     </li>)}</ul>{result?.items.every(entry=>Boolean(entry.deletedAt)!==deleted)&&<p className="empty-state">{deleted?'Pasif kayıt yok.':'Aktif kayıt yok.'}</p>}</section>)}</>}
   {result && <div className="pagination"><button type="button" disabled={page===0 || loading} onClick={()=>{setPage(page-1);setLoading(true)}}>Önceki sayfa</button>
     <span>{result.totalElements} kayıt · Sayfa {page+1}</span><button type="button" disabled={(page+1)*result.size>=result.totalElements || loading} onClick={()=>{setPage(page+1);setLoading(true)}}>Sonraki sayfa</button></div>}
