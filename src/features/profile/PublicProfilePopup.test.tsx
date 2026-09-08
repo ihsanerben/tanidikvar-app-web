@@ -6,11 +6,12 @@ beforeEach(()=>{})
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals()})
 it('loads the selected public profile on demand with safe external links and closes',async()=>{
  const fetch=vi.fn(async()=>new Response(JSON.stringify(profile)));vi.stubGlobal('fetch',fetch)
- render(<ProfileTrigger id="user" name="Ada Yılmaz"/>);expect(fetch).not.toHaveBeenCalled()
+ render(<ProfileTrigger id="user" name="Ada Yılmaz" detailHref="/profiles/user"/>);expect(fetch).not.toHaveBeenCalled()
  fireEvent.click(screen.getByRole('button',{name:'Ada Yılmaz profilini görüntüle'}))
  expect(await screen.findByText('Test Üniversitesi')).toBeVisible()
  expect(screen.getByRole('link',{name:'LinkedIn ↗'})).toHaveAttribute('rel','noopener noreferrer')
  expect(screen.getByRole('link',{name:'Portfolyo ↗'})).toHaveAttribute('href','https://ada.example.test/')
+ expect(screen.getByRole('link',{name:'Profil detayını aç'})).toHaveAttribute('href','/profiles/user')
  fireEvent.click(screen.getByRole('button',{name:'Profili kapat'}));await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 })
 it('does not offer a removed author profile or unsafe external URL',()=>{

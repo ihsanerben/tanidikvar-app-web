@@ -3,10 +3,13 @@ import { useAuth } from '../auth/useAuth'
 import { CatalogEditor } from './CatalogEditor'
 import { EducationEditor } from './EducationEditor'
 import type { Kind } from './catalogApi'
+import { BulkCatalogImport } from './BulkCatalogImport'
+import { useState } from 'react'
 const tabs:Record<string,string>={UNIVERSITY:'Üniversiteler',DEPARTMENT:'Bölümler',TAG:'Tagler',EDUCATION:'Üniversite–bölüm eşleşmeleri'}
 export function CatalogPage({admin=false,tags=false}:{admin?:boolean;tags?:boolean}){
   const auth=useAuth()
   const [params,setParams]=useSearchParams()
+  const [revision,setRevision]=useState(0)
   const tab=admin||tags?'TAG':params.get('tab')??'EDUCATION'
   const selected=Object.hasOwn(tabs,tab)?tab:'UNIVERSITY'
   if(auth.status==='loading')return <section className="status-page" role="status">Hesabın yükleniyor…</section>
@@ -18,7 +21,8 @@ export function CatalogPage({admin=false,tags=false}:{admin?:boolean;tags?:boole
 
 
     {!admin && !tags && <nav className="catalog-tabs" aria-label="Katalog bölümleri">{Object.entries(tabs).filter(([value])=>value!=='TAG').map(([value,label])=><button key={value} type="button" aria-current={selected===value?'page':undefined} onClick={()=>setParams({tab:value})}>{label}</button>)}</nav>}
-    <div className="auth-card">{selected==='EDUCATION'?<EducationEditor/>:<CatalogEditor key={selected} kind={selected as Kind} admin={admin}/>}</div>
+    {!admin&&!tags&&<div className="auth-card"><BulkCatalogImport completed={()=>setRevision(r=>r+1)}/></div>}
+    <div className="auth-card">{selected==='EDUCATION'?<EducationEditor key={`${selected}-${revision}`}/>:<CatalogEditor key={`${selected}-${revision}`} kind={selected as Kind} admin={admin}/>}</div>
     <Link className="back-link" to="/account">Hesabıma dön</Link>
   </section>
 }

@@ -66,7 +66,7 @@ it('maps validation errors and preserves the draft after a failed save',async()=
 })
 it('does not treat an unavailable private response as permission to create',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/my-answer')?json({code:'SERVICE_UNAVAILABLE'},503):list()))
-  section();await screen.findByRole('button',{name:'Cevabımı tekrar yükle'});expect(screen.queryByLabelText('Yorumun')).not.toBeInTheDocument()
+  section();await screen.findByRole('button',{name:'Yorumumı tekrar yükle'});expect(screen.queryByLabelText('Yorumun')).not.toBeInTheDocument()
 })
 it('clears removed private answer content when the account changes',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/my-answer')?json({...original,deletedAt:original.publishedAt}):list()))
@@ -74,9 +74,9 @@ it('clears removed private answer content when the account changes',async()=>{
   act(()=>setUser(null));expect(screen.queryByText(original.body)).not.toBeInTheDocument()
 })
 it('loads later public pages from the server',async()=>{
-  setUser(null);vi.stubGlobal('fetch',vi.fn(async(url:string)=>json({items:[{...original,body:url.includes('page=1')?'İkinci sayfadaki cevap metni':original.body}],page:url.includes('page=1')?1:0,size:20,totalElements:21})))
+  setUser(null);vi.stubGlobal('fetch',vi.fn(async(url:string)=>json({items:[{...original,body:url.includes('page=1')?'İkinci sayfadaki yorum metni':original.body}],page:url.includes('page=1')?1:0,size:20,totalElements:21})))
   section();fireEvent.click(await screen.findByRole('button',{name:'Sonraki yorumlar'}))
-  expect(await screen.findByText('İkinci sayfadaki cevap metni')).toBeVisible()
+  expect(await screen.findByText('İkinci sayfadaki yorum metni')).toBeVisible()
   expect(within(screen.getByRole('region',{name:'Topluluk yorumları'})).queryByText(original.body)).not.toBeInTheDocument()
 })
 

@@ -66,18 +66,27 @@ it('shows an empty list and supports retrying a failed list request',async()=>{
   fireEvent.click(await screen.findByRole('button',{name:'Tekrar dene'}))
   await screen.findByRole('heading',{name:'Henüz soru yok.'})
 })
+it('keeps sorting inside filters and reloads the list with the selected order',async()=>{
+  const fetch=vi.fn(async(_url:string)=>json(empty));vi.stubGlobal('fetch',fetch)
+  render(<MemoryRouter><QuestionListPage/></MemoryRouter>)
+  await screen.findByRole('heading',{name:'Henüz soru yok.'})
+  expect(screen.queryByLabelText('Sıralama')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button',{name:'Filtrele'}))
+  fireEvent.change(screen.getByLabelText('Sıralama'),{target:{value:'MOST_VIEWED'}})
+  await waitFor(()=>expect(fetch.mock.calls.some(([url])=>String(url).includes('/api/questions?sort=MOST_VIEWED'))).toBe(true))
+  await screen.findByRole('heading',{name:'Henüz soru yok.'})
+})
 
-it('admin cannot open question creation',()=>{
+it('admin can open question creation',()=>{
  setUser({id:'admin',email:'test@example.test',role:'ADMIN',profileCompleted:true});form()
- expect(screen.queryByLabelText('Soru başlığı')).not.toBeInTheDocument()
- expect(screen.getByRole('link',{name:'Soruları keşfet'})).toBeVisible()
+ expect(screen.getByLabelText('Soru başlığı')).toBeVisible()
 })
 it('defaults to admin answers and switches the visible answer type',async()=>{
  setUser(null);vi.stubGlobal('fetch',vi.fn(async(url:string)=>json(url.endsWith('/api/questions/question')?q:url.endsWith('/statistics')?q.statistics:url.endsWith('/csrf')?{token:'csrf'}:empty)))
  render(<MemoryRouter initialEntries={['/questions/question']}><Routes><Route path="/questions/:id" element={<QuestionDetailPage/>}/></Routes></MemoryRouter>)
- expect(await screen.findByRole('tab',{name:'Admin cevapları'})).toHaveAttribute('aria-selected','true')
+ expect(await screen.findByRole('tab',{name:'Admin yorumları (0)'})).toHaveAttribute('aria-selected','true')
  expect(screen.queryByRole('heading',{name:'Topluluk yorumları'})).not.toBeInTheDocument()
- fireEvent.click(screen.getByRole('tab',{name:'Topluluk yorumları'}))
+ fireEvent.click(screen.getByRole('tab',{name:'Topluluk yorumları (0)'}))
  expect(screen.getByRole('heading',{name:'Topluluk yorumları'})).toBeVisible()
- expect(screen.queryByRole('heading',{name:'Admin cevapları'})).not.toBeInTheDocument()
+ expect(screen.queryByRole('heading',{name:'Admin yorumları'})).not.toBeInTheDocument()
 })

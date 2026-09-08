@@ -17,7 +17,7 @@ it('shows anonymous readers verified safe text and historical education without 
  setUser(null);vi.stubGlobal('fetch',vi.fn(async()=>list([{...original,body:'<script>alert(1)</script>'}])));section()
  expect(await screen.findByText('<script>alert(1)</script>')).toBeVisible();expect(document.querySelector('script')).toBeNull()
  expect(screen.getByRole('button',{name:'Ada Yılmaz profilini görüntüle'})).toBeVisible()
- expect(screen.queryByText(/ilk yayınındaki doğrulama/)).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Admin cevabı ekle'})).not.toBeInTheDocument()
+ expect(screen.queryByText(/ilk yayınındaki doğrulama/)).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Admin yorumu ekle'})).not.toBeInTheDocument()
 })
 it('assigns before publishing, uses CSRF and displays remaining quota',async()=>{
  let assigned=false,saved=false
@@ -29,24 +29,24 @@ it('assigns before publishing, uses CSRF and displays remaining quota',async()=>
   if(o.method==='POST'){saved=true;return json(original,201)}
   return list(saved?[original]:[])
  });vi.stubGlobal('fetch',fetch);section()
- fireEvent.click(await screen.findByRole('button',{name:'Admin cevabı yaz'}))
- fireEvent.change(await screen.findByLabelText('Admin cevabın'),{target:{value:original.body}})
- fireEvent.click(screen.getByRole('button',{name:'Admin cevabını yayınla'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Admin yorumu yaz'}))
+ fireEvent.change(await screen.findByLabelText('Admin yorumun'),{target:{value:original.body}})
+ fireEvent.click(screen.getByRole('button',{name:'Admin yorumunı yayınla'}))
  await screen.findByRole('button',{name:'Düzenle'})
  expect(fetch.mock.calls.find(([,o])=>o.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
 it('quota exhaustion prevents a new editor but does not block assignment cancellation',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:null,assignment:{...initialAssignment,assigned:true,version:1}}):list()));section()
- expect(await screen.findByText(/Bugünkü beş cevap hakkını kullandın/)).toBeVisible()
- expect(screen.queryByLabelText('Admin cevabın')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Admin cevabı yaz'})).toBeDisabled()
+ expect(await screen.findByText(/Bugünkü beş yorum hakkını kullandın/)).toBeVisible()
+ expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Admin yorumu yaz'})).toBeDisabled()
 })
 it('existing answers can be edited with no quota or assignment and keep drafts on stale errors',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string,o:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):o.method==='PUT'?json({code:'STALE_VERSION'},409):url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:original,assignment:initialAssignment}):list([original])))
  section();fireEvent.click(await screen.findByRole('button',{name:'Düzenle'}))
- fireEvent.change(screen.getByLabelText('Admin cevabını düzenle'),{target:{value:'Kaydedilmeyen yeni Admin deneyimim.'}})
- fireEvent.click(screen.getByRole('button',{name:'Admin cevap değişikliklerini kaydet'}))
+ fireEvent.change(screen.getByLabelText('Admin yorumunı düzenle'),{target:{value:'Kaydedilmeyen yeni Admin deneyimim.'}})
+ fireEvent.click(screen.getByRole('button',{name:'Admin yorum değişikliklerini kaydet'}))
  await screen.findByRole('button',{name:'Güncel Admin bilgilerini yükle'})
- expect(screen.getByLabelText('Admin cevabını düzenle')).toHaveValue('Kaydedilmeyen yeni Admin deneyimim.')
+ expect(screen.getByLabelText('Admin yorumunı düzenle')).toHaveValue('Kaydedilmeyen yeni Admin deneyimim.')
 })
 it('requires removal confirmation and restores the same versioned answer',async()=>{
  let a={...original}
@@ -67,8 +67,8 @@ it('former admins can only remove their existing answer',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,activeAdmin:false}):url.endsWith('/my-admin-answer')?json({answer:{...original,activeAdmin:false},assignment:initialAssignment}):list([{...original,activeAdmin:false}])))
  section();await screen.findByRole('button',{name:'Sil'})
  expect(screen.queryByRole('button',{name:'Düzenle'})).not.toBeInTheDocument()
- expect(screen.queryByRole('button',{name:'Admin cevabı ekle'})).not.toBeInTheDocument()
- expect(screen.queryByRole('button',{name:'Admin cevabı ekle'})).not.toBeInTheDocument()
+ expect(screen.queryByRole('button',{name:'Admin yorumu ekle'})).not.toBeInTheDocument()
+ expect(screen.queryByRole('button',{name:'Admin yorumu ekle'})).not.toBeInTheDocument()
 })
 it('archived questions allow removal but no edit or restore',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json(quota):url.endsWith('/my-admin-answer')?json({answer:original,assignment:{...initialAssignment,assigned:true,version:1}}):list([original])))
@@ -83,7 +83,7 @@ it('does not expose removed private text after an account switch',async()=>{
 it('keeps public list available when private loading fails and offers a retry',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/my-admin-answer')?json({code:'SERVICE_UNAVAILABLE'},503):url.endsWith('/admin-quota')?json(quota):list([original])));section()
  expect(await screen.findByRole('button',{name:'Admin bilgilerini yeniden yükle'})).toBeVisible()
- expect(await screen.findByText(original.body)).toBeVisible();expect(screen.queryByLabelText('Admin cevabın')).not.toBeInTheDocument()
+ expect(await screen.findByText(original.body)).toBeVisible();expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument()
 })
 it('renders removed authors anonymously without links or educational data',()=>{
  render(<MemoryRouter><AdminAnswerCard answer={{...original,authorId:null,authorName:'Katılımcı',activeAdmin:false,universityName:null,departmentName:null,educationStatus:null}}/></MemoryRouter>)
@@ -92,4 +92,4 @@ it('renders removed authors anonymously without links or educational data',()=>{
 })
 
 
-it('blocks editing and restoration of a Manager-hidden Admin answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json(quota):url.endsWith('/my-admin-answer')?json({answer:{...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt},assignment:{...initialAssignment,assigned:true,version:1}}):list()));section();await screen.findByText(/Admin cevabın Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Düzenle'})).not.toBeInTheDocument()})
+it('blocks editing and restoration of a Manager-hidden Admin answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json(quota):url.endsWith('/my-admin-answer')?json({answer:{...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt},assignment:{...initialAssignment,assigned:true,version:1}}):list()));section();await screen.findByText(/Admin yorumun Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Düzenle'})).not.toBeInTheDocument()})

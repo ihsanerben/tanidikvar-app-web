@@ -4,11 +4,12 @@ import { ManagerPage } from './ManagerPage'
 import { ApplicationsPage } from '../applications/ApplicationsPage'
 import { CatalogPage } from '../catalog/CatalogPage'
 import { ManagerAccountPage } from './ManagerAccountPage'
-import { ApplicationReviewPage,UserDetailPage } from './ReviewPages'
+import { ApplicationReviewPage,UserApplicationsPage,UserDetailPage } from './ReviewPages'
 import { QuestionReviewPage } from './QuestionReviewPage'
 import { ActionHistoryPage,ActionDetailPage } from './ActionHistoryPage'
 import { EmailActionPage } from '../auth/EmailActionPage'
-const links=[['/manager','Özet'],['/manager/applications','Başvurular'],['/manager/users','Kullanıcılar'],['/manager/content','Sorular ve Yorumlar'],['/manager/catalog','Üniversiteler ve Bölümler'],['/manager/tags','Tagler'],['/manager/actions','İşlem Geçmişi'],['/manager/account','Hesabım']]
+import { AnalyticsPage } from './AnalyticsPage'
+const links=[['/manager','Özet'],['/manager/analytics','Grafikler'],['/manager/applications','Başvurular'],['/manager/users','Kullanıcılar'],['/manager/content','Sorular ve Yorumlar'],['/manager/catalog','Üniversiteler ve Bölümler'],['/manager/tags','Tagler'],['/manager/actions','İşlem Geçmişi'],['/manager/account','Hesabım']]
 export function ManagerShell(){
  const [openedAt,setOpenedAt]=useState<string|null>(null),location=useLocation(),toggle=useRef<HTMLButtonElement>(null)
  const routeKey=location.pathname+location.search,open=openedAt===routeKey
@@ -18,8 +19,9 @@ export function ManagerShell(){
  <aside id="manager-sidebar" className={`manager-sidebar ${open?'is-open':''}`}><p>YÖNETİM PANELİ</p><nav aria-label="Yönetim menüsü">{links.map(([to,label])=><NavLink key={to} to={to} end={to==='/manager'}>{label}</NavLink>)}</nav></aside>
  <main id="manager-main" className="manager-main"><Routes>
  <Route path="/manager" element={<ManagerPage/>}/><Route path="/manager/users" element={<ManagerPage view="users"/>}/><Route path="/manager/content" element={<ManagerPage view="content"/>}/>
+ <Route path="/manager/analytics" element={<AnalyticsPage/>}/>
  <Route path="/manager/applications" element={<ApplicationsPage manager/>}/><Route path="/manager/applications/:id" element={<ApplicationReviewPage key={location.pathname}/>}/>
- <Route path="/manager/users/:id" element={<UserDetailPage key={location.pathname}/>}/><Route path="/manager/questions/:id" element={<QuestionReviewPage key={location.pathname}/>}/>
+ <Route path="/manager/users/:id/applications" element={<UserApplicationsPage key={location.pathname}/>}/><Route path="/manager/users/:id" element={<UserDetailPage key={location.pathname}/>}/><Route path="/manager/questions/:id" element={<QuestionReviewPage key={location.pathname}/>}/>
  <Route path="/manager/catalog" element={<CatalogPage/>}/><Route path="/manager/tags" element={<CatalogPage tags/>}/>
  <Route path="/manager/actions" element={<ActionHistoryPage key={location.search}/>}/><Route path="/manager/actions/:id" element={<ActionDetailPage key={location.pathname}/>}/>
  <Route path="/manager/account" element={<ManagerAccountPage/>}/><Route path="/account" element={<Navigate to="/manager/account" replace/>}/><Route path="/profile" element={<Navigate to="/manager/account" replace/>}/>

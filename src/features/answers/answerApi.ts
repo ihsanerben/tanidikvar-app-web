@@ -17,8 +17,9 @@ export async function createAnswer(questionId:string,body:string) {return answer
 export async function updateAnswer(a:Answer,body:string) {return answer(await apiMutation(`/api/answers/${a.id}`,'PUT',{body,version:a.version}))}
 export async function setAnswerStatus(a:Answer,deleted:boolean) {return answer(await apiMutation(`/api/answers/${a.id}/status`,'PUT',{deleted,version:a.version}))}
 export interface OwnAnswerEntry {answer:Answer;questionTitle:string}
-export async function myAnswers(page:number,signal?:AbortSignal){
- return pageOf(await apiGet(`/api/me/answers?page=${page}&size=20`,signal),value=>{
+export async function myAnswers(page:number,scope:string,signal?:AbortSignal){
+ const params=new URLSearchParams({page:String(page),size:'20'});if(scope)params.set('scope',scope)
+ return pageOf(await apiGet(`/api/me/answers?${params}`,signal),value=>{
   if(!isRecord(value)||typeof value.questionTitle!=='string')throw new ApiError(200,'INVALID_RESPONSE','Yorumların alınamadı.')
   return {answer:answer(value.answer),questionTitle:value.questionTitle}
  })
