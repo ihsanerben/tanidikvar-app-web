@@ -31,11 +31,11 @@ function ProfileLoader(){
   if(!profile) return <section className="status-page" role="status">Profil yükleniyor…</section>
   return <ProfileForm key={profile.version} initial={profile} reload={()=>{setProfile(null);setRevision(revision+1)}}/>
 }
-function ProfilePhotoPicker({name,isAdmin,required,onChanged}:{name:string;isAdmin:boolean;required?:boolean;onChanged?:(id:string|null)=>void}){
+function ProfilePhotoPicker({name,isAdmin,educationStatus,required,onChanged}:{name:string;isAdmin:boolean;educationStatus:string;required?:boolean;onChanged?:(id:string|null)=>void}){
   const [open,setOpen]=useState(false)
   useEffect(()=>{const update=(event:Event)=>onChanged?.((event as CustomEvent<string|null>).detail);window.addEventListener('avatar:updated',update);return()=>window.removeEventListener('avatar:updated',update)},[onChanged])
   return <div className={`profile-photo-picker${required?' profile-photo-picker-required':''}`} data-avatar-required={required||undefined}>
-    <button type="button" className="profile-photo-trigger" aria-label="Profil fotoğrafını düzenle" onClick={()=>setOpen(true)}><OwnProfileAvatar name={name||'Profilim'} isAdmin={isAdmin}/><span><strong>Profil fotoğrafı</strong>{required&&<small>Zorunlu</small>}</span></button>
+    <button type="button" className="profile-photo-trigger" aria-label="Profil fotoğrafını düzenle" onClick={()=>setOpen(true)}><OwnProfileAvatar name={name||'Profilim'} isAdmin={isAdmin} educationStatus={educationStatus}/><span><strong>Profil fotoğrafı</strong>{required&&<small>Zorunlu</small>}</span></button>
     {open&&<ComposerDialog title="Profil fotoğrafı" onClose={()=>setOpen(false)}><AvatarEditor/><button type="button" className="button button-secondary" onClick={()=>setOpen(false)}>Kapat</button></ComposerDialog>}
   </div>
 }
@@ -76,10 +76,10 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   }
   function fieldError(name:string){return error?.fieldErrors[name] && <p className="field-error" id={`${name}-error`}>{error.fieldErrors[name]}</p>}
   const isAdmin=auth.user?.role==='ADMIN'
-  return <section className="profile-page"><div className="profile-heading">{initial.completed&&<ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} onChanged={setAvatarId}/>}
+  return <section className="profile-page"><div className="profile-heading">{initial.completed&&<ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} onChanged={setAvatarId}/>}
     <div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
     <form className="auth-card profile-form" onSubmit={submit} ref={form}>
-      <fieldset disabled={pending}><legend>Temel bilgiler</legend>{!initial.completed&&<><ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} required onChanged={setAvatarId}/>{fieldError('avatarFileId')}</>}<div className="form-columns">
+      <fieldset disabled={pending}><legend>Temel bilgiler</legend>{!initial.completed&&<><ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} required onChanged={setAvatarId}/>{fieldError('avatarFileId')}</>}<div className="form-columns">
         <div><label htmlFor="firstName">Ad</label><input id="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e=>setFirst(e.target.value)} aria-invalid={!!error?.fieldErrors.firstName} aria-describedby={error?.fieldErrors.firstName?'firstName-error':undefined}/>{fieldError('firstName')}</div>
         <div><label htmlFor="lastName">Soyad</label><input id="lastName" autoComplete="family-name" required maxLength={80} value={lastName} onChange={e=>setLast(e.target.value)} aria-invalid={!!error?.fieldErrors.lastName} aria-describedby={error?.fieldErrors.lastName?'lastName-error':undefined}/>{fieldError('lastName')}</div>
       </div><label htmlFor="educationStatus">Eğitim durumu</label><select id="educationStatus" value={status} onChange={e=>{setStatus(e.target.value as EducationStatus);setYear('')}}>

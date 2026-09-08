@@ -1,5 +1,6 @@
 import { ManagerShell } from '../features/management/ManagerShell'
 import { useProfileSummary,roleLabels } from '../features/profile/useProfileSummary'
+import { AdminStars } from '../features/profile/ProfileAvatar'
 import { MyAnswersPage } from '../features/answers/MyAnswersPage'
 import { ManagerPage } from '../features/management/ManagerPage'
 import { AdminDirectoryPage } from '../features/discovery/AdminDirectoryPage'
@@ -63,5 +64,5 @@ export function App() {
 function HeaderIdentity({userId,role}:{userId:string;role:string}){
  const {profile}=useProfileSummary(userId)
  const displayRole=role==='ADMIN'?(profile?.educationStatus??'USER'):role
- return <Link className={`account-menu-button account-role-${displayRole.toLowerCase()} ${role==='ADMIN'?'is-admin':''}`} to="/account" aria-label="Hesabım">{role==='ADMIN'&&<span className="admin-stars" aria-hidden="true">★<br/>★<br/>★</span>}<span className="header-identity"><strong>{[profile?.firstName,profile?.lastName].filter(Boolean).join(' ')||'Üye'}</strong><span>{roleLabels[displayRole]||displayRole}</span></span><span className="account-menu-divider" aria-hidden="true"/><span className="account-menu-label">Hesabım</span></Link>
+ return <Link className={`account-menu-button account-role-${displayRole.toLowerCase()} ${role==='ADMIN'?'is-admin':''}`} to="/account" aria-label="Hesabım">{role==='ADMIN'&&<span className="admin-stars" aria-hidden="true"><AdminStars educationStatus={displayRole}/></span>}<span className="header-identity"><strong>{[profile?.firstName,profile?.lastName].filter(Boolean).join(' ')||'Üye'}</strong><span>{roleLabels[displayRole]||displayRole}</span></span><span className="account-menu-divider" aria-hidden="true"/><span className="account-menu-label">Hesabım</span></Link>
 }

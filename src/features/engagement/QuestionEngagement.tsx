@@ -7,7 +7,7 @@ import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
 import { getStatistics,getLike,setLike,type Statistics,type Like } from './engagementApi'
 import { QuestionStats } from './QuestionStats'
-export function QuestionEngagement({questionId,initial,archived,opening,answersRevision}:{questionId:string;initial:Statistics;archived:boolean;opening:Opening;answersRevision:number}) {
+export function QuestionEngagement({questionId,initial,archived,opening,answersRevision,onStatistics}:{questionId:string;initial:Statistics;archived:boolean;opening:Opening;answersRevision:number;onStatistics?:(statistics:Statistics)=>void}) {
  const auth=useAuth(),[stats,updateStats]=useState(initial),[revision,refresh]=useState(0),[viewAttempt,retryView]=useState(0)
  const [error,setError]=useState<ApiError|null>(null),[viewError,setViewError]=useState<ApiError|null>(null)
  useEffect(()=>{
@@ -22,17 +22,18 @@ export function QuestionEngagement({questionId,initial,archived,opening,answersR
  },[questionId,opening,viewAttempt])
  useEffect(()=>{
   const controller=new AbortController()
-  getStatistics(questionId,controller.signal).then(s=>{if(!controller.signal.aborted){updateStats(s);setError(null)}}).catch(e=>{if(!controller.signal.aborted)setError(formError(e))})
+  getStatistics(questionId,controller.signal).then(s=>{if(!controller.signal.aborted){updateStats(s);onStatistics?.(s);setError(null)}}).catch(e=>{if(!controller.signal.aborted)setError(formError(e))})
   return ()=>controller.abort()
- },[questionId,revision,answersRevision])
- return <section className="question-engagement" aria-label="Soru etkileşimleri"><QuestionStats statistics={stats} likeControl={auth.user?.profileCompleted&&auth.user.role!=='MANAGER'?<LikeControl key={questionId+auth.user.id} questionId={questionId} archived={archived} count={stats.likeCount} changed={()=>refresh(r=>r+1)}/>:undefined}/>
+ },[questionId,revision,answersRevision,onStatistics])
+ return <section className="question-engagement" aria-label="Soru etkileşimleri"><QuestionStats statistics={stats}/>
+ {auth.user?.profileCompleted&&auth.user.role!=='MANAGER'&&<LikeControl key={questionId+auth.user.id} questionId={questionId} archived={archived} changed={()=>refresh(r=>r+1)}/>}
  {error&&<div><p role="alert">Sayaçlar güncellenemedi.</p><button onClick={()=>refresh(r=>r+1)}>Sayaçları yenile</button></div>}
  {viewError&&<div><p role="alert">Görüntülenme kaydedilemedi.</p><button onClick={()=>{opening.retry();setViewError(null);retryView(r=>r+1)}}>Görüntülenmeyi tekrar kaydet</button></div>}
  {auth.status==='loading'?<p role="status">Beğeni durumu yükleniyor…</p>:auth.status==='error'?<button onClick={auth.reload}>Beğenmek için hesabı tekrar yükle</button>:!auth.user?<p><Link to="/login">Beğenmek için giriş yap</Link></p>:!auth.user.profileCompleted?<p><Link to="/profile">Beğenmek için profilini tamamla</Link></p>:
     null}
  </section>
 }
-function LikeControl({questionId,archived,count,changed}:{questionId:string;archived:boolean;count:number;changed:()=>void}) {
+function LikeControl({questionId,archived,changed}:{questionId:string;archived:boolean;changed:()=>void}) {
  const [value,setValue]=useState<Like|null>(null),[error,setError]=useState<ApiError|null>(null),[revision,reload]=useState(0),[pending,setPending]=useState(false)
  const busy=useRef(false),mounted=useRef(true)
  useEffect(()=>{mounted.current=true;return ()=>{mounted.current=false}},[])
@@ -43,6 +44,6 @@ function LikeControl({questionId,archived,count,changed}:{questionId:string;arch
   catch(e){if(mounted.current)setError(formError(e))}
   finally{busy.current=false;if(mounted.current)setPending(false)}
  }
- return <div className="question-like"><AuthFormError error={error}/>{value&&<button className="like-toggle" aria-label={value.liked?'Beğeniyi geri al':'Beğen'} title={value.liked?'Beğeniyi geri al':'Beğen'} aria-pressed={value.liked} disabled={pending||!!error||(archived&&!value.liked)} onMouseDown={e=>e.preventDefault()} onClick={()=>void toggle()}><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill={value.liked?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span className="like-count">{count.toLocaleString('tr-TR')}</span></button>}
+ return <div className="question-like"><AuthFormError error={error}/>{value&&<button className="like-toggle" aria-label={value.liked?'Beğeniyi geri al':'Beğen'} title={value.liked?'Beğeniyi geri al':'Beğen'} aria-pressed={value.liked} disabled={pending||!!error||(archived&&!value.liked)} onMouseDown={e=>e.preventDefault()} onClick={()=>void toggle()}><svg viewBox="0 0 24 24" aria-hidden="true" fill={value.liked?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>{pending?'İşleniyor…':value.liked?'Beğenildi':'Beğen'}</button>}
  {!value&&!error&&<p role="status">Beğeni durumu yükleniyor…</p>}{error&&<button disabled={pending} onClick={()=>{reload(r=>r+1);changed()}}>Beğeni durumunu yenile</button>}</div>
 }

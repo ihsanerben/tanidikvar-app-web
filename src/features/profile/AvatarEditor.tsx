@@ -2,9 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { apiGet, apiMutation, ApiError, isRecord } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
+import { pilotMode } from '../../config/pilot'
 function parse(v:unknown):string|null{if(!isRecord(v)||!(v.fileId===null||typeof v.fileId==='string'))throw new ApiError(200,'INVALID_RESPONSE','Fotoğraf bilgisi alınamadı.');return v.fileId as string|null}
 const base=(import.meta.env.VITE_API_BASE_URL||'http://localhost:8080').replace(/\/$/,'')
 export function AvatarEditor(){
+ if(pilotMode)return <section className="auth-card avatar-editor"><h2>Profil fotoğrafı</h2><p>Pilot sürümünde kalıcı dosya depolama bulunmadığı için profil fotoğrafı yükleme kapalıdır.</p></section>
+ return <AvatarEditorForm/>
+}
+function AvatarEditorForm(){
  const [id,setId]=useState<string|null>(null),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState<string|null>(null),[loaded,setLoaded]=useState(false),[pending,setPending]=useState(false),[error,setError]=useState<ApiError|null>(null),[revision,setRevision]=useState(0),[,setSaved]=useState(false)
  const busy=useRef(false),input=useRef<HTMLInputElement>(null),previewUrl=useRef<string|null>(null)
  useEffect(()=>{const c=new AbortController();apiGet('/api/me/avatar',c.signal).then(v=>{if(!c.signal.aborted){setId(parse(v));setLoaded(true)}}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>c.abort()},[revision])

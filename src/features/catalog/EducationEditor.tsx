@@ -1,4 +1,3 @@
-import { CatalogStatusDecision } from '../management/CatalogStatusDecision'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ApiError } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
@@ -12,7 +11,7 @@ export function EducationEditor(){
 }
 function EducationList({university}:{university:Choice}){
   const [department,setDepartment]=useState<Choice|null>(null)
-  const [reason,setReason]=useState(''),[statusEntry,setStatusEntry]=useState<Education|null>(null)
+  const [reason,setReason]=useState('')
   const [result,setResult]=useState<Page<Education>|null>(null)
   const [page,setPage]=useState(0)
   const [revision,setRevision]=useState(0)
@@ -38,9 +37,8 @@ function EducationList({university}:{university:Choice}){
     <AuthFormError error={error}/>{error && <button type="button" onClick={()=>{setError(null);setRevision(revision+1)}}>Listeyi yenile</button>}
 
     {!result?<p role="status">Eşleşmeler yükleniyor…</p>:result.items.length===0?<p className="empty-state">Bu üniversiteye henüz bölüm eklenmemiş.</p>:
-      <ul className="catalog-list">{result.items.map(entry=><li key={entry.id}><span className="catalog-name">{entry.departmentName}<small>{entry.deletedAt?'Pasif':entry.available?'Aktif':'Üniversite veya bölüm pasif'}</small></span>
-        <button type="button" disabled={pending} onClick={()=>setStatusEntry(entry)}>{entry.deletedAt?'Geri yükle':'Pasife al'}</button></li>)}</ul>}
-    {statusEntry&&<CatalogStatusDecision key={statusEntry.id} kind="UNIVERSITY_DEPARTMENT" id={statusEntry.id} deleted={!!statusEntry.deletedAt} apply={reason=>setEducationStatus(statusEntry,reason)} reload={()=>{setStatusEntry(null);setRevision(r=>r+1)}} cancel={()=>setStatusEntry(null)}/>}
+      <>{[false,true].map(deleted=><section className="catalog-status-group" key={String(deleted)}><h2>{deleted?'Pasif eşleşmeler':'Aktif eşleşmeler'}</h2><ul className="catalog-list">{result.items.filter(entry=>Boolean(entry.deletedAt)===deleted).map(entry=><li key={entry.id}><span className="catalog-name">{entry.departmentName}<small>{entry.deletedAt?'Pasif':entry.available?'Aktif':'Üniversite veya bölüm pasif'}</small></span>
+        <button type="button" disabled={pending} onClick={()=>void mutate(()=>setEducationStatus(entry,'Yönetim panelinden durum değiştirildi.'))}>{entry.deletedAt?'Aktife al':'Pasife al'}</button></li>)}</ul>{result.items.every(entry=>Boolean(entry.deletedAt)!==deleted)&&<p className="empty-state">{deleted?'Pasif eşleşme yok.':'Aktif eşleşme yok.'}</p>}</section>)}</>}
     {result && result.totalElements>result.size && <div className="pagination"><button type="button" disabled={page===0} onClick={()=>setPage(page-1)}>Önceki sayfa</button><span>Sayfa {page+1}</span>
       <button type="button" disabled={(page+1)*result.size>=result.totalElements} onClick={()=>setPage(page+1)}>Sonraki sayfa</button></div>}
   </div>

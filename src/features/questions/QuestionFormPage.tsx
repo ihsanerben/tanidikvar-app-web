@@ -11,7 +11,6 @@ import { QuestionLoader } from './QuestionLoader'
 import { createQuestion,updateQuestion,scopeLabels,type Scope,type Question } from './questionApi'
 export function QuestionFormPage({edit=false}:{edit?:boolean}) {
   const {id=''}=useParams(),auth=useAuth()
-  if(!edit&&auth.user?.role==='ADMIN')return <section className="status-page"><h1>Adminler sorulara yorum yapabilir.</h1><Link className="button" to="/questions">Soruları keşfet</Link></section>
   return <QuestionGate>{edit?<QuestionLoader key={id} id={id}>{(q,reload)=>q.authorId!==auth.user?.id?<section className="status-page"><h1>Bu soruyu düzenleyemezsin.</h1></section>:q.archivedAt?<section className="status-page"><h1>Bu soru arşivlenmiş.</h1><Link to={`/questions/${id}`}>Soruyu oku</Link></section>:<QuestionForm key={`${q.id}-${q.version}`} initial={q} reload={reload}/>}</QuestionLoader>:<QuestionForm key={auth.user?.id}/>}</QuestionGate>
 }
 function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
