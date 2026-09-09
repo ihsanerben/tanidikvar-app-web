@@ -107,23 +107,23 @@ it('offers reloading instead of silently overwriting a stale profile',async()=>{
   expect(screen.getByLabelText('Ad')).toHaveValue('Ada')
 })
 
-it('offers photo and social links before first profile save',async()=>{
- vi.stubGlobal('fetch',vi.fn(async(url:string)=>json(url.endsWith('/avatar')?{fileId:null}:empty)))
+it('offers social links without a profile photo control',async()=>{
+ vi.stubGlobal('fetch',vi.fn(async()=>json(empty)))
  render(<MemoryRouter><ProfilePage/></MemoryRouter>)
- fireEvent.click(await screen.findByRole('button',{name:'Profil fotoğrafını düzenle'}));expect(await screen.findByLabelText('Fotoğraf seç')).toBeInTheDocument()
+ await screen.findByLabelText('Ad')
+ expect(screen.queryByRole('button',{name:'Profil fotoğrafını düzenle'})).not.toBeInTheDocument()
+ expect(screen.queryByLabelText('Fotoğraf seç')).not.toBeInTheDocument()
  expect(screen.getByLabelText('LinkedIn bağlantısı')).toHaveAttribute('type','url')
  expect(screen.getByLabelText('Portfolyo sitesi')).not.toBeRequired()
 })
-it('stops profile completion and explains the missing required photo',async()=>{
- const fetch=vi.fn(async(url:string)=>json(url.endsWith('/avatar')?{fileId:null}:empty))
+it('saves a profile without a profile photo',async()=>{
+ const fetch=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):options.method==='PUT'?json({...empty,firstName:'Ada',lastName:'Yılmaz',educationStatus:'YKS_ADAYI',completed:true,version:1}):json(empty))
  vi.stubGlobal('fetch',fetch)
  render(<MemoryRouter><ProfilePage/></MemoryRouter>)
  await screen.findByLabelText('Ad')
- await waitFor(()=>expect(fetch.mock.calls.some(([url])=>String(url).endsWith('/avatar'))).toBe(true))
- act(()=>window.dispatchEvent(new CustomEvent('avatar:updated',{detail:null})))
  fireEvent.change(screen.getByLabelText('Ad'),{target:{value:'Ada'}})
  fireEvent.change(screen.getByLabelText('Soyad'),{target:{value:'Yılmaz'}})
  fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
- expect((await screen.findAllByText('Profilini tamamlamak için profil fotoğrafı ekle.')).length).toBeGreaterThan(0)
- expect(fetch.mock.calls.some(call=>(call as unknown as [string,RequestInit?])[1]?.method==='PUT')).toBe(false)
+ await waitFor(()=>expect(fetch.mock.calls.some(([,options])=>options.method==='PUT')).toBe(true))
+ expect(fetch.mock.calls.some(([url])=>String(url).endsWith('/avatar'))).toBe(false)
 })

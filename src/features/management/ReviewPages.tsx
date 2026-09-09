@@ -1,8 +1,7 @@
-import { useCallback,useEffect,useState } from 'react'
+import { useCallback,useState } from 'react'
 import { Link,useParams } from 'react-router-dom'
-import { apiGet,apiMutation,ApiError } from '../../api/apiClient'
+import { apiMutation } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
-import { formError } from '../auth/formError'
 import { ApplicationCard } from '../applications/ApplicationCard'
 import { getApplication,getUserApplications,getUserDetail } from './workspaceApi'
 import { useManagerData } from './useManagerData'
@@ -12,12 +11,7 @@ import { roleLabels } from '../profile/useProfileSummary'
 import { ProfileAvatar } from '../profile/ProfileAvatar'
 export function ApplicationReviewPage(){
  const {id=''}=useParams(),loader=useCallback((signal:AbortSignal)=>getApplication(id,signal),[id]),state=useManagerData(loader)
- return <section className="management-page"><Link to="/manager/applications">← Başvurular</Link><h1>Başvuru incelemesi</h1>{state.error?<><AuthFormError error={state.error}/><button onClick={state.reload}>Tekrar dene</button></>:!state.data?<p role="status">Başvuru yükleniyor…</p>:<><Link to={`/manager/users/${state.data.applicantId}`}>Kullanıcı detayını aç</Link><div className="application-review-grid"><ApplicationCard key={state.data.version+'-'+state.data.activeVerification} application={state.data} manager reload={state.reload}/>{state.data.documentFileId?<DocumentPreview key={state.data.documentFileId} id={state.data.documentFileId}/>:<section className="auth-card document-preview"><h2>Gönderilen belge</h2><p>Bu başvuruya belge eklenmedi.</p></section>}</div><ApplicationHistory key={state.data.id+'-'+state.data.version+'-'+state.data.activeVerification} userId={state.data.applicantId}/></>}</section>
-}
-function DocumentPreview({id}:{id:string}){
- const [url,setUrl]=useState<string|null>(null),[error,setError]=useState<ApiError|null>(null),[revision,setRevision]=useState(0)
- useEffect(()=>{const c=new AbortController();let objectUrl:string|undefined;apiGet(`/api/files/${id}/download`,c.signal,true).then(v=>{if(c.signal.aborted)return;if(!(v instanceof Blob))throw new ApiError(200,'INVALID_RESPONSE','Belge görüntülenemedi.');objectUrl=URL.createObjectURL(new Blob([v],{type:'application/pdf'}));setUrl(objectUrl)}).catch(e=>{if(!c.signal.aborted)setError(formError(e))});return()=>{c.abort();if(objectUrl)URL.revokeObjectURL(objectUrl)}},[id,revision])
- return <section className="auth-card document-preview"><h2>Gönderilen belge</h2>{error?<><AuthFormError error={error}/><button onClick={()=>{setError(null);setRevision(r=>r+1)}}>Belgeyi yeniden yükle</button></>:url?<><iframe title="Başvuru belgesi" src={url}/><a href={url} download="belge.pdf">PDF görüntülenmiyorsa indir</a></>:<p role="status">Belge yükleniyor…</p>}</section>
+ return <section className="management-page"><Link to="/manager/applications">← Başvurular</Link><h1>Başvuru incelemesi</h1>{state.error?<><AuthFormError error={state.error}/><button onClick={state.reload}>Tekrar dene</button></>:!state.data?<p role="status">Başvuru yükleniyor…</p>:<><Link to={`/manager/users/${state.data.applicantId}`}>Kullanıcı detayını aç</Link><div className="application-review-grid"><ApplicationCard key={state.data.version+'-'+state.data.activeVerification} application={state.data} manager reload={state.reload}/></div><ApplicationHistory key={state.data.id+'-'+state.data.version+'-'+state.data.activeVerification} userId={state.data.applicantId}/></>}</section>
 }
 export function ApplicationHistory({userId}:{userId:string}){
  const [page,setPage]=useState(0),loader=useCallback((signal:AbortSignal)=>getUserApplications(userId,page,signal),[userId,page]),state=useManagerData(loader)

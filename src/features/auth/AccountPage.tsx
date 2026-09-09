@@ -28,7 +28,7 @@ function Account({status}:{status:boolean}){
  {user.role!=='MANAGER'&&<Link className="button button-secondary" to="/my-questions">Sorularım</Link>}
  {user.role==='MANAGER'&&<Link className="button button-secondary" to="/manager">Manager Panel</Link>}
  {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin">Admin yorumlarım</Link>}
- {user.role!=='ADMIN'&&<Link className="button button-secondary" to={user.role==='MANAGER'?'/manager/applications':'/applications'}>{user.role==='MANAGER'?'Admin başvurularını incele':'Admin başvurularım'}</Link>}</nav>
+ {user.role==='MANAGER'?<Link className="button button-secondary" to="/manager/applications">Admin başvurularını incele</Link>:<Link className="button button-secondary" to="/applications">Admin başvurularım</Link>}</nav>
  <AuthFormError error={failure}/><button className="button button-danger account-logout" onClick={()=>{setFailure(null);void auth.logout().catch(e=>setFailure(formError(e)))}}>Çıkış yap</button></>}
  </div></section>
 }
