@@ -1,7 +1,7 @@
 import { render,screen,fireEvent,waitFor } from '@testing-library/react'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { ProfileTrigger,ProfileLinks } from './PublicProfilePopup'
-const profile={id:'user',name:'Ada Yılmaz',role:'MEZUN',educationStatus:'MEZUN',universityName:'Test Üniversitesi',departmentName:'Bilgisayar',graduationYear:2020,biography:'Merhaba',occupation:'Mühendis',company:null,linkedinUrl:'https://www.linkedin.com/in/ada',portfolioUrl:'https://ada.example.test',avatarFileId:null}
+const profile={id:'user',name:'Ada Yılmaz',role:'MEZUN',educationStatus:'MEZUN',universityName:'Test Üniversitesi',departmentName:'Bilgisayar',graduationYear:2020,biography:'Merhaba',occupation:'Mühendis',company:null,linkedinUrl:'https://www.linkedin.com/in/ada',portfolioUrl:'https://ada.example.test',avatarFileId:null,createdAt:'2026-09-05T10:00:00Z'}
 beforeEach(()=>{})
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals()})
 it('loads the selected public profile on demand with safe external links and closes',async()=>{
@@ -9,6 +9,7 @@ it('loads the selected public profile on demand with safe external links and clo
  render(<ProfileTrigger id="user" name="Ada Yılmaz" detailHref="/profiles/user"/>);expect(fetch).not.toHaveBeenCalled()
  fireEvent.click(screen.getByRole('button',{name:'Ada Yılmaz profilini görüntüle'}))
  expect(await screen.findByText('Test Üniversitesi')).toBeVisible()
+ expect(screen.getByText('5 Eylül 2026')).toBeVisible()
  expect(screen.getByRole('link',{name:'LinkedIn ↗'})).toHaveAttribute('rel','noopener noreferrer')
  expect(screen.getByRole('link',{name:'Portfolyo ↗'})).toHaveAttribute('href','https://ada.example.test/')
  expect(screen.getByRole('link',{name:'Profil detayını aç'})).toHaveAttribute('href','/profiles/user')

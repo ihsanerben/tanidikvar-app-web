@@ -6,7 +6,7 @@ import { QuestionListPage } from '../questions/QuestionListPage'
 import { AdminDirectoryPage } from './AdminDirectoryPage'
 const stats={viewCount:15000,likeCount:500,communityAnswerCount:4,adminAnswerCount:8,totalAnswerCount:12}
 const q={id:'question',authorId:'member',authorName:'Ada Yılmaz',title:'Işık kampüs hayatı nasıl?',body:null,scope:'GENERAL',universityId:null,universityName:null,universityDepartmentId:null,departmentId:null,departmentName:null,tags:[],createdAt:'2026-09-05T10:00:00Z',editedAt:null,archivedAt:null,version:0,statistics:stats}
-const admin={id:'admin',name:'Çağrı Işık',activeAdmin:false,universityName:'Işık Üniversitesi',departmentName:'Bilgisayar Mühendisliği',educationStatus:'MEZUN',graduationYear:2025,biography:null,occupation:null,company:null,avatarFileId:null,answerCount:8,communityAnswerCount:3}
+const admin={id:'admin',name:'Çağrı Işık',activeAdmin:false,universityName:'Işık Üniversitesi',departmentName:'Bilgisayar Mühendisliği',educationStatus:'MEZUN',graduationYear:2025,biography:null,occupation:null,company:null,avatarFileId:null,answerCount:8,communityAnswerCount:3,createdAt:'2026-09-05T10:00:00Z'}
 const page=(items:unknown[]=[],number=0,total=items.length)=>({items,page:number,size:20,totalElements:total})
 const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status})
 beforeEach(()=>setUser(null));afterEach(()=>vi.unstubAllGlobals())

@@ -15,6 +15,9 @@ const application={id:'application',applicantId:'member',firstName:'Ada',lastNam
 function show(path:string){return render(<MemoryRouter initialEntries={[path]}><App/></MemoryRouter>)}
 beforeEach(()=>setUser(manager))
 afterEach(()=>vi.unstubAllGlobals())
+it('shows only a prominent login action in the guest header while keeping registration in the login form',()=>{
+ setUser(null);show('/login');const account=screen.getByRole('navigation',{name:'Hesap'});const login=within(account).getByRole('link',{name:'Giriş yap'});expect(login).toHaveAttribute('href','/login');expect(login).toHaveClass('button');expect(within(account).queryByRole('link',{name:'Kayıt ol'})).not.toBeInTheDocument();expect(screen.getByText('Henüz hesabın yok mu?')).toBeVisible();expect(screen.getByRole('link',{name:'Kayıt ol'})).toHaveAttribute('href','/register')
+})
 it('routes manager login and public navigation into the management workspace',async()=>{
  const fetch=vi.fn(async(url:string)=>url.endsWith('/statistics')?json(stats):json(list([])));vi.stubGlobal('fetch',fetch);show('/login');await screen.findByRole('heading',{name:'Platforma genel bakış'});expect(screen.getByRole('navigation',{name:'Yönetim menüsü'})).toBeVisible();expect(screen.queryByRole('navigation',{name:'Ana menü'})).not.toBeInTheDocument();for(const name of ['Özet','Başvurular','Kullanıcılar','Sorular ve Yorumlar','Üniversiteler ve Bölümler','Tagler','İşlem Geçmişi','Hesabım'])expect(within(screen.getByRole('navigation',{name:'Yönetim menüsü'})).getByRole('link',{name})).toBeInTheDocument()
 })

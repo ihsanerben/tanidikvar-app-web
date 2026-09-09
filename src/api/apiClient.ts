@@ -31,7 +31,7 @@ const messages: Record<string, string> = {
   ASSIGNMENT_REQUIRED: 'Bu soru için yorum yapma yetkin yok.',
   DAILY_LIMIT: 'Bugünkü beş farklı soru hakkını kullandın. Geçmiş yorumlarını düzenleyebilirsin.',
   INVALID_FILE: 'Belge PDF ve en fazla 10 MB; fotoğraf JPEG/PNG ve en fazla 5 MB (16 milyon piksel) olmalı.',
-  APPLICATION_INELIGIBLE: 'Başvuru için üniversite öğrencisi veya mezun profilini tamamla.',
+  APPLICATION_INELIGIBLE: 'Başvuru için profilini tamamla.',
   APPLICATION_PENDING: 'Zaten inceleme bekleyen bir başvurun var.',
   REASON_REQUIRED: 'Gerekçe yaz (en fazla 1000 karakter).',
   STORAGE_UNAVAILABLE: 'Dosyaya şu anda erişilemiyor. Tekrar dene.',

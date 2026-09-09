@@ -11,20 +11,37 @@ const list=(items:unknown[]=[])=>json({items,page:0,size:10,totalElements:items.
 beforeEach(()=>setUser({id:'member',email:'test@example.test',role:'MEZUN',profileCompleted:true}))
 afterEach(()=>vi.unstubAllGlobals())
 function page(manager=false){return render(<MemoryRouter><ApplicationsPage manager={manager}/></MemoryRouter>)}
+it('shows only the application action when application history is empty',async()=>{
+ vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/profile')?json(profile):list()));page()
+ expect(await screen.findByRole('button',{name:'Başvuruyu gönder'})).toBeVisible()
+ expect(screen.queryByText('Henüz başvuru yok.')).not.toBeInTheDocument()
+ expect(screen.queryByText('DOĞRULANMIŞ DENEYİMLER')).not.toBeInTheDocument()
+ expect(screen.queryByRole('navigation',{name:'Başvuru sayfaları'})).not.toBeInTheDocument()
+})
 it('shows immutable pending details without a second submission form',async()=>{
  vi.stubGlobal('fetch',vi.fn(async()=>list([{...app,firstName:'<script>alert(1)</script>'}])));page()
  expect(await screen.findByText('<script>alert(1)</script> Yılmaz')).toBeVisible()
  expect(document.querySelector('script')).toBeNull();expect(screen.queryByLabelText('e-Devlet öğrenci / mezun belgesi (isteğe bağlı)')).not.toBeInTheDocument()
  expect(screen.queryByRole('button',{name:'Kabul et'})).not.toBeInTheDocument()
 })
-it('shows an admin past application with submission and approval dates but no submission form',async()=>{
+it('shows an active admin application with submission and approval dates but no submission form',async()=>{
  setUser({id:'admin',email:'admin@example.test',role:'ADMIN',profileCompleted:true})
- vi.stubGlobal('fetch',vi.fn(async()=>list([{...app,status:'APPROVED',submittedAt:'2026-09-05T10:00:00Z',reviewedAt:'2026-09-06T12:30:00Z'}])))
+ vi.stubGlobal('fetch',vi.fn(async()=>list([{...app,status:'APPROVED',submittedAt:'2026-09-05T10:00:00Z',reviewedAt:'2026-09-06T12:30:00Z',activeVerification:true}])))
  page()
  expect(await screen.findByText('Onaylandı')).toBeVisible()
  expect(screen.getByText('Başvuru tarihi:',{exact:false})).toBeVisible()
  expect(screen.getByText('Onay tarihi:',{exact:false})).toBeVisible()
  expect(screen.queryByRole('button',{name:'Başvuruyu gönder'})).not.toBeInTheDocument()
+})
+it('lets a revoked admin submit again even while the browser still has the old admin role',async()=>{
+ setUser({id:'former-admin',email:'former-admin@example.test',role:'ADMIN',profileCompleted:true})
+ const fetch=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/profile')?json(profile):url.endsWith('/csrf')?json({token:'csrf'}):options.method==='POST'?json(app,201):list([{...app,status:'APPROVED',activeVerification:false,reviewedAt:'2026-09-06T12:30:00Z'}]))
+ vi.stubGlobal('fetch',fetch);page()
+ expect(await screen.findByRole('button',{name:'Başvuruyu gönder'})).toBeVisible()
+ expect(screen.queryByText('Admin başvurusu için üniversite öğrencisi veya mezun eğitim bilgilerini tamamla.')).not.toBeInTheDocument()
+ fireEvent.click(screen.getByRole('button',{name:'Başvuruyu gönder'}))
+ await screen.findByText('İşlem tamamlandı.')
+ expect(fetch.mock.calls.some(([,options])=>options.method==='POST')).toBe(true)
 })
 it('submits a JSON application with CSRF',async()=>{
  let saved=false
@@ -85,10 +102,11 @@ it('explains pending closure before revocation and sends the active verification
  await waitFor(()=>expect(fetch.mock.calls.some(([,o])=>o.method==='POST')).toBe(true))
  expect(JSON.parse(fetch.mock.calls.find(([,o])=>o.method==='POST')![1].body as string).verificationId).toBe('application')
 })
-it('gates candidate applications and retries failed listing',async()=>{
+it('lets a YKS candidate submit and retries a failed listing',async()=>{
  let failed=true
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/profile')?json({...profile,educationStatus:'YKS_ADAYI',education:null,graduationYear:null}):failed?json({code:'SERVICE_UNAVAILABLE'},503):list()))
  page();await screen.findByRole('button',{name:'Tekrar dene'});failed=false
  fireEvent.click(screen.getByRole('button',{name:'Tekrar dene'}))
- expect(await screen.findByRole('link',{name:'Profilime git'})).toHaveAttribute('href','/profile')
+ expect(await screen.findByRole('button',{name:'Başvuruyu gönder'})).toBeVisible()
+ expect(screen.getByText('YKS Adayı')).toBeVisible()
 })
