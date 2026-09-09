@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import type { Application } from './applicationApi'
-import { decide, revoke, downloadDocument } from './applicationApi'
+import { decide, revoke } from './applicationApi'
 import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
 import type { ApiError } from '../../api/apiClient'
@@ -13,13 +13,12 @@ export function ApplicationCard({application:a,manager,reload}:{application:Appl
  return <article className="auth-card application-card"><div><span className="eyebrow">{labels[a.status]}</span><h2>{manager?<Link to={`/manager/applications/${a.id}`}>{a.firstName} {a.lastName}</Link>:<>{a.firstName} {a.lastName}</>}</h2>
  <p>{a.universityName} · {a.departmentName}</p><p>{a.educationStatus==='MEZUN'?`${a.graduationYear} Mezunu`:'Üniversite Öğrencisi'}</p>
  {(a.occupation||a.company)&&<p>{a.occupation} {a.company&&`· ${a.company}`} <small>(kişisel beyan)</small></p>}
- <p>Gönderildi: <time dateTime={a.submittedAt}>{new Date(a.submittedAt).toLocaleString('tr-TR')}</time></p>
- {a.reviewedAt&&<p>Karar: <time dateTime={a.reviewedAt}>{new Date(a.reviewedAt).toLocaleString('tr-TR')}</time></p>}
+ <p>Başvuru tarihi: <time dateTime={a.submittedAt}>{new Date(a.submittedAt).toLocaleString('tr-TR')}</time></p>
+ {a.reviewedAt&&<p>{a.status==='APPROVED'?'Onay tarihi':'Karar tarihi'}: <time dateTime={a.reviewedAt}>{new Date(a.reviewedAt).toLocaleString('tr-TR')}</time></p>}
  {a.status==='APPROVED'&&<p>{a.activeVerification?'Güncel doğrulama':'Geçmiş onay — güncel Admin yetkisini göstermez.'}</p>}
  {a.rejectionReason&&<p className="application-reason">Ret gerekçesi: {a.rejectionReason}</p>}</div>
- {a.documentFileId?<button className="button button-secondary" disabled={pending} onClick={()=>{setPending(true);setError(null);void downloadDocument(a.documentFileId!).catch(e=>setError(formError(e))).finally(()=>setPending(false))}}>Belgeyi indir</button>:<p className="field-help">Bu başvuruya belge eklenmedi.</p>}
  {manager&&!action&&<div className="application-actions">{a.status==='PENDING'&&<><button className="button" disabled={pending} onClick={()=>setAction('APPROVED')}>Kabul et</button><button className="button button-secondary" disabled={pending} onClick={()=>setAction('REJECTED')}>Reddet</button></>}{a.activeVerification&&<button className="button button-secondary" disabled={pending} onClick={()=>setAction('REVOKE')}>Admin yetkisini kaldır</button>}</div>}
- {action&&<form onSubmit={e=>{e.preventDefault();void confirm()}}><p>{action==='APPROVED'?(a.documentFileId?'Belgeyi ve yukarıdaki bilgileri kontrol ettin mi? Onay, Admin yetkisi verir.':'Başvuruda belge yok. Yukarıdaki profil bilgilerine göre onay vermek üzeresin.'):action==='REVOKE'?'Admin yetkisi kaldırılacak ve bekleyen başvuru gerekçesiyle reddedilecek.':'Ret gerekçesi başvuru sahibine gösterilecek.'}</p>
+ {action&&<form onSubmit={e=>{e.preventDefault();void confirm()}}><p>{action==='APPROVED'?'Yukarıdaki eğitim ve profil bilgilerini kontrol ettin mi? Onay, Admin yetkisi verir.':action==='REVOKE'?'Admin yetkisi kaldırılacak ve bekleyen başvuru gerekçesiyle reddedilecek.':'Ret gerekçesi başvuru sahibine gösterilecek.'}</p>
  {action!=='APPROVED'&&<><label htmlFor={`reason-${a.id}`}>Gerekçe</label><textarea id={`reason-${a.id}`} required maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)} disabled={pending}/></>}
  <div className="application-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':'Kararı onayla'}</button><button type="button" className="button button-secondary" disabled={pending} onClick={()=>setAction(null)}>Vazgeç</button></div></form>}
  <AuthFormError error={error}/>{error?.status===409&&<button className="button" onClick={reload}>Güncel listeyi yükle</button>}

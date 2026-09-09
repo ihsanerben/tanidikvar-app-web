@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { OwnProfileAvatar } from './ProfileAvatar'
-import { ComposerDialog } from '../answers/ComposerDialog'
-import { AvatarEditor } from './AvatarEditor'
-import { pilotMode } from '../../config/pilot'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { apiGet, ApiError, isRecord } from '../../api/apiClient'
+import { ApiError } from '../../api/apiClient'
 import { AuthFormError } from '../auth/AuthFormError'
 import { formError } from '../auth/formError'
 import { useAuth } from '../auth/useAuth'
@@ -32,14 +28,6 @@ function ProfileLoader(){
   if(!profile) return <section className="status-page" role="status">Profil yükleniyor…</section>
   return <ProfileForm key={profile.version} initial={profile} reload={()=>{setProfile(null);setRevision(revision+1)}}/>
 }
-function ProfilePhotoPicker({name,isAdmin,educationStatus,required,onChanged}:{name:string;isAdmin:boolean;educationStatus:string;required?:boolean;onChanged?:(id:string|null)=>void}){
-  const [open,setOpen]=useState(false)
-  useEffect(()=>{const update=(event:Event)=>onChanged?.((event as CustomEvent<string|null>).detail);window.addEventListener('avatar:updated',update);return()=>window.removeEventListener('avatar:updated',update)},[onChanged])
-  return <div className={`profile-photo-picker${required?' profile-photo-picker-required':''}`} data-avatar-required={required||undefined}>
-    <button type="button" className="profile-photo-trigger" aria-label="Profil fotoğrafını düzenle" onClick={()=>setOpen(true)}><OwnProfileAvatar name={name||'Profilim'} isAdmin={isAdmin} educationStatus={educationStatus}/><span><strong>Profil fotoğrafı</strong>{required&&<small>Zorunlu</small>}</span></button>
-    {open&&<ComposerDialog title="Profil fotoğrafı" onClose={()=>setOpen(false)}><AvatarEditor/><button type="button" className="button button-secondary" onClick={()=>setOpen(false)}>Kapat</button></ComposerDialog>}
-  </div>
-}
 function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const auth=useAuth()
   const navigate=useNavigate()
@@ -56,16 +44,10 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   const [version,setVersion]=useState(initial.version)
   const [pending,setPending]=useState(false)
   const [error,setError]=useState<ApiError|null>(null)
-  const [avatarId,setAvatarId]=useState<string|null|undefined>(undefined)
   const submitting=useRef(false)
   const form=useRef<HTMLFormElement>(null)
-  useEffect(()=>{const controller=new AbortController();apiGet('/api/me/avatar',controller.signal).then(value=>{if(!controller.signal.aborted&&isRecord(value)&&(value.fileId===null||typeof value.fileId==='string'))setAvatarId(value.fileId as string|null)}).catch(()=>{if(!controller.signal.aborted)setAvatarId(null)});return()=>controller.abort()},[])
   async function submit(event:FormEvent){
     event.preventDefault();if(submitting.current)return
-    submitting.current=true;setPending(true);setError(null)
-    let currentAvatar=avatarId
-    if(!pilotMode&&currentAvatar===undefined){try{const value=await apiGet('/api/me/avatar');currentAvatar=isRecord(value)&&(value.fileId===null||typeof value.fileId==='string')?value.fileId as string|null:null;setAvatarId(currentAvatar)}catch{currentAvatar=null;setAvatarId(null)}}
-    if(!pilotMode&&!currentAvatar){submitting.current=false;setPending(false);setError(new ApiError(400,'VALIDATION_FAILED','Profilini tamamlamak için profil fotoğrafı ekle.',undefined,{avatarFileId:'Profilini tamamlamak için profil fotoğrafı ekle.'}));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[data-avatar-required] button')?.focus());return}
     submitting.current=true;setPending(true);setError(null)
     try{
       const result=await saveProfile({firstName,lastName,educationStatus:status,universityDepartmentId:status==='YKS_ADAYI'?null:department?.id??null,
@@ -77,11 +59,9 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
     finally{submitting.current=false;setPending(false)}
   }
   function fieldError(name:string){return error?.fieldErrors[name] && <p className="field-error" id={`${name}-error`}>{error.fieldErrors[name]}</p>}
-  const isAdmin=auth.user?.role==='ADMIN'
-  return <section className="profile-page"><div className="profile-heading">{initial.completed&&!pilotMode&&<ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} onChanged={setAvatarId}/>}
-    <div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
+  return <section className="profile-page"><div className="profile-heading"><div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
     <form className="auth-card profile-form" onSubmit={submit} ref={form}>
-      <fieldset disabled={pending}><legend>Temel bilgiler</legend>{pilotMode&&<p className="field-help">Profilini fotoğraf eklemeden tamamlayabilirsin.</p>}{!initial.completed&&!pilotMode&&<><ProfilePhotoPicker name={firstName+" "+lastName} isAdmin={isAdmin} educationStatus={status} required onChanged={setAvatarId}/>{fieldError('avatarFileId')}</>}<div className="form-columns">
+      <fieldset disabled={pending}><legend>Temel bilgiler</legend><div className="form-columns">
         <div><label htmlFor="firstName">Ad</label><input id="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e=>setFirst(e.target.value)} aria-invalid={!!error?.fieldErrors.firstName} aria-describedby={error?.fieldErrors.firstName?'firstName-error':undefined}/>{fieldError('firstName')}</div>
         <div><label htmlFor="lastName">Soyad</label><input id="lastName" autoComplete="family-name" required maxLength={80} value={lastName} onChange={e=>setLast(e.target.value)} aria-invalid={!!error?.fieldErrors.lastName} aria-describedby={error?.fieldErrors.lastName?'lastName-error':undefined}/>{fieldError('lastName')}</div>
       </div><label htmlFor="educationStatus">Eğitim durumu</label><select id="educationStatus" value={status} onChange={e=>{setStatus(e.target.value as EducationStatus);setYear('')}}>
