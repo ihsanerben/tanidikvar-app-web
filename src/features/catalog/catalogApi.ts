@@ -31,3 +31,6 @@ export async function renameEntry(kind: Kind, entry: CatalogEntry, name: string,
 export async function setEntryStatus(kind: Kind, entry: CatalogEntry,reason:string) {
   return catalogEntry(await apiMutation(`/api/manager/catalog/${kind}/${entry.id}/status`,'PUT',{deleted:!entry.deletedAt,version:entry.version,reason}))
 }
+export async function deleteUniversity(entry: CatalogEntry,reason:string) {
+  await apiMutation(`/api/manager/catalog/UNIVERSITY/${entry.id}`,'DELETE',{version:entry.version,reason})
+}

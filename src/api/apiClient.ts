@@ -43,6 +43,8 @@ const messages: Record<string, string> = {
   PROFILE_REQUIRED: 'Bu işlem için profilini tamamla.',
   STALE_VERSION: 'Bu kayıt başka bir ekranda değişmiş. Güncel bilgileri yükleyip tekrar dene.',
   CATALOG_CONFLICT: 'Bu kayıt zaten var. Pasif kayıtları da kontrol et.',
+  CATALOG_ACTIVE: 'Üniversiteyi kalıcı olarak silmeden önce pasife al.',
+  CATALOG_IN_USE: 'Bu üniversite profil, soru veya başvuru geçmişinde kullanıldığı için silinemez.',
   INACTIVE_EDUCATION: 'Bu üniversite veya bölüm yeni seçimlere kapalı. Aktif kayıtlar seç.',
   REQUEST_CONFLICT: 'Bu gönderim daha önce kaydedilmiş. Sorunun detayını kontrol et.',
   QUESTION_ARCHIVED: 'Arşivlenmiş soru yeni yorum, beğeni, düzenleme veya geri yüklemeye kapalı.',
@@ -54,7 +56,7 @@ const messages: Record<string, string> = {
   ACCESS_DENIED: 'Bu işlem tamamlanamadı. Sayfayı yenileyip tekrar dene.',
 }
 
-async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown, signal?: AbortSignal, csrf?: string, binary=false): Promise<unknown> {
+async function raw(path: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', body?: unknown, signal?: AbortSignal, csrf?: string, binary=false): Promise<unknown> {
   let response: Response
   const timeout = AbortSignal.timeout(15_000)
   const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
@@ -102,7 +104,7 @@ async function raw(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown,
   return data
 }
 
-async function mutation(path: string, body?: unknown, method: 'POST' | 'PUT' = 'POST') {
+async function mutation(path: string, body?: unknown, method: 'POST' | 'PUT' | 'DELETE' = 'POST') {
   // Fetch on mutation so a cookie changed by another tab never leaves a cached CSRF token behind.
   const csrf = await raw('/api/auth/csrf', 'GET')
   if (!isRecord(csrf) || typeof csrf.token !== 'string') throw new ApiError(0, 'INVALID_RESPONSE', 'İşlem başlatılamadı.')
@@ -180,7 +182,7 @@ export async function authPost(path: string, body?: unknown): Promise<unknown> {
 }
 
 // Business mutations retry only a rejected 401, never a network error or a successful write.
-export async function apiMutation(path: string, method: 'POST' | 'PUT', body: unknown): Promise<unknown> {
+export async function apiMutation(path: string, method: 'POST' | 'PUT' | 'DELETE', body: unknown): Promise<unknown> {
   const epoch = sessionEpoch
   const startedRevision = revision
   const send = () => authLock(async () => {
