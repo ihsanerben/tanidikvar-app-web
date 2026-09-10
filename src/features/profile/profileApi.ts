@@ -4,7 +4,7 @@ export type EducationStatus='YKS_ADAYI'|'UNIVERSITE_OGRENCISI'|'MEZUN'
 export const statusLabels: Record<EducationStatus,string>={YKS_ADAYI:'YKS Adayı',UNIVERSITE_OGRENCISI:'Üniversite Öğrencisi',MEZUN:'Mezun'}
 export interface Profile {firstName:string|null;lastName:string|null;educationStatus:EducationStatus|null;education:Education|null;
   graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;linkedinUrl?:string|null;portfolioUrl?:string|null;completed:boolean;version:number}
-export interface ProfileInput {firstName:string;lastName:string;educationStatus:EducationStatus;universityDepartmentId:string|null;
+export interface ProfileInput {firstName:string;lastName:string;educationStatus:EducationStatus;universityId:string|null;departmentId:string|null;
   graduationYear:number|null;biography:string;occupation:string;company:string;linkedinUrl?:string;portfolioUrl?:string;version:number}
 function parse(value:unknown):Profile {
   if(!isRecord(value) || typeof value.completed!=='boolean' || typeof value.version!=='number'

@@ -23,7 +23,7 @@
     "title": "Profil, eğitim ve fotoğraf",
     "summary": "Ad-soyad ve eğitim bilgilerini tamamla. Hesabım kutusu YKS adayında mavi, öğrencide yeşil, mezunda kırmızıdır.",
     "details": [
-      "YKS adayında ad, soyad ve eğitim durumu; üniversite öğrencisinde ayrıca üniversite-bölüm eşleşmesi; mezunda bunlara ek olarak mezuniyet yılı gerekir. Eğitim bilgilerini Profilimi düzenle üzerinden güncelleyebilirsin.",
+      "YKS adayında ad, soyad ve eğitim durumu; üniversite öğrencisinde ayrıca üniversite ve bölüm; mezunda bunlara ek olarak mezuniyet yılı gerekir. Eğitim bilgilerini Profilimi düzenle üzerinden güncelleyebilirsin.",
       "Normal sürümde profil tamamlamak için fotoğraf gerekir. Fotoğraf penceresinde JPEG veya PNG seç, önizlemeyi kontrol et ve Fotoğrafı kaydet düğmesine bas. Üst sınır 5 MB’dır. Fotoğraf herkese açıktır; resmî belgeleri fotoğraf alanına yükleme.",
       "Üniversite değişince bölüm seçimi temizlenir. Yeni eğitim seçimleri aktif katalogdan yapılır; daha önce seçilen ve sonradan pasifleştirilen mevcut eğitim bağlantısı korunabilir. Listede bulunmayan programı başka programmış gibi seçme.",
       "Biyografi, LinkedIn ve Portfolyo isteğe bağlıdır. Mezun profiline meslek ve şirket de eklenebilir. Bu alanlar herkese açık profilinde görünür; paylaşmak istediğin bilgileri yaz.",
@@ -115,9 +115,9 @@
     "title": "Manager: katalog, grafikler ve işlem geçmişi",
     "summary": "Katalogları gerekçeyle yönet; tarih aralıklı grafiklerden hareketliliği, işlem geçmişinden yönetim kararlarını takip et.",
     "details": [
-      "Üniversiteler ve Bölümler ekranında üniversite ve ortak bölüm kayıtlarını yönet, üniversite-bölüm eşleşmeleri oluştur. Tagler ayrı menüdedir. Ekleme, ad değişikliği ve durum işlemleri gerekçe ister.",
+      "Üniversiteler ve Bölümler ekranında bağımsız üniversite ve bölüm kayıtlarını ara ve yönet. Tagler ayrı menüdedir. Ekleme, ad değişikliği ve durum işlemleri gerekçe ister.",
       "Pasifleştirme veya geri açma öncesinde bağlı profil ve soru sayılarını incele, gerekçeyi yaz ve onayla. Pasif kayıtlar geçmiş bağlantıları korur; yeni seçimlerde kullanılmaz.",
-      "Toplu katalog ekle alanına ekrandaki örneğe uygun JSON ve gerekçe girilir. Mevcut adlar yinelenmez. Geçersiz veri veya eşleşmede işlem bütünüyle başarısız olur; sonucu kontrol edip veriyi düzelt.",
+      "Toplu katalog ekle alanına üniversite ve bölüm adlarını ayrı satırlar halinde ve bir gerekçeyle gir. Mevcut adlar yinelenmez; geçersiz veri varsa işlem bütünüyle geri alınır.",
       "Özet kartları ilgili listelere, beğeni ve görüntülenme kartları Grafikler’e götürür. Grafikler’de son 7, 30 veya 90 gün seçilebilir; özel aralık en fazla 366 gündür. Gün sınırları Türkiye saatine göredir.",
       "Dört grafik kullanıcı, içerik, etkileşim ve başvuru hareketliliğini gösterir. Veri olmayan günler sıfırdır; tek gün de gösterilir. Günlük veri tablosu metrikleri sayısal incelemeyi sağlar.",
       "Grafikler dönem içinde oluşan olayları anlatır; sonradan gizlenen içerik veya geri alınan etkileşim geçmiş olayları silmez. Bu nedenle grafik toplamları mevcut görünür içerik sayaçlarından farklı olabilir.",

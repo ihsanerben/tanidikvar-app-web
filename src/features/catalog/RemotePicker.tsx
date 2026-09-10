@@ -1,13 +1,13 @@
 import { useEffect, useId, useState } from 'react'
-import { getCatalog, getEducation, type Choice, type Page } from './catalogApi'
+import { getCatalog, type Choice, type Page } from './catalogApi'
 import { formError } from '../auth/formError'
 
-export function RemotePicker({ label, endpoint, value, onChange, education = false, error, disabled = false, compact = false }: {
-  label: string; endpoint: string; value: Choice | null; onChange: (value: Choice | null) => void; education?: boolean; error?: string; disabled?: boolean; compact?: boolean
+export function RemotePicker({ label, endpoint, value, onChange, error, disabled = false, compact = false }: {
+  label: string; endpoint: string; value: Choice | null; onChange: (value: Choice | null) => void; error?: string; disabled?: boolean; compact?: boolean
 }) {
   const id=useId()
   const [response,setResponse]=useState<{key:string;data:Page<Choice>|null;error:string}|null>(null),[retry,setRetry]=useState(0)
-  const requestKey=JSON.stringify([endpoint,education,disabled,compact,retry])
+  const requestKey=JSON.stringify([endpoint,disabled,compact,retry])
   const current=response?.key===requestKey?response:null,result=current?.data??null,failure=current?.error??''
   useEffect(()=>{
     if(disabled)return
@@ -17,8 +17,7 @@ export function RemotePicker({ label, endpoint, value, onChange, education = fal
       let page=0,total=0
       do {
         const url=`${endpoint}${endpoint.includes('?')?'&':'?'}page=${page}&size=${compact?10:100}`
-        const data=education?await getEducation(url,controller.signal).then(p=>({...p,items:p.items.map(e=>({id:e.id,label:e.departmentName}))}))
-          :await getCatalog(url,controller.signal).then(p=>({...p,items:p.items.map(e=>({id:e.id,label:e.name}))}))
+        const data=await getCatalog(url,controller.signal).then(p=>({...p,items:p.items.map(e=>({id:e.id,label:e.name}))}))
         items.push(...data.items);total=data.totalElements;page++
         if(compact||data.items.length===0)break
       }while(items.length<total)
@@ -26,7 +25,7 @@ export function RemotePicker({ label, endpoint, value, onChange, education = fal
     }
     void list().catch(reason=>{if(!controller.signal.aborted)setResponse({key:requestKey,data:null,error:formError(reason).message})})
     return()=>controller.abort()
-  },[endpoint,requestKey,education,disabled,compact])
+  },[endpoint,requestKey,disabled,compact])
   return <div className="remote-picker">
     <label htmlFor={id}>{label}</label><select id={id} disabled={disabled||(!result&&!failure)} value={value?.id??''}
       aria-invalid={!!error} aria-describedby={error?`${id}-error`:undefined}

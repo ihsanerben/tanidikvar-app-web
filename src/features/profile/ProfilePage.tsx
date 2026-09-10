@@ -50,7 +50,7 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
     event.preventDefault();if(submitting.current)return
     submitting.current=true;setPending(true);setError(null)
     try{
-      const result=await saveProfile({firstName,lastName,educationStatus:status,universityDepartmentId:status==='YKS_ADAYI'?null:department?.id??null,
+      const result=await saveProfile({firstName,lastName,educationStatus:status,universityId:status==='YKS_ADAYI'?null:university?.id??null,departmentId:status==='YKS_ADAYI'?null:department?.id??null,
         graduationYear:status==='MEZUN' && year?Number(year):null,biography,occupation:status==='MEZUN'?occupation:'',company:status==='MEZUN'?company:'',linkedinUrl,portfolioUrl,version})
       setVersion(result.version);window.dispatchEvent(new Event('profile:updated'))
       if(auth.user) auth.setUser({...auth.user,profileCompleted:result.completed,role:['ADMIN','MANAGER'].includes(auth.user.role)?auth.user.role:result.educationStatus??'USER'})
@@ -68,11 +68,10 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
         {Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}
       </select>{fieldError('educationStatus')}
       {status!=='YKS_ADAYI' && <div className="form-columns">
-        <RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={value=>{setUniversity(value);setDepartment(null)}}/>
-        <RemotePicker key={university?.id??'none'} label="Bölüm" endpoint={`/api/universities/${university?.id}/departments`} education value={department} disabled={!university}
-          onChange={setDepartment} error={error?.fieldErrors.universityDepartmentId}/>
+        <RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={setUniversity} error={error?.fieldErrors.universityId}/>
+        <RemotePicker label="Bölüm" endpoint="/api/departments" value={department} onChange={setDepartment} error={error?.fieldErrors.departmentId}/>
       </div>}
-      {initial.education && !initial.education.available && department?.id===initial.education.id && status!=='YKS_ADAYI' && <p className="field-help">Mevcut eğitim kaydın korunuyor; bu eşleşme artık yeni seçimlere açık değil.</p>}
+      {initial.education && !initial.education.available && status!=='YKS_ADAYI' && <p className="field-help">Mevcut üniversite veya bölüm kaydın artık yeni seçimlere açık değil.</p>}
       {status==='MEZUN' && <><label htmlFor="graduationYear">Mezuniyet yılı</label><input id="graduationYear" type="number" min={1900} max={new Date().getFullYear()} required value={year} onChange={e=>setYear(e.target.value)} aria-invalid={!!error?.fieldErrors.graduationYear} aria-describedby={error?.fieldErrors.graduationYear?'graduationYear-error':undefined}/>{fieldError('graduationYear')}</>}
       </fieldset>
       <fieldset disabled={pending}><legend>Biraz daha sen (isteğe bağlı)</legend>

@@ -7,7 +7,7 @@ import { App } from '../../app/App'
 const manager={id:'manager',email:'manager@example.test',role:'MANAGER',profileCompleted:false}
 const user={id:'member',email:'member@example.test',name:'Ada Yılmaz',authority:'ADMIN',educationStatus:'UNIVERSITE_OGRENCISI',universityName:'Üniversite',departmentName:'Bölüm',emailVerified:true,createdAt:'2026-09-05T10:00:00Z',deletedAt:null,version:3}
 const content={id:'question',kind:'QUESTION',questionId:'question',authorId:'member',title:'Üniversitede yaşam nasıl?',body:'Yazarın korunacak soru metni',authorName:'Ada Yılmaz',createdAt:'2026-09-05T10:00:00Z',deletedAt:'2026-09-06T10:00:00Z',moderatedAt:'2026-09-06T10:00:00Z',archivedAt:null,questionHidden:false,viewCount:1,likeCount:2,communityAnswerCount:3,adminAnswerCount:4,version:2}
-const classification={scope:'GENERAL',universityId:null,universityDepartmentId:null,tagIds:[],version:2,education:null}
+const classification={scope:'GENERAL',universityId:null,departmentId:null,tagIds:[],version:2,education:null}
 const stats={activeUsers:12,disabledUsers:2,activeAdmins:3,pendingApplications:1,activeQuestions:10,archivedQuestions:2,hiddenQuestions:1,communityAnswers:20,adminAnswers:5,likes:100,views:15000}
 const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status})
 const list=(items:unknown[])=>({items,page:0,size:20,totalElements:items.length})

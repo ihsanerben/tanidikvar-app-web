@@ -9,6 +9,7 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
   const [name,setName]=useState('')
   const [reason,setReason]=useState(''),[editReason,setEditReason]=useState('')
   const [page,setPage]=useState(0)
+  const [query,setQuery]=useState('')
   const includeDeleted=true
   const [result,setResult]=useState<Page<CatalogEntry>|null>(null)
   const [error,setError]=useState<ApiError|null>(null)
@@ -23,11 +24,11 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
   useEffect(()=>{
     const controller=new AbortController()
     const endpoint=admin?'/api/tags':`/api/manager/catalog/${kind}`
-    getCatalog(`${endpoint}?page=${page}&size=100&includeDeleted=${includeDeleted}`,controller.signal)
+    getCatalog(`${endpoint}?page=${page}&size=100&includeDeleted=${includeDeleted}&q=${encodeURIComponent(query)}`,controller.signal)
       .then(data=>{if(!controller.signal.aborted){setResult(data);setLoading(false)}})
       .catch(reason=>{if(!controller.signal.aborted){setError(formError(reason));setLoading(false)}})
     return ()=>controller.abort()
-  },[kind,admin,page,revision])
+  },[kind,admin,page,query,revision])
   function refresh(){setLoading(true);setError(null);setRevision(revision+1)}
   async function mutate(action:()=>Promise<unknown>,message:string){
     if(busy.current)return
@@ -41,7 +42,7 @@ export function CatalogEditor({kind,admin=false}:{kind:Kind;admin?:boolean}){
     <label htmlFor="catalog-name">Yeni kayıt adı</label><input id="catalog-name" value={name} onChange={e=>setName(e.target.value)} required maxLength={200} disabled={pending}/>
     {!admin&&<label>Ekleme gerekçesi<input required maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)} disabled={pending}/></label>}<button className="button" disabled={pending||(!admin&&!reason.trim())}>Ekle</button>
   </form>
-  <div className="catalog-filters"/>
+  <div className="catalog-filters"><label htmlFor="catalog-search">{kind==='UNIVERSITY'?'Üniversite':'Bölüm'} ara</label><input id="catalog-search" type="search" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);setLoading(true)}} placeholder="Aramaya başla…"/></div>
   <AuthFormError error={error}/>{error && <button type="button" onClick={refresh}>Listeyi yenile</button>}
 
   {loading?<p role="status">Liste yükleniyor…</p>:result?.items.length===0?<p className="empty-state">Henüz kayıt yok. Yeni bir kayıt ekleyebilirsin.</p>:

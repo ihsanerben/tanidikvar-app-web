@@ -8,13 +8,10 @@ const empty={firstName:null,lastName:null,educationStatus:null,education:null,gr
 const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status})
 beforeEach(()=>setUser({id:'user',email:'test@example.test',role:'USER',profileCompleted:false}))
 afterEach(()=>vi.unstubAllGlobals())
-it('loads every university page and resets the department when university changes',async()=>{
+it('loads every university and department page independently',async()=>{
   const universities=Array.from({length:130},(_,i)=>({id:`u${i}`,name:`Üniversite ${i}`,version:0,deletedAt:null}))
   const fetch=vi.fn(async(url:string)=>{
-    if(url.includes('/departments')){
-      const universityId=url.includes('/u0/')?'u0':'u1'
-      return json({items:[{id:`${universityId}-d`,universityId,universityName:'Üniversite',departmentId:'d',departmentName:'Bilgisayar Mühendisliği',available:true,version:0,deletedAt:null}],page:0,size:100,totalElements:1})
-    }
+    if(url.includes('/departments'))return json({items:[{id:'d',name:'Bilgisayar Mühendisliği',version:0,deletedAt:null}],page:0,size:100,totalElements:1})
     if(url.includes('/universities')){const page=Number(new URL(url,'https://example.test').searchParams.get('page'));return json({items:universities.slice(page*100,(page+1)*100),page,size:100,totalElements:universities.length})}
     return json(empty)
   })
@@ -26,15 +23,15 @@ it('loads every university page and resets the department when university change
   expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
   expect(screen.queryByRole('button',{name:'Önceki'})).not.toBeInTheDocument()
   expect(screen.queryByRole('button',{name:'Sonraki'})).not.toBeInTheDocument()
-  expect(screen.getByLabelText('Bölüm')).toBeDisabled()
+  await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
   fireEvent.change(screen.getByLabelText('Üniversite'),{target:{value:'u0'}})
   await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
-  fireEvent.change(screen.getByLabelText('Bölüm'),{target:{value:'u0-d'}})
-  expect(screen.getByLabelText('Bölüm')).toHaveValue('u0-d')
+  fireEvent.change(screen.getByLabelText('Bölüm'),{target:{value:'d'}})
+  expect(screen.getByLabelText('Bölüm')).toHaveValue('d')
   fireEvent.change(screen.getByLabelText('Üniversite'),{target:{value:'u1'}})
   await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
-  expect(screen.getByLabelText('Bölüm')).toHaveValue('')
-  expect(within(screen.getByLabelText('Bölüm')).queryByRole('option',{name:'Bilgisayar Mühendisliği'})).toHaveValue('u1-d')
+  expect(screen.getByLabelText('Bölüm')).toHaveValue('d')
+  expect(within(screen.getByLabelText('Bölüm')).queryByRole('option',{name:'Bilgisayar Mühendisliği'})).toHaveValue('d')
   expect(fetch.mock.calls.some(([url])=>url.includes('/universities?page=1&size=100'))).toBe(true)
 })
 it('keeps unsaved profile fields during a background session check',async()=>{
@@ -70,24 +67,24 @@ it('completes a candidate profile without asking for university details',async()
   fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
   expect(await screen.findByTestId('location')).toHaveTextContent('/account')
   const call=fetch.mock.calls.find(([,options])=>options.method==='PUT')!
-  expect(JSON.parse(call[1].body as string)).toMatchObject({educationStatus:'YKS_ADAYI',universityDepartmentId:null,graduationYear:null,version:0})
+  expect(JSON.parse(call[1].body as string)).toMatchObject({educationStatus:'YKS_ADAYI',universityId:null,departmentId:null,graduationYear:null,version:0})
   expect(call[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
 it('requires education for students and shows server errors near the field',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
     if(url.endsWith('/avatar'))return json({fileId:'avatar'})
     if(url.endsWith('/csrf'))return json({token:'csrf'})
-    if(options.method==='PUT')return json({code:'VALIDATION_FAILED',fieldErrors:{universityDepartmentId:'required'}},400)
-    if(url.includes('/universities'))return json({items:[],page:0,size:20,totalElements:0})
+    if(options.method==='PUT')return json({code:'VALIDATION_FAILED',fieldErrors:{departmentId:'required'}},400)
+    if(url.includes('/universities')||url.includes('/departments'))return json({items:[],page:0,size:20,totalElements:0})
     return json(empty)
   }))
   render(<MemoryRouter><ProfilePage/></MemoryRouter>)
   await screen.findByLabelText('Ad')
   fireEvent.change(screen.getByLabelText('Ad'),{target:{value:'Ada'}});fireEvent.change(screen.getByLabelText('Soyad'),{target:{value:'Yılmaz'}})
   fireEvent.change(screen.getByLabelText('Eğitim durumu'),{target:{value:'UNIVERSITE_OGRENCISI'}})
-  expect(screen.getByLabelText('Bölüm')).toBeDisabled()
+  await waitFor(()=>expect(screen.getByLabelText('Bölüm')).toBeEnabled())
   fireEvent.click(screen.getByRole('button',{name:'Profili kaydet'}))
-  await screen.findByRole('alert')
+  await screen.findByText('Lütfen form alanlarını kontrol et.')
   expect(screen.getByLabelText('Bölüm')).toHaveAttribute('aria-invalid','true')
   expect(screen.queryByLabelText('Mezuniyet yılı')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Eğitim durumu'),{target:{value:'MEZUN'}})

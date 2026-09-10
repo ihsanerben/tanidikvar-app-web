@@ -20,12 +20,10 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   const auth=useAuth()
   const [params,setParams]=useSearchParams()
   const [universityChoice,setUniversity]=useState<Choice|null>(params.get('universityId')?{id:params.get('universityId')!,label:'Seçili üniversite'}:null)
-  const [educationChoice,setEducation]=useState<Choice|null>(params.get('universityDepartmentId')?{id:params.get('universityDepartmentId')!,label:'Seçili bölüm'}:null)
   const [departmentChoice,setDepartment]=useState<Choice|null>(null)
   const [tagChoice,setTag]=useState<Choice|null>(params.get('tagId')?{id:params.get('tagId')!,label:'Seçili tag'}:null)
   function selected(key:string,cached:Choice|null,label:string):Choice|null {const id=params.get(key);return id?{id,label:cached?.id===id?cached.label:label}:null}
   const university=selected('universityId',universityChoice,'Seçili üniversite')
-  const education=selected('universityDepartmentId',educationChoice,'Seçili bölüm')
   const tag=selected('tagId',tagChoice,'Seçili tag')
   const department=selected('departmentId',departmentChoice,'Seçili bölüm adı')
   const [result,setResult]=useState<Page<Question>|null>(null)
@@ -36,7 +34,7 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   const [loadedQuery,setLoadedQuery]=useState<string|null>(null)
   const [filtersOpen,setFiltersOpen]=useState(false)
   const [questionComposerOpen,setQuestionComposerOpen]=useState(false)
-  const activeFilterCount=['scope','universityId','universityDepartmentId','departmentId','tagId','adminId'].filter(key=>params.has(key)).length
+  const activeFilterCount=['scope','universityId','departmentId','tagId','adminId'].filter(key=>params.has(key)).length
   const canClear=activeFilterCount>0||params.has('q')||params.has('sort')
   const waiting=loading||loadedQuery!==query
   useEffect(()=>{
@@ -57,12 +55,11 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
     {!mine && filtersOpen && <section id="question-filters" className="question-filters" aria-label="Soru filtreleri"><div className="question-filter-heading"><div><h2>Sonuçları daralt</h2><p>Soruları sıralama, kapsam veya eğitim bilgisine göre düzenle.</p></div>{activeFilterCount>0&&<span>{activeFilterCount} filtre aktif</span>}</div><div className="question-filter-grid">
       {!popular&&<label className="question-filter-field">Sıralama<select value={params.get('sort')??'NEWEST'} onChange={e=>filter('sort',e.target.value)}><option value="NEWEST">Yeniden eskiye</option><option value="OLDEST">Eskiden yeniye</option><option value="MOST_VIEWED">En çok görüntülenen</option><option value="MOST_LIKED">En çok beğenilen</option><option value="MOST_COMMENTED">En çok yorumlanan</option></select></label>}
       <label className="question-filter-field" htmlFor="scope-filter">Soru kapsamı<select id="scope-filter" value={params.get('scope')??''} onChange={e=>filter('scope',e.target.value)}><option value="">Tüm kapsamlar</option>{Object.entries(scopeLabels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label>
-      <div className="question-filter-education"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={v=>{setUniversity(v);setEducation(null);const next=new URLSearchParams(params);next.delete('page');next.delete('universityDepartmentId');if(v)next.set('universityId',v.id);else next.delete('universityId');setError(null);setParams(next)}}/>
-      <RemotePicker key={university?.id??'none'} label="Bu üniversitedeki bölüm" education disabled={!university} endpoint={`/api/universities/${university?.id}/departments`} value={education} onChange={v=>{setEducation(v);filter('universityDepartmentId',v?.id??null)}}/></div>
-      <RemotePicker label="Bölüm (tüm üniversitelerde)" endpoint="/api/departments" value={department} onChange={v=>{setDepartment(v);filter('departmentId',v?.id??null)}}/>
+      <div className="question-filter-education"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={v=>{setUniversity(v);filter('universityId',v?.id??null)}}/>
+      <RemotePicker label="Bölüm" endpoint="/api/departments" value={department} onChange={v=>{setDepartment(v);filter('departmentId',v?.id??null)}}/></div>
       <RemotePicker label="Etiket" endpoint="/api/tags" value={tag} onChange={v=>{setTag(v);filter('tagId',v?.id??null)}}/>
-    </div><div className="question-filter-footer"><p>{activeFilterCount?'Seçimler sonuçlara otomatik uygulanır.':'Şu anda tüm sorular gösteriliyor.'}</p><button className="filter-clear-button" type="button" disabled={!canClear} onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setEducation(null);setTag(null);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Tümünü temizle</button></div></section>}
-    {!mine && ['scope','universityId','universityDepartmentId','departmentId','tagId'].some(key=>params.has(key))&&<p className="active-filter-summary">Filtreler uygulanıyor. Tümünü temizle düğmesiyle tümünü kaldırabilirsin.</p>}
+    </div><div className="question-filter-footer"><p>{activeFilterCount?'Seçimler sonuçlara otomatik uygulanır.':'Şu anda tüm sorular gösteriliyor.'}</p><button className="filter-clear-button" type="button" disabled={!canClear} onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setTag(null);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Tümünü temizle</button></div></section>}
+    {!mine && ['scope','universityId','departmentId','tagId'].some(key=>params.has(key))&&<p className="active-filter-summary">Filtreler uygulanıyor. Tümünü temizle düğmesiyle tümünü kaldırabilirsin.</p>}
     {error?<div className="auth-card"><AuthFormError error={error}/><button onClick={()=>{setLoading(true);setRevision(r=>r+1)}}>Tekrar dene</button></div>:waiting?<p role="status">Sorular yükleniyor…</p>:result?.items.length===0?<div className="question-empty"><h2>{popular?'Bu dönemde popüler soru yok.':'Henüz soru yok.'}</h2></div>:<div className="question-list">{result?.items.map(q=><QuestionCard key={q.id} question={q}/>)}</div>}
     {result && !error && <div className="pagination"><button disabled={waiting||result.page===0} onClick={()=>page(result.page-1)}>Önceki sayfa</button><span>{result.totalElements} soru · Sayfa {result.page+1}</span><button disabled={waiting||(result.page+1)*result.size>=result.totalElements} onClick={()=>page(result.page+1)}>Sonraki sayfa</button></div>}
     {mine&&<Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link>}

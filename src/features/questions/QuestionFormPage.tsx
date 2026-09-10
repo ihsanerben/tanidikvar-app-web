@@ -20,7 +20,7 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
   const [body,setBody]=useState(initial?.body??'')
   const [scope,setScope]=useState<Scope>(initial?.scope??'GENERAL')
   const [university,setUniversity]=useState<Choice|null>(initial?.universityId?{id:initial.universityId,label:initial.universityName!}:null)
-  const [education,setEducation]=useState<Choice|null>(initial?.universityDepartmentId?{id:initial.universityDepartmentId,label:initial.departmentName!}:null)
+  const [education,setEducation]=useState<Choice|null>(initial?.departmentId?{id:initial.departmentId,label:initial.departmentName!}:null)
   const [tags,setTags]=useState<Choice[]>(initial?.tags.map(t=>({id:t.id,label:t.name}))??[])
   const [error,setError]=useState<ApiError|null>(null),[pending,setPending]=useState(false)
   const field=(key:string)=>error?.fieldErrors[key]
@@ -28,7 +28,7 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
   async function submit(event:FormEvent){event.preventDefault();if(busy.current)return
     if(scope==='UNIVERSITY'&&!university || scope==='UNIVERSITY_DEPARTMENT'&&!education){setError(new ApiError(400,'VALIDATION_FAILED','Kapsama uygun üniversite ve bölüm seç.',undefined,{scope:'Kapsama uygun üniversite ve bölüm seç.'}));return}
     busy.current=true;setPending(true);setError(null)
-    const content={title,body,scope,universityId:scope==='UNIVERSITY'?university?.id??null:null,universityDepartmentId:scope==='UNIVERSITY_DEPARTMENT'?education?.id??null:null,tagIds:tags.map(t=>t.id)}
+    const content={title,body,scope,universityId:scope==='GENERAL'?null:university?.id??null,departmentId:scope==='UNIVERSITY_DEPARTMENT'?education?.id??null:null,tagIds:tags.map(t=>t.id)}
     try{const q=initial?await updateQuestion(initial.id,initial.version,content):await createQuestion(requestId,content);navigate(`/questions/${q.id}`)}
     catch(e){setError(formError(e));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{busy.current=false;setPending(false)}
@@ -40,8 +40,8 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
       <label htmlFor="question-body">Açıklama (isteğe bağlı)</label><textarea id="question-body" rows={4} maxLength={5000} value={body} onChange={e=>setBody(e.target.value)} aria-invalid={!!field('body')} aria-describedby={field('body')?'question-body-error':'question-body-help'}/>{message('body')}
       <p className="field-help" id="question-body-help">Yanıtlayanlara yardımcı olacak ayrıntıları ekle. {body.length.toLocaleString('tr-TR')} / 5.000 karakter.</p>
       <label htmlFor="question-scope">Soru kapsamı</label><select id="question-scope" value={scope} onChange={e=>setScope(e.target.value as Scope)} aria-invalid={!!field('scope')} aria-describedby={field('scope')?'question-scope-error':undefined}>{Object.entries(scopeLabels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>{message('scope')}
-      {scope!=='GENERAL' && <div className="form-columns"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={v=>{setUniversity(v);setEducation(null)}} error={field('universityId')}/>
-      {scope==='UNIVERSITY_DEPARTMENT' && <RemotePicker key={university?.id??'none'} label="Bölüm" education endpoint={`/api/universities/${university?.id}/departments`} disabled={!university} value={education} onChange={setEducation} error={field('universityDepartmentId')}/>}</div>}
+      {scope!=='GENERAL' && <div className="form-columns"><RemotePicker label="Üniversite" endpoint="/api/universities" value={university} onChange={setUniversity} error={field('universityId')}/>
+      {scope==='UNIVERSITY_DEPARTMENT' && <RemotePicker label="Bölüm" endpoint="/api/departments" value={education} onChange={setEducation} error={field('departmentId')}/>}</div>}
 
       {tags.length<5 && <RemotePicker label="Tag seç" endpoint="/api/tags" value={null} onChange={v=>{if(v&&!tags.some(t=>t.id===v.id))setTags([...tags,v])}} error={field('tagIds')}/>}
       <ul className="selected-tags">{tags.map(t=><li key={t.id}><span>{t.label}</span><button type="button" aria-label={`${t.label} tagini kaldır`} onClick={()=>setTags(tags.filter(tag=>tag.id!==t.id))}>×</button></li>)}</ul>{message('tagIds')}
