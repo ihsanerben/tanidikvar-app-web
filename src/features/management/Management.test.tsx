@@ -3,7 +3,7 @@ import { MemoryRouter,useNavigate } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { setUser } from '../auth/authStore'
 import { ManagerPage } from './ManagerPage'
-const user={id:'member',email:'test@example.test',name:'Ada Yılmaz',authority:'MEMBER',educationStatus:'YKS_ADAYI',universityName:null,departmentName:null,emailVerified:true,createdAt:'2026-09-05T10:00:00Z',deletedAt:null,version:0}
+const user={id:'member',email:'test@example.test',name:'Ada Yılmaz',authority:'MEMBER',educationStatus:'YKS_ADAYI',universityName:null,departmentName:null,emailVerified:true,createdAt:'2026-09-05T10:00:00Z',lastLoginAt:null,deletedAt:null,version:0}
 const content={id:'answer',kind:'COMMUNITY',questionId:'question',authorId:'member',title:'Üniversitede yaşam nasıl?',body:'Gerçek deneyim metni',authorName:'Ada Yılmaz',createdAt:'2026-09-05T10:00:00Z',deletedAt:null,moderatedAt:null,archivedAt:null,questionHidden:false,viewCount:1,likeCount:2,communityAnswerCount:3,adminAnswerCount:0,version:0}
 const stats={activeUsers:12,disabledUsers:2,activeAdmins:3,pendingApplications:1,activeQuestions:10,archivedQuestions:2,hiddenQuestions:1,communityAnswers:20,adminAnswers:5,likes:100,views:15000}
 const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status})

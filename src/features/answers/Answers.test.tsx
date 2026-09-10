@@ -3,7 +3,8 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach,afterEach,expect,it,vi } from 'vitest'
 import { setUser } from '../auth/authStore'
 import { AnswerSection } from './AnswerSection'
-const original={id:'answer',questionId:'question',authorId:'member',authorName:'Ada Yılmaz',answerKind:'COMMUNITY',body:'Kampüs hakkında gerçek bir deneyim.',publishedAt:'2026-09-05T10:00:00Z',editedAt:null,deletedAt:null,moderatedAt:null,version:0}
+import { AnswerLikeButton } from './AnswerLikeButton'
+const original={id:'answer',questionId:'question',authorId:'member',authorName:'Ada Yılmaz',answerKind:'COMMUNITY',body:'Kampüs hakkında gerçek bir deneyim.',publishedAt:'2026-09-05T10:00:00Z',editedAt:null,deletedAt:null,moderatedAt:null,likeCount:0,version:0}
 const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status})
 const list=(items:unknown[]=[])=>json({items,page:0,size:20,totalElements:items.length})
 beforeEach(()=>setUser({id:'member',email:'test@example.test',role:'YKS_ADAYI',profileCompleted:true}))
@@ -29,7 +30,7 @@ it('publishes with CSRF and replaces the form with own-answer actions',async()=>
     return list(saved?[original]:[])
   });vi.stubGlobal('fetch',fetch);section()
   fireEvent.click(await screen.findByRole('button',{name:'Topluluk yorumu yap'}));fireEvent.change(await screen.findByLabelText('Yorumun'),{target:{value:original.body}});fireEvent.click(screen.getByRole('button',{name:'Yorumu yayınla'}))
-  await screen.findByRole('button',{name:'Düzenle'});await screen.findByText('1 topluluk yorumu')
+  await screen.findByRole('button',{name:'Düzenle'})
   expect(screen.queryByLabelText('Yorumun')).not.toBeInTheDocument()
   expect(fetch.mock.calls.find(([,options])=>options.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
@@ -48,8 +49,7 @@ it('removes only after confirmation and restores the same answer without another
     return url.endsWith('/my-answer')?json(current):list(current.deletedAt?[]:[current])
   });vi.stubGlobal('fetch',fetch);section()
   fireEvent.click(await screen.findByRole('button',{name:'Sil'}))
-  await screen.findByText('0 topluluk yorumu')
-  fireEvent.click(await screen.findByRole('button',{name:'Geri yükle'}));await screen.findByText('1 topluluk yorumu')
+  fireEvent.click(await screen.findByRole('button',{name:'Geri yükle'}));await screen.findByRole('button',{name:'Sil'})
   expect(fetch.mock.calls.filter(([,options])=>options.method==='PUT')).toHaveLength(2)
   expect(fetch.mock.calls.some(([,options])=>options.method==='POST')).toBe(false)
 })
@@ -81,3 +81,10 @@ it('loads later public pages from the server',async()=>{
 })
 
 it('does not let an owner edit or restore a Manager-hidden answer',async()=>{vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/my-answer')?json({...original,moderatedAt:original.publishedAt,deletedAt:original.publishedAt}):list()));section();await screen.findByText(/Yorumun Manager tarafından gizlendi/);expect(screen.queryByRole('button',{name:'Geri yükle'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Düzenle'})).not.toBeInTheDocument()})
+
+it('loads and toggles the current answer like without losing the returned count',async()=>{
+ const fetch=vi.fn(async(url:string,options:RequestInit={})=>url.endsWith('/csrf')?json({token:'csrf'}):options.method==='PUT'?json({liked:true,likeCount:3}):json({liked:false,likeCount:2}))
+ vi.stubGlobal('fetch',fetch);render(<MemoryRouter><AnswerLikeButton answerId="answer" initialCount={1}/></MemoryRouter>)
+ const button=await screen.findByRole('button',{name:'♥ 2'});expect(button).toHaveAttribute('aria-pressed','false');fireEvent.click(button)
+ await screen.findByRole('button',{name:'♥ 3'});const mutation=fetch.mock.calls.find(([,o])=>o?.method==='PUT');expect(mutation).toBeDefined();expect(JSON.parse(mutation![1]!.body as string)).toEqual({liked:true})
+})

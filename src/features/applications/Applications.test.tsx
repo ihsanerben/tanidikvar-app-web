@@ -39,6 +39,7 @@ it('lets a revoked admin submit again even while the browser still has the old a
  vi.stubGlobal('fetch',fetch);page()
  expect(await screen.findByRole('button',{name:'Başvuruyu gönder'})).toBeVisible()
  expect(screen.queryByText('Admin başvurusu için üniversite öğrencisi veya mezun eğitim bilgilerini tamamla.')).not.toBeInTheDocument()
+ fireEvent.change(screen.getByLabelText('Kısa ön yazı'),{target:{value:'Topluluğa deneyimlerimle katkı sunmak istiyorum.'}})
  fireEvent.click(screen.getByRole('button',{name:'Başvuruyu gönder'}))
  await screen.findByText('İşlem tamamlandı.')
  expect(fetch.mock.calls.some(([,options])=>options.method==='POST')).toBe(true)
@@ -51,17 +52,19 @@ it('submits a JSON application with CSRF',async()=>{
   if(options.method==='POST'){saved=true;return json(app,201)}
   return list(saved?[app]:[])
  });vi.stubGlobal('fetch',fetch);page()
- fireEvent.submit((await screen.findByRole('button',{name:'Başvuruyu gönder'})).closest('form')!)
+ fireEvent.change(await screen.findByLabelText('Kısa ön yazı'),{target:{value:'Topluluğa deneyimlerimle katkı sunmak istiyorum.'}})
+ fireEvent.submit(screen.getByRole('button',{name:'Başvuruyu gönder'}).closest('form')!)
  await screen.findByText('İşlem tamamlandı.')
  const call=fetch.mock.calls.find(([,o])=>o.method==='POST')!
- expect(JSON.parse(call[1].body as string)).toMatchObject({profileVersion:1})
+ expect(JSON.parse(call[1].body as string)).toMatchObject({profileVersion:1,coverLetter:'Topluluğa deneyimlerimle katkı sunmak istiyorum.'})
  expect(call[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf','Content-Type':'application/json'})
 })
 it('does not render document controls for an application',async()=>{
  let saved=false
  const fetch=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):url.endsWith('/profile')?json(profile):options.method==='POST'?(saved=true,json(app,201)):list(saved?[app]:[]))
  vi.stubGlobal('fetch',fetch);page()
- fireEvent.click(await screen.findByRole('button',{name:'Başvuruyu gönder'}))
+ fireEvent.change(await screen.findByLabelText('Kısa ön yazı'),{target:{value:'Topluluğa deneyimlerimle katkı sunmak istiyorum.'}})
+ fireEvent.click(screen.getByRole('button',{name:'Başvuruyu gönder'}))
  await screen.findByText('İşlem tamamlandı.')
  expect(screen.queryByText('Belgeyi indir')).not.toBeInTheDocument()
  expect(screen.queryByText('Bu başvuruya belge eklenmedi.')).not.toBeInTheDocument()
