@@ -1,6 +1,7 @@
 import { ManagerShell } from '../features/management/ManagerShell'
 import { useProfileSummary,roleLabels } from '../features/profile/useProfileSummary'
 import { AdminStars } from '../features/profile/ProfileAvatar'
+import { AboutPaletteDialog } from '../features/home/AboutPaletteDialog'
 import { MyAnswersPage } from '../features/answers/MyAnswersPage'
 import { ManagerPage } from '../features/management/ManagerPage'
 import { AdminDirectoryPage } from '../features/discovery/AdminDirectoryPage'
@@ -20,15 +21,17 @@ import { CatalogPage } from '../features/catalog/CatalogPage'
 import { AccountPage } from '../features/auth/AccountPage'
 import { useAuth } from '../features/auth/useAuth'
 import { StatusPage } from '../features/status/StatusPage'
+import { useState } from 'react'
 
 export function App() {
   const auth = useAuth()
+  const [aboutGuideOpen,setAboutGuideOpen]=useState(false)
   if(auth.status==='loading')return <main className="status-page"><p role="status">Hesabın yükleniyor…</p></main>
   if(auth.user?.role==='MANAGER')return <ManagerShell key={auth.user.id}/>
   return <>
     <a className="skip-link" href="#main">İçeriğe geç</a>
     <header className="site-header"><Link className="brand" to="/" aria-label="TanıdıkVar sorular"><span className="brand-mark" aria-hidden="true">t.</span>tanıdık<span>var</span></Link>
-      <nav className="primary-nav" aria-label="Ana menü"><NavLink to="/questions">Sorular</NavLink><NavLink to="/popular">Popülerler</NavLink><NavLink to="/admins">Adminler</NavLink><NavLink to="/about">Hakkımızda</NavLink></nav>
+      <nav className="primary-nav" aria-label="Ana menü"><NavLink to="/questions">Sorular</NavLink><NavLink to="/popular">Popülerler</NavLink><NavLink to="/admins">Adminler</NavLink><button type="button" className="nav-link-button" onClick={()=>setAboutGuideOpen(true)}>Hakkımızda</button></nav>
       <nav className="auth-nav" aria-label="Hesap">{auth.user?<HeaderIdentity key={auth.user.id} userId={auth.user.id} role={auth.user.role}/>:<Link className="button" to="/login">Giriş yap</Link>}</nav></header>
     <main id="main"><Routes>
       <Route path="/login" element={<CredentialsPage key="login" mode="login" />} />
@@ -57,7 +60,8 @@ export function App() {
       <Route path="/manager/catalog" element={<CatalogPage />} />
 
       <Route path="/account" element={<AccountPage />} /><Route path="/account/status" element={<AccountPage status />} /><Route path="/" element={<Navigate to="/questions" replace />} /><Route path="/about" element={<HomePage />} /><Route path="/durum" element={<StatusPage />} /><Route path="*" element={<section className="status-page"><span className="eyebrow">404</span><h1>Bu sayfayı bulamadık.</h1><Link className="button" to="/">Ana sayfaya dön</Link></section>} /></Routes></main>
-    <footer className="site-footer"><Link className="brand footer-brand" to="/">tanıdık<span>var</span></Link><Link to="/about">Hakkımızda</Link><Link to="/durum">Sistem durumu ↗</Link></footer>
+    <footer className="site-footer"><Link className="brand footer-brand" to="/">tanıdık<span>var</span></Link><button type="button" className="footer-link-button" onClick={()=>setAboutGuideOpen(true)}>Hakkımızda</button><Link to="/durum">Sistem durumu ↗</Link></footer>
+    {aboutGuideOpen&&<AboutPaletteDialog onClose={()=>setAboutGuideOpen(false)}/>}
   </>
 }
 

@@ -18,4 +18,14 @@ it.each([
 it('does not decorate non-Admin profiles with stars',()=>{
  const {container}=render(<ProfileAvatar name="Ada Yılmaz" educationStatus="MEZUN"/>)
  expect(container.querySelector('.profile-avatar-motif')).toBeNull()
+ expect(container.querySelector('.avatar-role-mezun')).not.toBeNull()
+})
+
+it.each([
+ ['YKS_ADAYI','avatar-role-yks_adayi'],
+ ['UNIVERSITE_OGRENCISI','avatar-role-universite_ogrencisi'],
+ ['MEZUN','avatar-role-mezun'],
+])('uses the role color class for %s', (educationStatus,roleClass)=>{
+ const {container}=render(<ProfileAvatar name="Ada Yılmaz" educationStatus={educationStatus}/>)
+ expect(container.querySelector(`.${roleClass}`)).not.toBeNull()
 })

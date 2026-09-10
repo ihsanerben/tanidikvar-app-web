@@ -9,11 +9,11 @@ import type { Choice } from '../catalog/catalogApi'
 import { QuestionGate } from './QuestionGate'
 import { QuestionLoader } from './QuestionLoader'
 import { createQuestion,updateQuestion,scopeLabels,type Scope,type Question } from './questionApi'
-export function QuestionFormPage({edit=false}:{edit?:boolean}) {
+export function QuestionFormPage({edit=false,embedded=false}:{edit?:boolean;embedded?:boolean}) {
   const {id=''}=useParams(),auth=useAuth()
-  return <QuestionGate>{edit?<QuestionLoader key={id} id={id}>{(q,reload)=>q.authorId!==auth.user?.id?<section className="status-page"><h1>Bu soruyu düzenleyemezsin.</h1></section>:q.archivedAt?<section className="status-page"><h1>Bu soru arşivlenmiş.</h1><Link to={`/questions/${id}`}>Soruyu oku</Link></section>:<QuestionForm key={`${q.id}-${q.version}`} initial={q} reload={reload}/>}</QuestionLoader>:<QuestionForm key={auth.user?.id}/>}</QuestionGate>
+  return <QuestionGate>{edit?<QuestionLoader key={id} id={id}>{(q,reload)=>q.authorId!==auth.user?.id?<section className="status-page"><h1>Bu soruyu düzenleyemezsin.</h1></section>:q.archivedAt?<section className="status-page"><h1>Bu soru arşivlenmiş.</h1><Link to={`/questions/${id}`}>Soruyu oku</Link></section>:<QuestionForm key={`${q.id}-${q.version}`} initial={q} reload={reload}/>}</QuestionLoader>:<QuestionForm key={auth.user?.id} embedded={embedded}/>}</QuestionGate>
 }
-function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
+function QuestionForm({initial,reload,embedded=false}:{initial?:Question;reload?:()=>void;embedded?:boolean}) {
   const navigate=useNavigate(),busy=useRef(false),form=useRef<HTMLFormElement>(null)
   const [requestId]=useState(()=>crypto.randomUUID())
   const [title,setTitle]=useState(initial?.title??'')
@@ -33,8 +33,8 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
     catch(e){setError(formError(e));requestAnimationFrame(()=>form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus())}
     finally{busy.current=false;setPending(false)}
   }
-  return <section className="question-form-page"><h1>{initial?'Sorunu düzenle.':'Aklında ne var?'}</h1>
-    <form className="auth-card" onSubmit={submit} ref={form}><fieldset disabled={pending}><legend>Soru bilgileri</legend>
+  return <section className={`question-form-page${embedded?' question-form-embedded':''}`}>{!embedded&&<h1>{initial?'Sorunu düzenle.':'Aklında ne var?'}</h1>}
+    <form className="auth-card" onSubmit={submit} ref={form}><fieldset disabled={pending} aria-label="Soru bilgileri">{!embedded&&<legend>Soru bilgileri</legend>}
       <label htmlFor="question-title">Soru başlığı</label><input id="question-title" required minLength={10} maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} aria-invalid={!!field('title')} aria-describedby={field('title')?'question-title-error':undefined}/>{message('title')}
       <p className="field-help">Tek bir konuyu açıkça sor. Başlık 10–200 karakter olmalı.</p>
       <label htmlFor="question-body">Soru açıklaması</label><textarea id="question-body" rows={6} maxLength={5000} value={body} onChange={e=>setBody(e.target.value)} aria-invalid={!!field('body')} aria-describedby={field('body')?'question-body-error':'question-body-help'}/>{message('body')}
@@ -46,6 +46,6 @@ function QuestionForm({initial,reload}:{initial?:Question;reload?:()=>void}) {
       {tags.length<5 && <RemotePicker label="Tag seç" endpoint="/api/tags" value={null} onChange={v=>{if(v&&!tags.some(t=>t.id===v.id))setTags([...tags,v])}} error={field('tagIds')}/>}
       <ul className="selected-tags">{tags.map(t=><li key={t.id}><span>{t.label}</span><button type="button" aria-label={`${t.label} tagini kaldır`} onClick={()=>setTags(tags.filter(tag=>tag.id!==t.id))}>×</button></li>)}</ul>{message('tagIds')}
     </fieldset><AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button type="button" onClick={reload}>Güncel soruyu yükle</button>}
-      <button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Değişiklikleri kaydet':'Soruyu yayınla'}</button><Link to={initial?`/questions/${initial.id}`:'/questions'}>Vazgeç</Link>
+      <div className="question-form-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Değişiklikleri kaydet':'Soruyu yayınla'}</button><Link className="button button-secondary" to={initial?`/questions/${initial.id}`:'/questions'}>Vazgeç</Link></div>
     </form></section>
 }

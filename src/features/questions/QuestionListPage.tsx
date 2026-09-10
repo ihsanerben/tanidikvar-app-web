@@ -9,7 +9,7 @@ import type { Page,Choice } from '../catalog/catalogApi'
 import { useAuth } from '../auth/useAuth'
 import { QuestionGate } from './QuestionGate'
 import { QuestionCard } from './QuestionCard'
-import { listQuestions,scopeLabels,type Question } from './questionApi'
+import { listQuestions,restoreQuestion,scopeLabels,type Question } from './questionApi'
 import { QuestionFormPage } from './QuestionFormPage'
 import { ComposerDialog } from '../answers/ComposerDialog'
 export function QuestionListPage({mine=false,popular=false}:{mine?:boolean;popular?:boolean}) {
@@ -30,7 +30,10 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   const [error,setError]=useState<ApiError|null>(null)
   const [loading,setLoading]=useState(true)
   const [revision,setRevision]=useState(0)
-  const query=params.toString()
+  const status=mine?(params.get('status')==='ARCHIVED'?'ARCHIVED':'ACTIVE'):null
+  const requestParams=new URLSearchParams(params)
+  if(mine)requestParams.set('status',status!)
+  const query=requestParams.toString()
   const [loadedQuery,setLoadedQuery]=useState<string|null>(null)
   const [filtersOpen,setFiltersOpen]=useState(false)
   const [questionComposerOpen,setQuestionComposerOpen]=useState(false)
@@ -46,7 +49,9 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
   function filter(key:string,value:string|null){const next=new URLSearchParams(params);next.delete('page');if(value)next.set(key,value);else next.delete(key);setError(null);setParams(next)}
   function page(value:number){const next=new URLSearchParams(params);next.set('page',String(value));setError(null);setParams(next)}
   return <section className="questions-page"><div className="questions-heading"><div><h1>{mine?'Sorularım':popular?'Popülerler':'Sorular'}</h1></div><div className="questions-heading-actions">{popular&&<div className="popular-period"><label htmlFor="popular-period">Zaman aralığı</label><select id="popular-period" value={params.get('period')??'WEEKLY'} onChange={e=>filter('period',e.target.value)}><option value="DAILY">Günlük · Son 24 saat</option><option value="WEEKLY">Haftalık · Son 7 gün</option><option value="MONTHLY">Aylık · Son 30 gün</option><option value="YEARLY">Yıllık · Son 365 gün</option></select></div>}{auth.user?.role!=='MANAGER'&&<button className="button" type="button" onClick={()=>setQuestionComposerOpen(true)}>Soru sor</button>}</div></div>
-    {questionComposerOpen&&<ComposerDialog title="Soru sor" onClose={()=>setQuestionComposerOpen(false)}><QuestionFormPage/></ComposerDialog>}
+    {questionComposerOpen&&<ComposerDialog title="Soru sor" onClose={()=>setQuestionComposerOpen(false)}><QuestionFormPage embedded/></ComposerDialog>}
+
+    {mine&&<div className="question-status-tabs" role="tablist" aria-label="Soru durumu"><button type="button" role="tab" aria-selected={status==='ACTIVE'} onClick={()=>filter('status','ACTIVE')}>Aktif sorular</button><button type="button" role="tab" aria-selected={status==='ARCHIVED'} onClick={()=>filter('status','ARCHIVED')}>Pasif sorular</button></div>}
 
     {!mine&&<SearchForm value={params.get('q')??''} onSearch={value=>filter('q',value)} filterButton={
       <button type="button" className={`button button-secondary filter-toggle${filtersOpen?' is-active':''}`} aria-expanded={filtersOpen} aria-controls="question-filters" onClick={()=>setFiltersOpen(v=>!v)}>Filtrele{activeFilterCount?` · ${activeFilterCount}`:''}</button>
@@ -60,7 +65,7 @@ function QuestionList({mine=false,popular=false}:{mine?:boolean;popular?:boolean
       <RemotePicker label="Etiket" endpoint="/api/tags" value={tag} onChange={v=>{setTag(v);filter('tagId',v?.id??null)}}/>
     </div><div className="question-filter-footer"><p>{activeFilterCount?'Seçimler sonuçlara otomatik uygulanır.':'Şu anda tüm sorular gösteriliyor.'}</p><button className="filter-clear-button" type="button" disabled={!canClear} onClick={()=>{setDepartment(null);setError(null);setUniversity(null);setTag(null);setParams(popular?{period:params.get('period')??'WEEKLY'}:{});setRevision(r=>r+1)}}>Tümünü temizle</button></div></section>}
     {!mine && ['scope','universityId','departmentId','tagId'].some(key=>params.has(key))&&<p className="active-filter-summary">Filtreler uygulanıyor. Tümünü temizle düğmesiyle tümünü kaldırabilirsin.</p>}
-    {error?<div className="auth-card"><AuthFormError error={error}/><button onClick={()=>{setLoading(true);setRevision(r=>r+1)}}>Tekrar dene</button></div>:waiting?<p role="status">Sorular yükleniyor…</p>:result?.items.length===0?<div className="question-empty"><h2>{popular?'Bu dönemde popüler soru yok.':'Henüz soru yok.'}</h2></div>:<div className="question-list">{result?.items.map(q=><QuestionCard key={q.id} question={q}/>)}</div>}
+    {error?<div className="auth-card"><AuthFormError error={error}/><button onClick={()=>{setLoading(true);setRevision(r=>r+1)}}>Tekrar dene</button></div>:waiting?<p role="status">Sorular yükleniyor…</p>:result?.items.length===0?<div className="question-empty"><h2>{popular?'Bu dönemde popüler soru yok.':mine&&status==='ARCHIVED'?'Pasif sorun yok.':'Henüz soru yok.'}</h2></div>:<div className="question-list">{result?.items.map(q=><QuestionCard key={q.id} question={q} onRestore={mine&&q.archivedAt?async()=>{await restoreQuestion(q.id,q.version);setRevision(r=>r+1)}:undefined}/>)}</div>}
     {result && !error && <div className="pagination"><button disabled={waiting||result.page===0} onClick={()=>page(result.page-1)}>Önceki sayfa</button><span>{result.totalElements} soru · Sayfa {result.page+1}</span><button disabled={waiting||(result.page+1)*result.size>=result.totalElements} onClick={()=>page(result.page+1)}>Sonraki sayfa</button></div>}
     {mine&&<Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link>}
   </section>
