@@ -15,8 +15,8 @@ export function MyAnswersPage(){
 }
 function History(){
  const [params,setParams]=useSearchParams(),page=Math.max(0,Number(params.get('page'))||0),scope=params.get('scope')??'', [revision,setRevision]=useState(0)
- return <section className="questions-page"><div className="questions-heading"><h1>Topluluk yorumlarım</h1></div>
- <div className="history-scope-filter"><label>Kapsam<select value={scope} onChange={e=>{const p=new URLSearchParams();if(e.target.value)p.set('scope',e.target.value);setParams(p)}}><option value="">Tümü</option><option value="GENERAL">Genel</option><option value="UNIVERSITY">Üniversite</option><option value="UNIVERSITY_DEPARTMENT">Üniversite ve bölüm</option></select></label></div><Entries key={`${page}:${scope}:${revision}`} page={page} scope={scope} setPage={n=>{const p=new URLSearchParams(params);p.set('page',String(n));setParams(p)}} retry={()=>setRevision(r=>r+1)}/><Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link></section>
+ return <section className="questions-page"><div className="questions-heading personal-history-heading"><h1>Topluluk yorumlarım</h1><div className="history-scope-filter"><label>Kapsam<select value={scope} onChange={e=>{const p=new URLSearchParams();if(e.target.value)p.set('scope',e.target.value);setParams(p)}}><option value="">Tümü</option><option value="GENERAL">Genel</option><option value="UNIVERSITY">Üniversite</option><option value="UNIVERSITY_DEPARTMENT">Üniversite ve bölüm</option></select></label></div></div>
+ <Entries key={`${page}:${scope}:${revision}`} page={page} scope={scope} setPage={n=>{const p=new URLSearchParams(params);p.set('page',String(n));setParams(p)}} retry={()=>setRevision(r=>r+1)}/><Link className="button button-secondary account-back-button" to="/account">Hesabıma dön</Link></section>
 }
 function Entries({page,scope,setPage,retry}:{page:number;scope:string;setPage:(n:number)=>void;retry:()=>void}){
  const [data,setData]=useState<Page<OwnAnswerEntry>|null>(null),[error,setError]=useState<ApiError|null>(null)
