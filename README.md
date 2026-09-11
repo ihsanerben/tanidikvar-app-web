@@ -2,13 +2,7 @@
 
 Bağımsız frontend reposu: React + TypeScript + Vite. API reposunun konumuna veya üst klasördeki dosyalara bağımlı değildir; backend'e yapılandırılan HTTP adresiyle bağlanır.
 
-## Tüm sistemi Docker ile açma
-
-API reposunda `./run.sh --docker` çalıştır. Web de kendi Dockerfile'ından derlenerek Nginx ile http://localhost:5173 üzerinde açılır; Node/npm'nin host üzerinde çalışması gerekmez. API reposunun `.env` dosyasındaki `WEB_BUILD_CONTEXT` bu reponun konumunu gösterir (varsayılan komşu klasör). Bu repo yalnız public build arg `VITE_API_BASE_URL=/` alır; backend secret'ları build'e aktarılmaz.
-
-Docker web `/api` isteklerini `API_UPSTREAM` adresine proxy eder; default `http://api:8080`. Doğrudan `/profile` veya `/manager` gibi yollar SPA fallback ile açılır. Docker görüntüsü derlenmiş sürümdür; kod değişikliği için API reposundaki launcher'ı tekrar çalıştır.
-
-Eski `npm run dev` akışı korunur. Docker web aynı portu kullanıyorsa önce API reposunda `docker compose stop api web` çalıştır, backend'i `./run.sh` ile başlat ve burada `npm run dev` kullan.
+Web Docker'a dahil değildir. API ve altyapı API reposundaki `./run.sh --docker` ile, frontend ise bu repoda `npm run dev` veya `./run.sh` ile ayrı çalıştırılır.
 
 ## Kurulum ve çalıştırma
 
@@ -167,7 +161,7 @@ Bu teslimde `npm test`: 91 test başarılı; lint/build geçti. Docker üzerinde
 
 Geliştirme komutu `npm run dev` olarak kalır. `./run.sh --help` alternatif launcher kullanımını gösterir; desteklenmeyen seçenekler ayar oluşturulmadan reddedilir.
 
-Docker kullanırken başlatma/durum/durdurma API reposundan sırasıyla `./run.sh --docker`, `./run.sh --status`, `./run.sh --stop` komutlarıyla yapılır. Web `http://localhost:5173`, yerel e-postalar `http://localhost:8025` adresindedir. Kod güncellemesinden sonra Docker başlangıcını yeniden çalıştır. Ayrı `npm run dev` sürecini Ctrl+C ile durdur.
+API altyapısını başlatma/durum/durdurma API reposundan sırasıyla `./run.sh --docker`, `./run.sh --status`, `./run.sh --stop` komutlarıyla yapılır. Web `http://localhost:5173` adresinde ayrı `npm run dev` süreci olarak çalışır ve Ctrl+C ile durdurulur.
 
 Bu dönem yerel kullanım içindir; yayın veya deployment değişikliği yapılmadı. Otomatik e2e paketi sentetik kayıtlar üretir; günlük kullanımdan önce her seferinde çalıştırılması gerekmez.
 

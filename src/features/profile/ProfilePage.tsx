@@ -60,8 +60,8 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
   }
   function fieldError(name:string){return error?.fieldErrors[name] && <p className="field-error" id={`${name}-error`}>{error.fieldErrors[name]}</p>}
   return <section className="profile-page"><div className="profile-heading"><div><h1>{initial.completed?'Profilim':'Profilini tamamla.'}</h1></div></div>
-    <form className="auth-card profile-form" onSubmit={submit} ref={form}>
-      <fieldset disabled={pending}><legend>Temel bilgiler</legend><div className="form-columns">
+    <form className="profile-form" onSubmit={submit} ref={form}>
+      <fieldset className="auth-card profile-form-section" disabled={pending}><legend>Temel bilgiler</legend><div className="form-columns">
         <div><label htmlFor="firstName">Ad</label><input id="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={e=>setFirst(e.target.value)} aria-invalid={!!error?.fieldErrors.firstName} aria-describedby={error?.fieldErrors.firstName?'firstName-error':undefined}/>{fieldError('firstName')}</div>
         <div><label htmlFor="lastName">Soyad</label><input id="lastName" autoComplete="family-name" required maxLength={80} value={lastName} onChange={e=>setLast(e.target.value)} aria-invalid={!!error?.fieldErrors.lastName} aria-describedby={error?.fieldErrors.lastName?'lastName-error':undefined}/>{fieldError('lastName')}</div>
       </div><label htmlFor="educationStatus">Eğitim durumu</label><select id="educationStatus" value={status} onChange={e=>{setStatus(e.target.value as EducationStatus);setYear('')}}>
@@ -74,7 +74,7 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
       {initial.education && !initial.education.available && status!=='YKS_ADAYI' && <p className="field-help">Mevcut üniversite veya bölüm kaydın artık yeni seçimlere açık değil.</p>}
       {status==='MEZUN' && <><label htmlFor="graduationYear">Mezuniyet yılı</label><input id="graduationYear" type="number" min={1900} max={new Date().getFullYear()} required value={year} onChange={e=>setYear(e.target.value)} aria-invalid={!!error?.fieldErrors.graduationYear} aria-describedby={error?.fieldErrors.graduationYear?'graduationYear-error':undefined}/>{fieldError('graduationYear')}</>}
       </fieldset>
-      <fieldset disabled={pending}><legend>Biraz daha sen (isteğe bağlı)</legend>
+      <fieldset className="auth-card profile-form-section" disabled={pending}><legend>İsteğe bağlı bilgiler</legend>
         <label htmlFor="biography">Kısa biyografi</label><textarea id="biography" maxLength={1000} rows={4} value={biography} onChange={e=>setBiography(e.target.value)}/>{fieldError('biography')}
         {status==='MEZUN'&&<div className="form-columns"><div><label htmlFor="occupation">Meslek</label><input id="occupation" maxLength={120} value={occupation} onChange={e=>setOccupation(e.target.value)}/>{fieldError('occupation')}</div>
         <div><label htmlFor="company">Şirket</label><input id="company" maxLength={120} value={company} onChange={e=>setCompany(e.target.value)}/>{fieldError('company')}</div></div>}
@@ -84,6 +84,6 @@ function ProfileForm({initial,reload}:{initial:Profile;reload:()=>void}){
       </fieldset>
       <AuthFormError error={error}/>{error?.code==='STALE_VERSION' && <button type="button" onClick={reload}>Güncel profili yükle</button>}
 
-      <button className="button" disabled={pending}>{pending?'Kaydediliyor…':'Profili kaydet'}</button><Link className="button button-secondary" to="/account">Hesabıma dön</Link>
+      <div className="profile-form-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':'Profili kaydet'}</button><Link className="button button-secondary" to="/account">Hesabıma dön</Link></div>
     </form></section>
 }

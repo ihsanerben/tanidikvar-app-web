@@ -9,7 +9,7 @@ const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{statu
 const list=(items:unknown[]=[])=>json({items,page:0,size:20,totalElements:items.length})
 beforeEach(()=>setUser({id:'member',email:'test@example.test',role:'YKS_ADAYI',profileCompleted:true}))
 afterEach(()=>vi.unstubAllGlobals())
-function section(archived=false){return render(<MemoryRouter><AnswerSection questionId="question" archived={archived} reloadQuestion={()=>undefined}/></MemoryRouter>)}
+function section(archived=false,composeRevision=0){return render(<MemoryRouter><AnswerSection questionId="question" archived={archived} composeRevision={composeRevision} reloadQuestion={()=>undefined}/></MemoryRouter>)}
 it('lets anonymous users read safe text and asks them to log in before writing',async()=>{
   setUser(null);vi.stubGlobal('fetch',vi.fn(async()=>list([{...original,body:'<script>alert(1)</script>'}])))
   section();expect(await screen.findByText('<script>alert(1)</script>')).toBeVisible()
@@ -28,8 +28,8 @@ it('publishes with CSRF and replaces the form with own-answer actions',async()=>
     if(options.method==='POST'){saved=true;return json(original,201)}
     if(url.endsWith('/my-answer'))return new Response(null,{status:204})
     return list(saved?[original]:[])
-  });vi.stubGlobal('fetch',fetch);section()
-  fireEvent.click(await screen.findByRole('button',{name:'Topluluk yorumu yap'}));fireEvent.change(await screen.findByLabelText('Yorumun'),{target:{value:original.body}});fireEvent.click(screen.getByRole('button',{name:'Yorumu yayınla'}))
+  });vi.stubGlobal('fetch',fetch);section(false,1)
+  fireEvent.change(await screen.findByLabelText('Yorumun'),{target:{value:original.body}});fireEvent.click(screen.getByRole('button',{name:'Yorumu yayınla'}))
   await screen.findByRole('button',{name:'Düzenle'})
   expect(screen.queryByLabelText('Yorumun')).not.toBeInTheDocument()
   expect(fetch.mock.calls.find(([,options])=>options.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
@@ -60,7 +60,7 @@ it('archived questions allow removal but expose no edit or restore action',async
 })
 it('maps validation errors and preserves the draft after a failed save',async()=>{
   vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):options.method==='POST'?json({code:'VALIDATION_FAILED',fieldErrors:{body:'invalid'}},400):url.endsWith('/my-answer')?new Response(null,{status:204}):list()))
-  section();fireEvent.click(await screen.findByRole('button',{name:'Topluluk yorumu yap'}));fireEvent.change(await screen.findByLabelText('Yorumun'),{target:{value:'Kontrol edilecek yorum metni'}});fireEvent.click(screen.getByRole('button',{name:'Yorumu yayınla'}))
+  section(false,1);fireEvent.change(await screen.findByLabelText('Yorumun'),{target:{value:'Kontrol edilecek yorum metni'}});fireEvent.click(screen.getByRole('button',{name:'Yorumu yayınla'}))
   await waitFor(()=>expect(screen.getByLabelText('Yorumun')).toHaveAttribute('aria-invalid','true'))
   expect(screen.getByLabelText('Yorumun')).toHaveAccessibleDescription(/Yorum 10–5000 karakter olmalı/)
 })

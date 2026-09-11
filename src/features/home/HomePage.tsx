@@ -1,4 +1,12 @@
 import guide from './guide.json'
+import { useState } from 'react'
+import { AboutPaletteDialog } from './AboutPaletteDialog'
+
+export function AboutPage(){
+ const [guideOpen,setGuideOpen]=useState(true)
+ return <><HomePage/>{guideOpen&&<AboutPaletteDialog onClose={()=>setGuideOpen(false)}/>}</>
+}
+
 export function HomePage() {
   return <>
     <section className="hero">

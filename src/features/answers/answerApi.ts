@@ -1,6 +1,6 @@
 import { apiGet,apiMutation,ApiError,isRecord } from '../../api/apiClient'
 import { pageOf } from '../catalog/catalogApi'
-export interface Answer { id:string;questionId:string;authorId:string|null;authorName:string;avatarFileId?:string|null;educationStatus?:string|null;activeAdmin?:boolean;answerKind:'COMMUNITY';body:string;publishedAt:string;editedAt:string|null;deletedAt:string|null;moderatedAt:string|null;likeCount?:number;version:number }
+export interface Answer { id:string;questionId:string;authorId:string|null;authorName:string;avatarFileId?:string|null;educationStatus?:string|null;activeAdmin?:boolean;universityName?:string|null;departmentName?:string|null;answerKind:'COMMUNITY';body:string;publishedAt:string;editedAt:string|null;deletedAt:string|null;moderatedAt:string|null;likeCount?:number;version:number }
 export function answer(value:unknown):Answer {
   const invalid=()=>new ApiError(200,'INVALID_RESPONSE','Yorum bilgileri alınamadı.')
   if(!isRecord(value))throw invalid()
@@ -8,6 +8,7 @@ export function answer(value:unknown):Answer {
   for(const field of ['authorId','editedAt','deletedAt','moderatedAt'])if(value[field]!==null && typeof value[field]!=='string')throw invalid()
   if(value.educationStatus!==undefined&&value.educationStatus!==null&&typeof value.educationStatus!=='string')throw invalid()
   if(value.activeAdmin!==undefined&&typeof value.activeAdmin!=='boolean')throw invalid()
+  for(const field of ['universityName','departmentName'])if(value[field]!==undefined&&value[field]!==null&&typeof value[field]!=='string')throw invalid()
   if(value.avatarFileId!==undefined&&value.avatarFileId!==null&&typeof value.avatarFileId!=='string')throw invalid()
   if(value.answerKind!=='COMMUNITY'||!Number.isSafeInteger(value.version)||(value.likeCount!==undefined&&!Number.isSafeInteger(value.likeCount))||Number(value.version)<0)throw invalid()
   return value as unknown as Answer

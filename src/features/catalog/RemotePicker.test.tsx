@@ -13,3 +13,10 @@ it('hides old choices immediately when the catalog endpoint changes',async()=>{
  await waitFor(()=>expect(resolve).toBeDefined());await act(async()=>resolve(response('İkinci seçenek')))
  expect(await screen.findByRole('option',{name:'İkinci seçenek'})).toBeVisible()
 })
+it('orders every fetched choice using the Turkish alphabet',async()=>{
+ const items=[{id:'3',name:'Üniversite 10',deletedAt:null,version:0},{id:'1',name:'İstanbul',deletedAt:null,version:0},{id:'2',name:'Izmir',deletedAt:null,version:0},{id:'4',name:'Üniversite 2',deletedAt:null,version:0}]
+ vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({items,page:0,size:100,totalElements:items.length}))))
+ render(<RemotePicker label="Üniversite" endpoint="/api/universities" value={null} onChange={()=>{}}/>)
+ await screen.findByRole('option',{name:'İstanbul'})
+ expect(screen.getAllByRole('option').map(option=>option.textContent)).toEqual(['Seç','Izmir','İstanbul','Üniversite 2','Üniversite 10'])
+})

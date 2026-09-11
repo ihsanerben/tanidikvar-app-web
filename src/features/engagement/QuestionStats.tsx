@@ -1,5 +1,5 @@
 import type { Statistics } from './engagementApi'
-export function QuestionStats({statistics:s}:{statistics:Statistics}) {
+export function QuestionStats({statistics:s,hideLikes=false,hideComments=false}:{statistics:Statistics;hideLikes?:boolean;hideComments?:boolean}) {
  const count=(n:number)=>n.toLocaleString('tr-TR')
- return <div className="question-stats" aria-label="Soru istatistikleri"><span>{count(s.viewCount)} görüntülenme</span><span>{count(s.likeCount)} beğeni</span><span>{count(s.totalAnswerCount)} yorum</span></div>
+ return <div className="question-stats" aria-label="Soru istatistikleri"><span title="Görüntülenme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span aria-hidden="true">{count(s.viewCount)}</span><span className="visually-hidden">{count(s.viewCount)} görüntülenme</span></span>{!hideLikes&&<span title="Beğeni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span aria-hidden="true">{count(s.likeCount)}</span><span className="visually-hidden">{count(s.likeCount)} beğeni</span></span>}{!hideComments&&<span title="Yorum"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4Z"/></svg><span aria-hidden="true">{count(s.totalAnswerCount)}</span><span className="visually-hidden">{count(s.totalAnswerCount)} yorum</span></span>}</div>
 }

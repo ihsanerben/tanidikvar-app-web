@@ -9,5 +9,5 @@ export function AdminAnswerEditor({questionId,initial,onSaved,onCancel,reload}:{
  <label htmlFor="admin-answer-body">{initial?'Admin yorumunu düzenle':'Admin yorumun'}</label>
  <textarea id="admin-answer-body" required minLength={10} maxLength={5000} rows={6} disabled={pending} value={body} onChange={e=>setBody(e.target.value)} aria-invalid={!!error?.fieldErrors.body}/>
  <AuthFormError error={error}/>{error&&<button type="button" onClick={reload}>Güncel Admin bilgilerini yükle</button>}
- <div className="answer-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Admin yorum değişikliklerini kaydet':'Admin yorumunu yayınla'}</button><button type="button" disabled={pending} onClick={onCancel}>Vazgeç</button></div></form>
+ <div className="answer-actions"><button className="button" disabled={pending}>{pending?'Kaydediliyor…':initial?'Admin yorum değişikliklerini kaydet':'Admin yorumunu yayınla'}</button><button type="button" className="button button-secondary answer-cancel-button" disabled={pending} onClick={onCancel}>Vazgeç</button></div></form>
 }

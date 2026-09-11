@@ -12,7 +12,7 @@ const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status})
 const list=(items:unknown[]=[])=>json({items,page:0,size:10,totalElements:items.length})
 beforeEach(()=>setUser({id:'admin',email:'test@example.test',role:'ADMIN',profileCompleted:true}))
 afterEach(()=>vi.unstubAllGlobals())
-function section(archived=false){return render(<MemoryRouter><AdminAnswerSection questionId="question" archived={archived}/></MemoryRouter>)}
+function section(archived=false,composeRevision=0){return render(<MemoryRouter><AdminAnswerSection questionId="question" archived={archived} composeRevision={composeRevision}/></MemoryRouter>)}
 it('shows anonymous readers verified safe text and historical education without private controls',async()=>{
  setUser(null);vi.stubGlobal('fetch',vi.fn(async()=>list([{...original,body:'<script>alert(1)</script>'}])));section()
  expect(await screen.findByText('<script>alert(1)</script>')).toBeVisible();expect(document.querySelector('script')).toBeNull()
@@ -28,21 +28,21 @@ it('assigns before publishing, uses CSRF and displays remaining quota',async()=>
   if(url.endsWith('/my-admin-answer'))return json({answer:saved?original:null,assignment:{...initialAssignment,assigned,version:assigned?1:0}})
   if(o.method==='POST'){saved=true;return json(original,201)}
   return list(saved?[original]:[])
- });vi.stubGlobal('fetch',fetch);section()
- fireEvent.click(await screen.findByRole('button',{name:'Admin yorumu yaz'}))
+ });vi.stubGlobal('fetch',fetch);section(false,1)
  fireEvent.change(await screen.findByLabelText('Admin yorumun'),{target:{value:original.body}})
  fireEvent.click(screen.getByRole('button',{name:'Admin yorumunu yayınla'}))
  await screen.findByRole('button',{name:'Düzenle'})
+ await waitFor(()=>expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument())
  expect(fetch.mock.calls.find(([,o])=>o.method==='POST')?.[1].headers).toMatchObject({'X-XSRF-TOKEN':'csrf'})
 })
 it('quota exhaustion prevents a new editor but does not block assignment cancellation',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:null,assignment:{...initialAssignment,assigned:true,version:1}}):list()));section()
  expect(await screen.findByText(/Bugünkü beş yorum hakkını kullandın/)).toBeVisible()
- expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Admin yorumu yaz'})).toBeDisabled()
+ expect(screen.queryByLabelText('Admin yorumun')).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Admin yorumu yap'})).not.toBeInTheDocument()
 })
-it('keeps the compose action visible when the session role is Admin while quota status is stale',async()=>{
- vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,activeAdmin:false}):url.endsWith('/my-admin-answer')?json({answer:null,assignment:initialAssignment}):list()));section()
- expect(await screen.findByRole('button',{name:'Admin yorumu yaz'})).toBeEnabled()
+it('allows an Admin session to open the shared composer while quota status is stale',async()=>{
+ vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/admin-quota')?json({...quota,activeAdmin:false}):url.endsWith('/my-admin-answer')?json({answer:null,assignment:initialAssignment}):list()));section(false,1)
+ expect(await screen.findByLabelText('Admin yorumun')).toBeVisible();expect(screen.queryByRole('button',{name:'Admin yorumu yap'})).not.toBeInTheDocument()
 })
 it('existing answers can be edited with no quota or assignment and keep drafts on stale errors',async()=>{
  vi.stubGlobal('fetch',vi.fn(async(url:string,o:RequestInit)=>url.endsWith('/csrf')?json({token:'csrf'}):o.method==='PUT'?json({code:'STALE_VERSION'},409):url.endsWith('/admin-quota')?json({...quota,used:5,remaining:0}):url.endsWith('/my-admin-answer')?json({answer:original,assignment:initialAssignment}):list([original])))

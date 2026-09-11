@@ -23,12 +23,12 @@ function Account({status}:{status:boolean}){
  {!user.profileCompleted&&<Link className="button" to="/profile">Profilini tamamla</Link>}<Link className="button button-secondary" to="/account">Hesabıma dön</Link></>:<>
  {error?<><AuthFormError error={error}/><button className="button" onClick={reload}>Bilgileri yeniden yükle</button></>:!profile?<p role="status">Bilgiler yükleniyor…</p>:<><div className="account-profile-overview"><div className="account-photo"><OwnProfileAvatar name={[profile.firstName,profile.lastName].filter(Boolean).join(' ')} isAdmin={user.role==='ADMIN'} educationStatus={profile.educationStatus}/></div><div className="account-contact"><strong>{[profile.firstName,profile.lastName].filter(Boolean).join(' ')||'—'}</strong><span>{user.email}</span><ProfileLinks linkedinUrl={profile.linkedinUrl} portfolioUrl={profile.portfolioUrl}/></div></div><dl className={`account-summary role-${profile.educationStatus??"USER"}`}>
  <div><dt>Üniversite</dt><dd>{profile.education?.universityName||'—'}</dd></div><div><dt>Bölüm</dt><dd>{profile.education?.departmentName||'—'}</dd></div><div><dt>Rol</dt><dd>{roleLabels[profile.educationStatus??user.role]||profile.educationStatus||'—'}</dd></div></dl></>}
- <nav className="account-actions" aria-label="Hesap işlemleri"><Link className="button button-secondary" to="/profile">{user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link><Link className="button button-secondary" to="/account/status">Hesap durumu</Link>
- <Link className="button button-secondary" to="/my-answers">Topluluk yorumlarım</Link>
+ <nav className="account-actions" aria-label="Hesap işlemleri"><Link className="button button-secondary" to="/profile">{user.profileCompleted?'Profilimi düzenle':'Profilini tamamla'}</Link>
  {user.role!=='MANAGER'&&<Link className="button button-secondary" to="/my-questions">Sorularım</Link>}
  {user.role==='MANAGER'&&<Link className="button button-secondary" to="/manager">Manager Panel</Link>}
  {user.role==='ADMIN'&&<Link className="button button-secondary" to="/admin">Admin yorumlarım</Link>}
- {user.role==='MANAGER'?<Link className="button button-secondary" to="/manager/applications">Admin başvurularını incele</Link>:<Link className="button button-secondary" to="/applications">Admin başvurularım</Link>}</nav>
+ <Link className="button button-secondary" to="/my-answers">Topluluk yorumlarım</Link>
+ {user.role==='MANAGER'?<Link className="button button-secondary" to="/manager/applications">Admin başvurularını incele</Link>:<Link className="button button-secondary" to="/applications">Admin başvurularım</Link>}<Link className="button button-secondary" to="/account/status">Hesap durumu</Link></nav>
  <AuthFormError error={failure}/><button className="button button-danger account-logout" onClick={()=>{setFailure(null);void auth.logout().catch(e=>setFailure(formError(e)))}}>Çıkış yap</button></>}
  </div></section>
 }

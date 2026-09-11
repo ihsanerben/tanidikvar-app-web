@@ -2,6 +2,9 @@ import { useEffect, useId, useState } from 'react'
 import { getCatalog, type Choice, type Page } from './catalogApi'
 import { formError } from '../auth/formError'
 
+const turkishAlphabetical=new Intl.Collator('tr-TR',{sensitivity:'base',numeric:true})
+function alphabetical(items:Choice[]){return [...items].sort((a,b)=>turkishAlphabetical.compare(a.label,b.label)||a.id.localeCompare(b.id))}
+
 export function RemotePicker({ label, endpoint, value, onChange, error, disabled = false, compact = false }: {
   label: string; endpoint: string; value: Choice | null; onChange: (value: Choice | null) => void; error?: string; disabled?: boolean; compact?: boolean
 }) {
@@ -21,7 +24,7 @@ export function RemotePicker({ label, endpoint, value, onChange, error, disabled
         items.push(...data.items);total=data.totalElements;page++
         if(compact||data.items.length===0)break
       }while(items.length<total)
-      if(!controller.signal.aborted)setResponse({key:requestKey,data:{items,page:0,size:items.length,totalElements:total},error:''})
+      if(!controller.signal.aborted)setResponse({key:requestKey,data:{items:alphabetical(items),page:0,size:items.length,totalElements:total},error:''})
     }
     void list().catch(reason=>{if(!controller.signal.aborted)setResponse({key:requestKey,data:null,error:formError(reason).message})})
     return()=>controller.abort()
