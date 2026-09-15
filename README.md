@@ -10,7 +10,7 @@ npm install
 npm run dev
 ```
 
-Uygulama varsayılan olarak `http://localhost:3000` adresinde açılır. API ve yerel altyapı `tanidikvar-app-api` reposunda `./run.sh --docker` ile başlatılır.
+Uygulama varsayılan olarak `http://localhost:5173` adresinde açılır. API ve yerel altyapı `tanidikvar-app-api` reposunda `./run.sh --docker` ile başlatılır.
 
 ## Doğrulama
 

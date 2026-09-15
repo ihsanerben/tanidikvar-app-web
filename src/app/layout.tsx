@@ -10,7 +10,7 @@ import { HeaderPrimaryNav } from "@/components/header-primary-nav";
 import { NotificationProvider } from "@/components/notification-provider";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:5173"),
   title: { default: "TanıdıkVar", template: "%s | TanıdıkVar" },
   description: "Üniversite ve bölümler hakkında doğrulanmış öğrencilerden gerçek deneyimler.",
   openGraph: { siteName: "TanıdıkVar", locale: "tr_TR", type: "website" },

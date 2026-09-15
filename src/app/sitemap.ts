@@ -19,7 +19,7 @@ async function allPeople() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:5173";
   const paths = ["", "/universiteler", "/programlar", "/istatistikler", "/sorular", "/tanidiklar", "/rehber", "/karsilastir", "/siralama"];
   try {
     const first = await getUniversities({ size: 100 });
