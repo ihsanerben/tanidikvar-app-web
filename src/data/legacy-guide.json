@@ -13,7 +13,7 @@
     "title": "Kayıt, doğrulama ve hesap güvenliği",
     "summary": "E-posta adresinle kayıt ol, gelen bağlantıyla adresini doğrula ve giriş yap. Şifreni unuttuğunda yeni bağlantı iste.",
     "details": [
-      "Kayıtta e-posta ve en az 10 karakterlik şifre kullanılır; çok uzun şifrelerde ekrandaki uzunluk sınırını izle. Kayıt otomatik giriş yapmaz. E-postadaki bağlantıyı açıp doğrulama düğmesine basarak işlemi tamamla.",
+      "Kayıtta e-posta ve en az 8 karakterlik şifre kullanılır; çok uzun şifrelerde ekrandaki uzunluk sınırını izle. Kayıt otomatik giriş yapmaz. E-postadaki bağlantıyı açıp doğrulama düğmesine basarak işlemi tamamla.",
       "Doğrulanmamış adresle giriş yapılamaz. E-posta gelmezse gelen kutusu ve spam klasörünü kontrol et; doğrulama bağlantısını yeniden iste. Yerel Docker kullanımında iletiler Mailpit gelen kutusuna gider.",
       "Şifremi unuttum sayfasından bağlantı iste, e-postadaki bağlantıyla yeni şifreni kaydet. Başarılı sıfırlama eski oturumları kapatır. Doğrulama ve sıfırlama bağlantıları tek kullanımlıdır; geçersiz veya süresi dolmuş bağlantı için yenisini iste.",
       "Hesabım → Hesap durumu e-posta doğrulama ve profil tamamlama durumunu gösterir. Çıkış yap oturumu kapatır. Yoğun denemelerde ekrandaki bekleme süresini izle. E-posta talebinin başarı mesajı, adresin sistemde kayıtlı olup olmadığını açıklamaz."
@@ -136,4 +136,3 @@
     ]
   }
 ]
-

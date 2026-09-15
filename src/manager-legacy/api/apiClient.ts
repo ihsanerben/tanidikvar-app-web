@@ -83,7 +83,7 @@ async function raw(path: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', body
     const fields: Record<string, string> = {}
     if (isRecord(data) && isRecord(data.fieldErrors)) {
       const fieldMessages: Record<string,string> = {
-        email: 'Geçerli bir e-posta adresi yaz.', password: 'Şifre en az 10 karakter, UTF-8 olarak en fazla 72 bayt olmalı.', token: 'Geçerli bir bağlantı kullan.',
+        email: 'Geçerli bir e-posta adresi yaz.', password: 'Şifre en az 8 karakter, UTF-8 olarak en fazla 72 bayt olmalı.', token: 'Geçerli bir bağlantı kullan.',
         firstName: 'Adını yaz (en fazla 80 karakter).', lastName: 'Soyadını yaz (en fazla 80 karakter).', educationStatus: 'Eğitim durumunu seç.',
         universityId: 'Aktif bir üniversite seç.', departmentId: 'Aktif bir bölüm seç.', graduationYear: 'Geçerli bir mezuniyet yılı yaz.',
         avatarFileId: 'Profilini tamamlamak için profil fotoğrafı ekle.',
