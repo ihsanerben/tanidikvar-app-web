@@ -1,0 +1,1 @@
+import {AuthActionForm} from "@/components/auth-action-form";export const metadata={title:"Doğrulama e-postası",robots:{index:false,follow:false}};export default function Page(){return <section className="auth-card"><AuthActionForm mode="resend"/></section>}

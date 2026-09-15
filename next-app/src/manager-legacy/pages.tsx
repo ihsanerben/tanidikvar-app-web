@@ -1,0 +1,10 @@
+"use client";
+export {ManagerPage} from './features/management/ManagerPage';
+export {AnalyticsPage} from './features/management/AnalyticsPage';
+export {ReportsPage} from './features/management/ReportsPage';
+export {ActionHistoryPage,ActionDetailPage} from './features/management/ActionHistoryPage';
+export {ApplicationReviewPage,UserDetailPage,UserApplicationsPage} from './features/management/ReviewPages';
+export {QuestionReviewPage} from './features/management/QuestionReviewPage';
+export {ManagerAccountPage} from './features/management/ManagerAccountPage';
+export {ApplicationsPage} from './features/applications/ApplicationsPage';
+export {CatalogPage} from './features/catalog/CatalogPage';

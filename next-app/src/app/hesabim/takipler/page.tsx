@@ -1,0 +1,2 @@
+import Link from "next/link";import {redirect} from "next/navigation";import {currentUser} from "@/lib/session";import {AccountDashboard} from "@/components/account-dashboard";
+export const metadata={title:"Takipler",robots:{index:false,follow:false}};export default async function Page(){if(!await currentUser())redirect("/giris");return <section className="legacy-account-page"><Link href="/hesabim">← Hesabıma dön</Link><h1>Takipler</h1><div className="legacy-account-details"><AccountDashboard mode="follows"/></div></section>}

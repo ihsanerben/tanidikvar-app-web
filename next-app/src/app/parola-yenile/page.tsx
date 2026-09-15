@@ -1,0 +1,1 @@
+import {AuthActionForm} from "@/components/auth-action-form";export const metadata={title:"Parola yenileme",robots:{index:false,follow:false}};export default async function Page({searchParams}:{searchParams:Promise<{token?:string}>}){return <section className="auth-card"><AuthActionForm mode="reset" initialToken={(await searchParams).token}/></section>}

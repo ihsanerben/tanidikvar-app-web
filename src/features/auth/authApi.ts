@@ -6,7 +6,8 @@ function user(value: unknown): CurrentUser {
     || typeof value.role !== 'string' || typeof value.profileCompleted !== 'boolean') {
     throw new ApiError(200, 'INVALID_RESPONSE', 'Hesap bilgileri alınamadı.')
   }
-  return { id: value.id, email: value.email, role: value.role, profileCompleted: value.profileCompleted }
+  // The rollback UI keeps its legacy internal role switch while the platform API exposes TANIDIK.
+  return { id: value.id, email: value.email, role: value.role === 'TANIDIK' ? 'ADMIN' : value.role, profileCompleted: value.profileCompleted }
 }
 export async function currentUser() { return user(await apiGet('/api/me')) }
 export async function login(email: string, password: string) { return user(await authPost('/api/auth/login', { email, password })) }
