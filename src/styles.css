@@ -260,6 +260,26 @@ button[data-action-tone="danger"]{background:#bd3e4d;color:white;border-color:#b
 .manager-question-record+h2{margin:8px 0 18px}
 @media(max-width:980px){.manager-content-card,.manager-moderated-record{padding-right:300px!important}.manager-content-aside,.manager-review-aside{width:240px}}
 @media(max-width:760px){.manager-content-card,.manager-moderated-record{min-height:0;padding:56px 22px 22px!important}.manager-content-aside,.manager-review-aside{position:static;width:auto;margin-top:22px;padding-right:0;align-items:stretch}.manager-content-aside .manager-content-heading,.manager-review-aside .manager-content-heading{justify-content:flex-start}.manager-card-menu{right:6px;top:5px}}
+
+/* The moderation list is intentionally denser than the full review screen. */
+.manager-content-card{min-height:150px;padding-top:26px!important;padding-bottom:24px!important}
+.manager-content-aside{top:26px;bottom:auto;justify-content:flex-start;gap:24px}
+@media(max-width:760px){.manager-content-card{min-height:0;padding:22px!important}.manager-content-aside{margin-top:18px;gap:16px}}
+
+/* Compact action menu and its inline moderation form. */
+.manager-card-menu>div{box-sizing:border-box;width:264px;gap:8px;padding:10px;border-color:#d8dde6;border-radius:12px;box-shadow:0 14px 34px #20283a2b}
+.manager-card-menu>div>button,.manager-card-menu .management-decision>button,.manager-card-menu .management-decision>.button{box-sizing:border-box;display:flex;align-items:center;width:100%;min-height:44px;padding:10px 14px!important;border:1px solid transparent!important;border-radius:9px;background:#f2f3f6!important;color:#272d3b!important;font-size:.84rem;font-weight:750;text-align:left}
+.manager-card-menu>div>button:hover,.manager-card-menu .management-decision>button:hover,.manager-card-menu .management-decision>.button:hover{border-color:#d9dce4!important;background:#e9ebf0!important}
+.manager-card-menu .management-decision{display:grid;width:100%;gap:9px;overflow:hidden}
+.manager-card-menu .management-decision>p{margin:2px 2px 0;color:#5f6574;font-size:.73rem;line-height:1.45}
+.manager-card-menu .management-decision label{display:grid;gap:6px;margin:0 2px;color:#3b4150;font-size:.75rem;font-weight:700}
+.manager-card-menu .management-decision textarea{box-sizing:border-box;display:block;width:100%;max-width:100%;min-height:88px;margin:0;padding:10px;border:1px solid #cbd0da;border-radius:8px;background:#fff;color:#272d3b;font:inherit;font-size:.78rem;line-height:1.45;resize:vertical}
+.manager-card-menu .management-decision textarea:focus-visible{outline:3px solid #d9cfef;outline-offset:1px;border-color:#7854bd}
+.manager-card-menu .management-decision>button.button{justify-content:center;background:#6242a6!important;color:#fff!important;text-align:center}
+.manager-card-menu .management-decision>button.button:disabled{border-color:transparent!important;background:#ececf0!important;color:#969aa4!important;cursor:not-allowed}
+.manager-card-menu .management-decision>button:last-child{justify-content:center;text-align:center}
+.manager-card-menu .auth-form-error{margin:0;font-size:.72rem}
+@media(max-width:420px){.manager-card-menu>div{width:min(264px,calc(100vw - 44px))}}
 .public-profile-details dd { margin: 4px 0 0; font-weight: 650; overflow-wrap: anywhere; }
 .public-profile-info .profile-biography { margin-top: 18px; }
 .public-profile-hero > .profile-links { flex-direction: column; flex-wrap: nowrap; align-self: center; margin: 0 0 0 8px; }

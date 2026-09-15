@@ -1,0 +1,1 @@
+export default function Loading(){return <section className="content-section" aria-busy="true" aria-label="İçerik yükleniyor"><div className="skeleton hero-line"/><div className="skeleton-row"><div className="skeleton"/><div className="skeleton"/><div className="skeleton"/></div><span className="sr-only">İçerik yükleniyor</span></section>}
