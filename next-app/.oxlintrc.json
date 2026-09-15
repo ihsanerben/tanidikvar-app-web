@@ -1,5 +1,0 @@
-{
-  "rules": {
-    "react/only-export-components": "off"
-  }
-}
