@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ApiError, getUniversities } from "@/lib/api/catalog";
+import { ApiError, getAllUniversities, getUniversities } from "@/lib/api/catalog";
 import { catalogSegment } from "@/lib/public-url";
 import {Button,ButtonLink,EmptyState} from "@/components/ui";
 
@@ -47,8 +47,8 @@ export default async function UniversitiesPage({ searchParams }: Props) {
   }
 
   const totalPages = Math.ceil(catalog.totalElements / catalog.size);
-  const cityCatalog = await getUniversities({size:100}).catch(()=>null);
-  const cities = [...new Set(cityCatalog?.items.map(item=>item.city).filter((value):value is string=>Boolean(value)) ?? [])].sort((left,right)=>left.localeCompare(right,"tr"));
+  const cityCatalog = await getAllUniversities().catch(()=>[]);
+  const cities = [...new Set(cityCatalog.map(item=>item.city).filter((value):value is string=>Boolean(value)))].sort((left,right)=>left.localeCompare(right,"tr"));
 
   return (
     <section className="content-section">

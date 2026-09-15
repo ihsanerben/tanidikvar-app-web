@@ -1,13 +1,11 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
-import {apiRequest} from "@/lib/client-api";
+import {apiRequest,apiRequestAllPages} from "@/lib/client-api";
 
 type University={id:string;name:string;city:string|null;institutionType:"DEVLET"|"VAKIF"|"BELIRTILMEMIS";description:string|null;websiteUrl:string|null;logoUrl:string|null;accentPrimary:string|null;accentSoft:string|null;accentForeground:string|null;version:number};
-type Page={items:University[]};
-
 export function UniversityDetailsManager(){
   const[items,setItems]=useState<University[]>([]),[selected,setSelected]=useState(""),[message,setMessage]=useState("");
-  useEffect(()=>{apiRequest<Page>("/universities?size=100").then(data=>setItems(data.items));},[]);
+  useEffect(()=>{apiRequestAllPages<University>("/universities").then(items=>setItems(items.toSorted((a,b)=>a.name.localeCompare(b.name,"tr",{sensitivity:"base"}))));},[]);
   const current=items.find(item=>item.id===selected);
   async function save(event:FormEvent<HTMLFormElement>){
     event.preventDefault();if(!current)return;

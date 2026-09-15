@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { apiRequest } from "@/lib/client-api";
+import { apiRequest, apiRequestAllPages } from "@/lib/client-api";
 import { catalogSegment, questionSegment } from "@/lib/public-url";
 
 type Item={id:string;targetType:string;targetId:string;createdAt?:string};
@@ -16,7 +16,7 @@ async function resolveItem(item:Item):Promise<Resolved>{
     if(item.targetType==="QUESTION"){const value=await apiRequest<Question>(`/questions/${item.targetId}`);return{...item,label:value.title,detail:"Soru",href:`/soru/${questionSegment(value.title,value.id)}`};}
     if(item.targetType==="UNIVERSITY"){const value=await apiRequest<University>(`/universities/${item.targetId}`);return{...item,label:value.name,detail:"Üniversite",href:`/universite/${catalogSegment(value.name,value.id)}`};}
     if(item.targetType==="TANIDIK"){const value=await apiRequest<Person>(`/tanidiklar/${item.targetId}`);return{...item,label:value.name,detail:[value.universityName,value.departmentName].filter(Boolean).join(" · ")||"Deneyim sahibi Tanıdık",badge:value.educationVerified?"Doğrulanmış Tanıdık":"Tanıdık",kind:"person",href:`/tanidik/${value.id}`};}
-    if(item.targetType==="PROGRAM"){const page=await apiRequest<Page<Program>>("/programs?size=100");const value=page.items.find(program=>program.id===item.targetId);if(value)return{...item,label:value.departmentName,detail:value.universityName,href:`/universite/${catalogSegment(value.universityName,value.universityId)}/${catalogSegment(value.departmentName,value.departmentId)}`};}
+    if(item.targetType==="PROGRAM"){const programs=await apiRequestAllPages<Program>("/programs");const value=programs.find(program=>program.id===item.targetId);if(value)return{...item,label:value.departmentName,detail:value.universityName,href:`/universite/${catalogSegment(value.universityName,value.universityId)}/${catalogSegment(value.departmentName,value.departmentId)}`};}
   }catch{}
   return{...item,label:"İçerik",detail:"İçerik artık yayında olmayabilir",href:"/sorular"};
 }

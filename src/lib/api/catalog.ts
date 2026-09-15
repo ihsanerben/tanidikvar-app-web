@@ -148,6 +148,16 @@ export async function getUniversity(id: string): Promise<CatalogItem> {
   return payload;
 }
 
+export async function getAllUniversities(): Promise<CatalogItem[]> {
+  const firstPage = await getUniversities({ size: 100 });
+  const items = [...firstPage.items];
+  const totalPages = Math.ceil(firstPage.totalElements / firstPage.size);
+  for (let page = 1; page < totalPages; page += 1) {
+    items.push(...(await getUniversities({ page, size: 100 })).items);
+  }
+  return items.toSorted((a, b) => a.name.localeCompare(b.name, "tr", { sensitivity: "base" }));
+}
+
 async function getUniversityDepartmentPage(id: string, pageNumber: number): Promise<PageResponse<EducationItem>> {
   const url = new URL(`/api/universities/${id}/departments`, apiBaseUrl());
   url.searchParams.set("page", String(pageNumber));
@@ -176,7 +186,7 @@ export async function getUniversityDepartments(id: string): Promise<EducationIte
     items.push(...(await getUniversityDepartmentPage(id, page)).items);
   }
 
-  return items;
+  return items.toSorted((a, b) => a.departmentName.localeCompare(b.departmentName, "tr", { sensitivity: "base" }));
 }
 
 export async function getEducation(universityId: string, departmentId: string): Promise<EducationItem> {
@@ -201,6 +211,13 @@ export async function getCatalogPrograms(filters:ProgramFilters={}):Promise<Page
   const entries:Record<string,string|number|undefined>={q:filters.query,universityId:filters.universityId,city:filters.city,institutionType:filters.institutionType,degreeLevel:filters.degreeLevel,scoreType:filters.scoreType,durationYears:filters.durationYears,rankFrom:filters.rankFrom,rankTo:filters.rankTo,faculty:filters.faculty,sort:filters.sort,page:filters.page??0,size:filters.size??24};
   Object.entries(entries).forEach(([key,value])=>{if(value!==undefined&&value!=="")url.searchParams.set(key,String(value));});
   return await getJson(url) as PageResponse<ProgramSummary>;
+}
+export async function getAllCatalogPrograms(filters:Omit<ProgramFilters,"page"|"size">={}):Promise<ProgramSummary[]> {
+  const firstPage=await getCatalogPrograms({...filters,page:0,size:100});
+  const items=[...firstPage.items];
+  const totalPages=Math.ceil(firstPage.totalElements/firstPage.size);
+  for(let page=1;page<totalPages;page+=1)items.push(...(await getCatalogPrograms({...filters,page,size:100})).items);
+  return items.toSorted((a,b)=>a.name.localeCompare(b.name,"tr",{sensitivity:"base"}));
 }
 export async function getCatalogProgram(id:string):Promise<ProgramDetail>{return await getJson(new URL(`/api/catalog-programs/${id}`,apiBaseUrl())) as ProgramDetail;}
 export async function getCatalogOverview():Promise<CatalogOverview>{return await getJson(new URL("/api/statistics/overview",apiBaseUrl())) as CatalogOverview;}

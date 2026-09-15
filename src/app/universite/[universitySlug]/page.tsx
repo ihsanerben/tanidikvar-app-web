@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { ApiError, getCatalogPrograms, getUniversity, getUniversityCatalogStatistics } from "@/lib/api/catalog";
+import { ApiError, getAllCatalogPrograms, getUniversity, getUniversityCatalogStatistics } from "@/lib/api/catalog";
 import { catalogIdFromSegment, catalogSegment } from "@/lib/public-url";
 import { RetentionActions } from "@/components/retention-actions";
 import { ContextInsights } from "@/components/context-insights";
@@ -30,7 +30,7 @@ export default async function UniversityPage({ params,searchParams }: Props) {
   const university = await resolveUniversity(universitySlug);
   const canonicalSegment = catalogSegment(university.name, university.id);
   if (universitySlug !== canonicalSegment) permanentRedirect(`/universite/${canonicalSegment}`);
-  const [programs,statistics]=await Promise.all([getCatalogPrograms({universityId:university.id,size:100}),getUniversityCatalogStatistics(university.id)]);
+  const [programs,statistics]=await Promise.all([getAllCatalogPrograms({universityId:university.id}),getUniversityCatalogStatistics(university.id)]);
   const requested=(await searchParams)?.sekme,tab=["genel","sorular","bolumler","istatistikler","degerlendirmeler","anketler","tanidiklar"].includes(requested??"")?requested:"genel";
   const theme={"--university-primary":university.accentPrimary??"var(--brand)","--university-soft":university.accentSoft??"var(--brand-soft)","--university-foreground":university.accentForeground??"#ffffff"} as CSSProperties;
   const jsonLd={"@context":"https://schema.org","@type":"CollegeOrUniversity",name:university.name,address:university.city?{"@type":"PostalAddress",addressLocality:university.city,addressCountry:"TR"}:undefined,url:`/universite/${canonicalSegment}`,sameAs:university.websiteUrl?[university.websiteUrl]:undefined};return <article className="context-page university-theme" style={theme}><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/>
@@ -42,7 +42,7 @@ export default async function UniversityPage({ params,searchParams }: Props) {
     {tab==="sorular"&&<ContextCommunity universityId={university.id} view="questions"/>}
     {tab==="tanidiklar"&&<ContextCommunity universityId={university.id} view="people"/>} 
     {tab==="bolumler"&&<section id="bolumler" className="content-section"><h2>Programlar</h2>
-      {programs.items.length ? <div className="program-grid">{programs.items.map(program=><ProgramCard key={program.id} program={program} showUniversity={false}/>)}</div> : <div className="empty-state"><h3>Aktif program bulunmuyor</h3><p>Programlar veri aktarımından sonra burada görünecek.</p></div>}
+      {programs.length ? <div className="program-grid">{programs.map(program=><ProgramCard key={program.id} program={program} showUniversity={false}/>)}</div> : <div className="empty-state"><h3>Aktif program bulunmuyor</h3><p>Programlar veri aktarımından sonra burada görünecek.</p></div>}
     </section>}
     {tab==="istatistikler"&&<section className="content-section"><h2>Üniversite istatistikleri</h2><MetricCards items={[{label:"Akademik birim",value:statistics.facultyCount},{label:"Program",value:statistics.programCount},{label:"Yerleştirme seçeneği",value:statistics.optionCount}]}/><div className="catalog-chart-grid"><Distribution title="Program düzeyleri" items={statistics.degreeLevels}/><Distribution title="Puan türleri" items={statistics.scoreTypes}/></div><YearlyTable items={statistics.yearly}/></section>}
   </article>;

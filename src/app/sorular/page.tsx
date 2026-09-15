@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getQuestions, QuestionApiError, type QuestionItem } from "@/lib/api/questions";
 import { questionSegment } from "@/lib/public-url";
-import {getUniversities,getUniversityDepartments} from "@/lib/api/catalog";
+import {getAllUniversities,getUniversityDepartments} from "@/lib/api/catalog";
 import {AskQuestionModal} from "@/components/ask-question-modal";
 import {Button,ButtonLink} from "@/components/ui";
 
@@ -14,7 +14,7 @@ const date = (value:string) => new Intl.DateTimeFormat("tr-TR",{day:"numeric",mo
 const initials = (name:string) => name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("").toLocaleUpperCase("tr-TR");
 const scopeText = (question:QuestionItem) => question.scope === "GENERAL" ? "" : [question.universityName,question.departmentName].filter(Boolean).join(" · ");
 type FilterTag={id:string;name:string};
-async function filterTags():Promise<FilterTag[]>{try{const response=await fetch(new URL("/api/tags?size=100",process.env.API_BASE_URL??"http://localhost:8080"),{cache:"no-store"});if(!response.ok)return[];const payload=await response.json() as {items?:FilterTag[]};return Array.isArray(payload.items)?payload.items.filter(item=>typeof item.id==="string"&&typeof item.name==="string"):[];}catch{return[];}}
+async function filterTags():Promise<FilterTag[]>{try{const items:FilterTag[]=[];let page=0,totalElements=1;while(items.length<totalElements){const url=new URL("/api/tags",process.env.API_BASE_URL??"http://localhost:8080");url.searchParams.set("page",String(page++));url.searchParams.set("size","100");const response=await fetch(url,{cache:"no-store"});if(!response.ok)return[];const payload=await response.json() as {items?:FilterTag[];totalElements?:number};const next=Array.isArray(payload.items)?payload.items.filter(item=>typeof item.id==="string"&&typeof item.name==="string"):[];items.push(...next);totalElements=typeof payload.totalElements==="number"?payload.totalElements:items.length;if(!next.length)break;}return items.toSorted((a,b)=>a.name.localeCompare(b.name,"tr",{sensitivity:"base"}));}catch{return[];}}
 
 function StatIcon({type}:{type:"view"|"like"|"answer"}) {
   if(type==="view") return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>;
@@ -38,7 +38,7 @@ export default async function QuestionsPage({ searchParams }: Props) {
   const city=(params.city??"").trim().slice(0,120),answer=params.cevap,verified=params.dogrulanmis,sort=params.sirala??"NEWEST";
   const currentQuery=new URLSearchParams();Object.entries(params).forEach(([key,value])=>{const item=first(value);if(item)currentQuery.set(key,item);});
   const scope=["GENERAL","UNIVERSITY","UNIVERSITY_DEPARTMENT"].includes(params.scope??"")?params.scope as "GENERAL"|"UNIVERSITY"|"UNIVERSITY_DEPARTMENT":params.departmentId?"UNIVERSITY_DEPARTMENT":params.universityId?"UNIVERSITY":undefined;
-  const [universities,departments,tags]=await Promise.all([getUniversities({size:100}).catch(()=>null),params.universityId?getUniversityDepartments(params.universityId).catch(()=>[]):Promise.resolve([]),filterTags()]);
+  const [universities,departments,tags]=await Promise.all([getAllUniversities().catch(()=>[]),params.universityId?getUniversityDepartments(params.universityId).catch(()=>[]):Promise.resolve([]),filterTags()]);
   let questions;
   try { questions = await getQuestions(query,currentPage-1,{universityId:params.universityId,departmentId:params.departmentId,tagId:params.tagId,scope,city,answered:answer==="answered"?true:answer==="unanswered"?false:undefined,verifiedAnswer:verified==="yes"?true:verified==="no"?false:undefined,sort}); }
   catch(error){const message=error instanceof QuestionApiError?error.message:"Sorular yüklenirken beklenmeyen bir hata oluştu.";return <section className="legacy-questions questions-page"><div className="legacy-empty" role="alert"><h1>Sorular şu anda yüklenemiyor</h1><p>{message}</p><ButtonLink href={href(currentPage,currentQuery)}>Tekrar dene</ButtonLink></div></section>;}
@@ -47,7 +47,7 @@ export default async function QuestionsPage({ searchParams }: Props) {
     <div className="legacy-questions-heading"><h1>Sorular</h1><AskQuestionModal/></div>
     <form className="legacy-question-search" action="/sorular" role="search"><label className="sr-only" htmlFor="question-query">Soru ara</label><input id="question-query" name="q" defaultValue={query} placeholder="Soru ara"/><details><summary>Filtrele</summary><div className="legacy-filter-panel">
       <label>Soru kapsamı<select name="scope" defaultValue={scope??""}><option value="">Tüm kapsamlar</option><option value="GENERAL">Genel</option><option value="UNIVERSITY">Üniversite</option><option value="UNIVERSITY_DEPARTMENT">Üniversite + Bölüm</option></select></label>
-      <label>Üniversite<select name="universityId" defaultValue={params.universityId??""}><option value="">Tüm üniversiteler</option>{universities?.items.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <label>Üniversite<select name="universityId" defaultValue={params.universityId??""}><option value="">Tüm üniversiteler</option>{universities.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
       <label>Bölüm<select name="departmentId" defaultValue={params.departmentId??""} disabled={!params.universityId}><option value="">Tüm bölümler</option>{departments.map(item=><option key={item.id} value={item.departmentId}>{item.departmentName}</option>)}</select></label>
       <label>Etiket<select name="tagId" defaultValue={params.tagId??""}><option value="">Tüm etiketler</option>{tags.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
       <label>Şehir<input name="city" defaultValue={city} placeholder="Örn. İstanbul"/></label><label>Cevap durumu<select name="cevap" defaultValue={answer??""}><option value="">Tümü</option><option value="answered">Cevaplanmış</option><option value="unanswered">Cevap bekliyor</option></select></label><label>Doğrulanmış kişi cevabı<select name="dogrulanmis" defaultValue={verified??""}><option value="">Tümü</option><option value="yes">Var</option><option value="no">Yok</option></select></label><label>Sıralama<select name="sirala" defaultValue={sort}><option value="NEWEST">En yeni</option><option value="MOST_COMMENTED">En çok cevaplanan</option><option value="MOST_LIKED">En faydalı</option><option value="MOST_VIEWED">En çok görüntülenen</option><option value="OLDEST">En eski</option></select></label>
