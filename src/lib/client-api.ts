@@ -47,6 +47,22 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   return request<T>(path, init, true);
 }
 
+type PageSlice<T> = { items: T[]; page: number; size: number; totalElements: number };
+
+export async function apiRequestAllPages<T>(path: string, size = 100): Promise<T[]> {
+  const items: T[] = [];
+  let page = 0;
+  while (true) {
+    const url = new URL(path, "http://catalog.local");
+    url.searchParams.set("page", String(page));
+    url.searchParams.set("size", String(size));
+    const result = await apiRequest<PageSlice<T>>(`${url.pathname}${url.search}`);
+    items.push(...result.items);
+    if (!result.items.length || items.length >= result.totalElements) return items;
+    page += 1;
+  }
+}
+
 async function request<T>(path: string, init: RequestInit, canRefresh: boolean): Promise<T> {
   const method = init.method?.toUpperCase() ?? "GET"; const headers = new Headers(init.headers); headers.set("Accept", "application/json");
   if (!["GET", "HEAD"].includes(method)) { const csrf = await fetch("/api/backend/auth/csrf", { credentials: "include", cache: "no-store" }); const payload = await csrf.json() as { token: string }; headers.set("X-XSRF-TOKEN", payload.token); if (init.body) headers.set("Content-Type", "application/json"); }

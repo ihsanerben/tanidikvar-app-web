@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
-import { apiRequest } from "@/lib/client-api";
+import { apiRequest, apiRequestAllPages } from "@/lib/client-api";
 
 type Profile={firstName:string;lastName:string;educationStatus:"YKS_ADAYI"|"UNIVERSITE_OGRENCISI"|"MEZUN";education:{universityId:string;departmentId:string}|null;classYear:number|null;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;linkedinUrl:string|null;portfolioUrl:string|null;version:number};
-type Item={id:string;name:string}; type Education={id:string;departmentId:string;departmentName:string}; type Page<T>={items:T[]};
+type Item={id:string;name:string}; type Education={id:string;departmentId:string;departmentName:string};
 
 export function ProfileForm(){
  const [profile,setProfile]=useState<Profile|null>(null),[universities,setUniversities]=useState<Item[]>([]),[educations,setEducations]=useState<Education[]>([]),[universityId,setUniversityId]=useState(""),[educationStatus,setEducationStatus]=useState<Profile["educationStatus"]>("YKS_ADAYI"),[message,setMessage]=useState("");
- useEffect(()=>{void Promise.all([apiRequest<Profile>("/me/profile"),apiRequest<Page<Item>>("/universities?size=100")]).then(([p,u])=>{setProfile(p);setUniversities(u.items);setUniversityId(p.education?.universityId??"");setEducationStatus(p.educationStatus);}).catch(()=>setMessage("Profil yüklenemedi."));},[]);
- useEffect(()=>{if(!universityId){setEducations([]);return;}apiRequest<Page<Education>>(`/universities/${universityId}/departments?size=100`).then(value=>setEducations(value.items)).catch(()=>setMessage("Programlar yüklenemedi."));},[universityId]);
+ useEffect(()=>{void Promise.all([apiRequest<Profile>("/me/profile"),apiRequestAllPages<Item>("/universities")]).then(([p,u])=>{setProfile(p);setUniversities(u);setUniversityId(p.education?.universityId??"");setEducationStatus(p.educationStatus);}).catch(()=>setMessage("Profil yüklenemedi."));},[]);
+ useEffect(()=>{if(!universityId){setEducations([]);return;}apiRequestAllPages<Education>(`/universities/${universityId}/departments`).then(setEducations).catch(()=>setMessage("Programlar yüklenemedi."));},[universityId]);
  if(!profile)return <p className="muted">{message||"Profil yükleniyor…"}</p>;
  const current=profile;
  async function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();setMessage("");const data=new FormData(event.currentTarget);try{const status=data.get("educationStatus");const updated=await apiRequest<Profile>("/me/profile",{method:"PUT",body:JSON.stringify({firstName:data.get("firstName"),lastName:data.get("lastName"),educationStatus:status,universityId:status==="YKS_ADAYI"?null:universityId,departmentId:status==="YKS_ADAYI"?null:data.get("departmentId"),classYear:status==="UNIVERSITE_OGRENCISI"?Number(data.get("classYear")):null,graduationYear:status==="MEZUN"?Number(data.get("graduationYear")):null,biography:data.get("biography")||null,occupation:data.get("occupation")||null,company:data.get("company")||null,linkedinUrl:data.get("linkedinUrl")||null,portfolioUrl:data.get("portfolioUrl")||null,version:current.version})});setProfile(updated);setMessage("Profil güncellendi.");}catch(reason){setMessage(reason instanceof Error?reason.message:"Profil güncellenemedi.");}}
