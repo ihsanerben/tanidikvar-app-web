@@ -21,7 +21,6 @@ export default async function DepartmentPage({params}:Props){
   <nav className="breadcrumb" aria-label="İçerik yolu"><Link href="/universiteler">Üniversiteler</Link><span aria-hidden="true">›</span><Link href={`/universite/${currentUniversity}`}>{education.universityName}</Link><span aria-hidden="true">›</span><span>{education.departmentName}</span></nav>
   <header className="context-hero"><p className="eyebrow">{education.universityName}</p><h1>{education.departmentName}</h1><p>Bu programa özel sorular, öğrenciler, mezunlar ve karar verileri burada toplanır.</p><RetentionActions targetType="PROGRAM" targetId={education.id}/></header>
   <nav className="tabs" aria-label="Program bölümleri"><a href="#genel">Genel</a><a href="#sorular">Sorular</a><a href="#degerlendirmeler">Değerlendirmeler</a><a href="#anketler">Anketler</a><a href="#tanidiklar">Tanıdıklar</a></nav>
-  <div className="actions"><Link className="button secondary" href={`/rehber?mod=veli&${guideContext}`}>Veli görünümü</Link><Link className="button secondary" href={`/rehber?mod=yeni-kazanan&${guideContext}`}>Yeni Kazananlar</Link><Link className="button" href={`/soru-sor?${guideContext}`}>Burada okuyanlara sor</Link></div>
   <ContextInsights universityId={education.universityId} programId={education.id}/><ContextCommunity universityId={education.universityId} departmentId={education.departmentId}/>
  </article>;
 }

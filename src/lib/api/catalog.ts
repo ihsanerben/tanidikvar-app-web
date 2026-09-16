@@ -11,6 +11,9 @@ export type CatalogItem = {
   accentPrimary?: string | null;
   accentSoft?: string | null;
   accentForeground?: string | null;
+  programCount?: number;
+  questionCount?: number;
+  tanidikCount?: number;
 };
 
 export type PageResponse<T> = {
@@ -199,16 +202,16 @@ export type LabelCount = { label: string; count: number };
 export type YearCatalogStatistics = { year: number; programCount: number; quota: number; placed: number; fillRate: number | null; preferences: number };
 export type AdmissionStatistics = { year:number; quota:number|null; placed:number|null; minimumScore:number|null; maximumScore:number|null; successRank:number|null; placedMale:number|null; placedFemale:number|null; averageSecondaryScore:number|null; totalPreferences:number|null; demandPerQuota:number|null; averagePreferenceRank:number|null };
 export type AdmissionOption = { id:string; programCode:string; faculty:string|null; scoreType:string|null; durationYears:number|null; statistics:AdmissionStatistics[] };
-export type ProgramSummary = { id:string; educationId:string|null; departmentId:string|null; universityId:string; universityName:string; city:string|null; institutionType:string; name:string; degreeLevel:string; faculties:string[]; scoreTypes:string[]; durationYears:number|null; optionCount:number; currentBestRank:number|null; currentMinimumScore:number|null; currentQuota:number; currentPlaced:number };
+export type ProgramSummary = { id:string; educationId:string|null; departmentId:string|null; universityId:string; universityName:string; city:string|null; institutionType:string; name:string; degreeLevel:string; programCodes:string[]; faculties:string[]; scoreTypes:string[]; durationYears:number|null; optionCount:number; currentBestRank:number|null; currentMinimumScore:number|null; currentQuota:number; currentPlaced:number };
 export type ProgramDetail = { summary:ProgramSummary; options:AdmissionOption[] };
 export type CatalogOverview = { universityCount:number; programCount:number; optionCount:number; statisticsCount:number; rankedOptionCount:number; institutionTypes:LabelCount[]; cities:LabelCount[]; degreeLevels:LabelCount[]; scoreTypes:LabelCount[]; yearly:YearCatalogStatistics[]; lastSynchronizedAt:string|null };
-export type UniversityCatalogStatistics = { universityId:string; facultyCount:number; programCount:number; optionCount:number; degreeLevels:LabelCount[]; scoreTypes:LabelCount[]; yearly:YearCatalogStatistics[]; bestRankedPrograms:ProgramSummary[] };
+export type UniversityCatalogStatistics = { universityId:string; facultyCount:number; programCount:number; optionCount:number; academicUnits:LabelCount[]; degreeLevels:LabelCount[]; scoreTypes:LabelCount[]; yearly:YearCatalogStatistics[]; bestRankedPrograms:ProgramSummary[] };
 
-export type ProgramFilters = { query?:string; universityId?:string; city?:string; institutionType?:string; degreeLevel?:string; scoreType?:string; durationYears?:number; rankFrom?:number; rankTo?:number; faculty?:string; sort?:"NAME"|"RANK"|"SCORE"|"QUOTA"; page?:number; size?:number };
+export type ProgramFilters = { query?:string; universityId?:string; city?:string; institutionType?:string; degreeLevel?:string; scoreType?:string; durationYears?:number; rankFrom?:number; rankTo?:number; scoreFrom?:number; scoreTo?:number; filled?:boolean; year?:number; faculty?:string; sort?:"NAME"|"RANK"|"SCORE"|"QUOTA"; page?:number; size?:number };
 
 export async function getCatalogPrograms(filters:ProgramFilters={}):Promise<PageResponse<ProgramSummary>> {
   const url=new URL("/api/catalog-programs",apiBaseUrl());
-  const entries:Record<string,string|number|undefined>={q:filters.query,universityId:filters.universityId,city:filters.city,institutionType:filters.institutionType,degreeLevel:filters.degreeLevel,scoreType:filters.scoreType,durationYears:filters.durationYears,rankFrom:filters.rankFrom,rankTo:filters.rankTo,faculty:filters.faculty,sort:filters.sort,page:filters.page??0,size:filters.size??24};
+  const entries:Record<string,string|number|boolean|undefined>={q:filters.query,universityId:filters.universityId,city:filters.city,institutionType:filters.institutionType,degreeLevel:filters.degreeLevel,scoreType:filters.scoreType,durationYears:filters.durationYears,rankFrom:filters.rankFrom,rankTo:filters.rankTo,scoreFrom:filters.scoreFrom,scoreTo:filters.scoreTo,filled:filters.filled,year:filters.year,faculty:filters.faculty,sort:filters.sort,page:filters.page??0,size:filters.size??24};
   Object.entries(entries).forEach(([key,value])=>{if(value!==undefined&&value!=="")url.searchParams.set(key,String(value));});
   return await getJson(url) as PageResponse<ProgramSummary>;
 }

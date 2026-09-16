@@ -14,12 +14,13 @@ export function EvaluationForm({ universityId, programId }: { universityId: stri
     event.preventDefault(); setBusy(true); setMessage("");
     const data = new FormData(event.currentTarget);
     try {
-      await apiRequest("/evaluations", { method: "PUT", body: JSON.stringify({ universityId, programId: programId ?? null, rating: Number(data.get("rating")), body: data.get("body") || null }) });
+      const text=String(data.get("body")??"").trim(),focus=String(data.get("focus")??"").trim();
+      await apiRequest("/evaluations", { method: "PUT", body: JSON.stringify({ universityId, programId: programId ?? null, rating: Number(data.get("rating")), body: text?`${focus}: ${text}`:focus }) });
       setMessage("Değerlendirmen kaydedildi."); router.refresh();
     } catch (reason) { setMessage(reason instanceof Error ? reason.message : "Değerlendirme kaydedilemedi."); }
     finally { setBusy(false); }
   }
-  return <form className="stack-form decision-form" onSubmit={submit}><h3>Deneyimini değerlendir</h3><label>Puan<select name="rating" defaultValue="5" required>{[5,4,3,2,1].map(value=><option key={value} value={value}>{value} / 5</option>)}</select></label><label>Kısa değerlendirme<textarea name="body" maxLength={2000} rows={4}/></label>{message&&<p className="muted" role="status">{message}</p>}<button className="button" disabled={busy}>{busy?"Kaydediliyor…":"Değerlendir"}</button></form>;
+  return <form className="stack-form decision-form evaluation-form" onSubmit={submit}><h3>Deneyimini değerlendir</h3><div className="evaluation-criteria"><label>Genel puan<select name="rating" defaultValue="5" required>{[5,4,3,2,1].map(value=><option key={value} value={value}>{value} / 5</option>)}</select></label><label>Değerlendirme odağı<select name="focus" defaultValue="Eğitim kalitesi"><option>Eğitim kalitesi</option><option>Akademik kadro</option><option>Kampüs ve sosyal yaşam</option><option>Ulaşım ve konum</option><option>Yurt ve barınma</option><option>Kariyer olanakları</option><option>Öğrenci işleri</option></select></label></div><label>Deneyimin<textarea name="body" maxLength={2000} rows={4} placeholder="Seçtiğin başlıkta yaşadığın deneyimi anlat."/></label>{message&&<p className="muted" role="status">{message}</p>}<button className="button" disabled={busy}>{busy?"Kaydediliyor…":"Değerlendirmeyi kaydet"}</button></form>;
 }
 
 export function PollVoteForms({ polls }: { polls: Poll[] }) {

@@ -1,24 +1,18 @@
-import Link from "next/link";
 import { ApiError, getAllUniversities, getUniversities } from "@/lib/api/catalog";
-import { catalogSegment } from "@/lib/public-url";
 import {Button,ButtonLink,EmptyState} from "@/components/ui";
+import {InfiniteResults} from "@/components/infinite-results";
+import {PageTitle} from "@/components/page-title";
 
 export const metadata = { title: "Üniversiteler", description: "Üniversiteleri gerçek öğrenci deneyimleriyle keşfet." };
 
-type Props = { searchParams: Promise<{ q?: string | string[]; city?: string | string[]; institutionType?: string | string[]; sayfa?: string | string[] }> };
+type Props = { searchParams: Promise<{ q?: string | string[]; city?: string | string[]; institutionType?: string | string[] }> };
 
 const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
-const pageFrom = (value: string | undefined) => {
-  const parsed = Number.parseInt(value ?? "1", 10);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 10_001) : 1;
-};
-
-const pageHref = (page: number, query: string, city = "", institutionType = "") => {
+const pageHref = (query: string, city = "", institutionType = "") => {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (city) params.set("city", city);
   if (institutionType) params.set("institutionType", institutionType);
-  if (page > 1) params.set("sayfa", String(page));
   const suffix = params.toString();
   return suffix ? `/universiteler?${suffix}` : "/universiteler";
 };
@@ -28,40 +22,34 @@ export default async function UniversitiesPage({ searchParams }: Props) {
   const query = (first(params.q) ?? "").trim().slice(0, 200);
   const city = (first(params.city) ?? "").trim().slice(0, 120);
   const institutionType = ["DEVLET","VAKIF","KKTC","YURT_DISI"].includes(first(params.institutionType) ?? "") ? first(params.institutionType)! : "";
-  const currentPage = pageFrom(first(params.sayfa));
 
   let catalog;
   try {
-    catalog = await getUniversities({ query, city, institutionType, page: currentPage - 1 });
+    catalog = await getUniversities({ query, city, institutionType, page: 0, size:24 });
   } catch (error) {
     const message = error instanceof ApiError ? error.message : "Üniversiteler yüklenirken beklenmeyen bir hata oluştu.";
     return (
       <section className="content-section">
-        <h1>Üniversiteni keşfet</h1>
+        <PageTitle help="Üniversiteleri şehir ve kurum türüne göre filtreleyerek program, soru ve Tanıdık sayılarını karşılaştırabilirsin.">Üniversiteler</PageTitle>
         <EmptyState title="Katalog şu anda yüklenemiyor" className="university-empty-state">
           <p>{message}</p>
-          <ButtonLink href={pageHref(currentPage, query, city, institutionType)}>Tekrar dene</ButtonLink>
+          <ButtonLink href={pageHref(query, city, institutionType)}>Tekrar dene</ButtonLink>
         </EmptyState>
       </section>
     );
   }
 
-  const totalPages = Math.ceil(catalog.totalElements / catalog.size);
   const cityCatalog = await getAllUniversities().catch(()=>[]);
   const cities = [...new Set(cityCatalog.map(item=>item.city).filter((value):value is string=>Boolean(value)))].sort((left,right)=>left.localeCompare(right,"tr"));
 
   return (
     <section className="content-section">
-      <h1>Üniversiteni keşfet</h1>
-      <p className="lead">Kampüs, eğitim, kariyer ve yaşam verilerini gerçek katkılarla incele.</p>
-      <form className="university-search" action="/universiteler" role="search">
-        <label className="sr-only" htmlFor="university-query">Üniversite ara</label><input id="university-query" name="q" defaultValue={query} placeholder="Üniversite ara" />
-        <details open={Boolean(city||institutionType)}><summary>Filtrele</summary><div className="ui-filter-panel university-filters">
+      <PageTitle help="Üniversiteleri şehir ve kurum türüne göre filtreleyebilir; her karttan program, soru ve Tanıdık sayılarını görebilirsin.">Üniversiteler</PageTitle>
+      <form className="program-filter discovery-filter" action="/universiteler" role="search">
+        <label>Üniversite<input id="university-query" name="q" defaultValue={query} placeholder="Üniversite ara" /></label>
           <label>Şehir<select name="city" defaultValue={city}><option value="">Tüm şehirler</option>{cities.map(item=><option key={item}>{item}</option>)}</select></label>
           <label>Kurum türü<select name="institutionType" defaultValue={institutionType}><option value="">Tümü</option><option value="DEVLET">Devlet</option><option value="VAKIF">Vakıf</option><option value="KKTC">KKTC</option><option value="YURT_DISI">Yurt dışı</option></select></label>
-          <div className="university-quick-filters"><span>Hızlı filtreler</span><div>{["İstanbul","Ankara","İzmir"].filter(item=>cities.includes(item)).map(item=><Link key={item} href={pageHref(1,query,item,institutionType)}>{item}</Link>)}<Link href={pageHref(1,query,city,"DEVLET")}>Devlet</Link><Link href={pageHref(1,query,city,"VAKIF")}>Vakıf</Link></div></div>
-          <Button type="submit">Filtrele</Button><ButtonLink tone="secondary" href="/universiteler">Tümünü temizle</ButtonLink>
-        </div></details><Button type="submit">Ara</Button>
+          <Button type="submit">Filtrele</Button><ButtonLink tone="secondary" href="/universiteler">Temizle</ButtonLink>
       </form>
 
       {catalog.items.length === 0 ? (
@@ -73,21 +61,7 @@ export default async function UniversitiesPage({ searchParams }: Props) {
       ) : (
         <>
           <p className="catalog-summary" aria-live="polite">{catalog.totalElements} üniversite</p>
-          <ul className="catalog-grid">
-            {catalog.items.map((university) => (
-              <li key={university.id}>
-                <h2><Link href={`/universite/${catalogSegment(university.name, university.id)}`}>{university.name}</Link></h2>
-                {(university.city||university.institutionType!=="BELIRTILMEMIS")&&<p className="university-card-meta">{[university.city,university.institutionType==="DEVLET"?"Devlet":university.institutionType==="VAKIF"?"Vakıf":university.institutionType==="KKTC"?"KKTC":university.institutionType==="YURT_DISI"?"Yurt dışı":null].filter(Boolean).join(" · ")}</p>}
-              </li>
-            ))}
-          </ul>
-          {totalPages > 1 && (
-            <nav className="pagination" aria-label="Üniversite sayfaları">
-              {currentPage > 1 && <ButtonLink tone="secondary" href={pageHref(currentPage - 1, query, city, institutionType)}>Önceki</ButtonLink>}
-              <span>{currentPage} / {totalPages}</span>
-              {currentPage < totalPages && <ButtonLink tone="secondary" href={pageHref(currentPage + 1, query, city, institutionType)}>Sonraki</ButtonLink>}
-            </nav>
-          )}
+          <InfiniteResults kind="universities" initial={catalog.items} totalElements={catalog.totalElements} path={`/universities?${new URLSearchParams({q:query,city,institutionType})}`} />
         </>
       )}
     </section>

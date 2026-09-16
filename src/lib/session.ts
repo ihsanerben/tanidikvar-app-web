@@ -4,7 +4,8 @@ export type CurrentProfile = {
   firstName: string | null;
   lastName: string | null;
   educationStatus: string | null;
-  education?: { universityName?: string | null; departmentName?: string | null } | null;
+  programId?: string | null;
+  education?: { universityId?: string | null; universityName?: string | null; departmentId?: string|null; departmentName?: string | null } | null;
   linkedinUrl: string | null;
   portfolioUrl: string | null;
 };
