@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/logout-button";
 import { currentProfile, currentUser } from "@/lib/session";
+import { plainProgramName } from "@/lib/program-label";
 
 export const metadata = { title: "Hesabım", robots: { index: false, follow: false } };
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(item => item[0]).join("").toLocaleUpperCase("tr-TR");
@@ -23,12 +24,12 @@ export default async function AccountPage() {
           {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer">Portfolyo ↗</a>}
         </div>}
       </div>
-      <div className={`legacy-account-summary role-${(profile?.educationStatus ?? "user").toLowerCase()}`}>
-        <div><small>Üniversite</small><strong>{profile?.education?.universityName || "—"}</strong></div>
-        <div><small>Bölüm</small><strong>{profile?.education?.departmentName || "—"}</strong></div>
-        <div><small>Rol</small><strong>{role(profile?.educationStatus)}</strong></div>
-        <div><small>Yetki</small><strong>{user.role === "TANIDIK" ? "Tanıdık" : user.role === "MANAGER" ? "Manager" : "Üye"}</strong></div>
-      </div>
+      <dl className={`legacy-account-summary role-${(profile?.educationStatus ?? "user").toLowerCase()}`}>
+        <div><dt>Üniversite</dt><dd>{profile?.education?.universityName || "—"}</dd></div>
+        <div><dt>Bölüm</dt><dd>{profile?.education?.departmentName ? plainProgramName(profile.education.departmentName) : "—"}</dd></div>
+        <div><dt>Eğitim durumu</dt><dd>{role(profile?.educationStatus)}</dd></div>
+        <div><dt>Yetki</dt><dd>{user.role === "TANIDIK" ? "Tanıdık" : user.role === "MANAGER" ? "Manager" : "Üye"}</dd></div>
+      </dl>
       <nav className="legacy-account-links">
         <Link href="/hesabim/profil"><span>Profilimi düzenle</span><b aria-hidden="true">›</b></Link><Link href="/hesabim/sorularim"><span>Sorularım</span><b aria-hidden="true">›</b></Link>
         <Link href="/hesabim/yorumlarim"><span>Yorumlarım</span><b aria-hidden="true">›</b></Link>

@@ -3,9 +3,12 @@ import {Button,ButtonLink,EmptyState} from "@/components/ui";
 import {InfiniteResults} from "@/components/infinite-results";
 import {PageTitle} from "@/components/page-title";
 
-export const metadata = { title: "Üniversiteler", description: "Üniversiteleri gerçek öğrenci deneyimleriyle keşfet." };
-
 type Props = { searchParams: Promise<{ q?: string | string[]; city?: string | string[]; institutionType?: string | string[] }> };
+
+export async function generateMetadata({searchParams}:Props) {
+  const params=await searchParams,filtered=Boolean(params.q||params.city||params.institutionType);
+  return {title:"Üniversiteler",description:"Üniversiteleri gerçek öğrenci deneyimleriyle keşfet.",alternates:{canonical:"/universiteler"},robots:filtered?{index:false,follow:true}:undefined};
+}
 
 const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
 const pageHref = (query: string, city = "", institutionType = "") => {

@@ -6,6 +6,7 @@ import {PageTitle} from "@/components/page-title";
 
 type Params={q?:string;sayfa?:string;universityId?:string;departmentId?:string;educationStatus?:string;classYear?:string;verified?:string;expertise?:string};
 type Props={searchParams:Promise<Params>};
+export async function generateMetadata({searchParams}:Props){const params=await searchParams,filtered=Object.values(params).some(Boolean);return{title:"Tanıdıklar",description:"Doğrulanmış üniversite öğrencileri ve mezunların deneyimlerini keşfet.",alternates:{canonical:"/tanidiklar"},robots:filtered?{index:false,follow:true}:undefined};}
 const expertiseOptions=["Dersler","Kariyer","Erasmus","Hazırlık","Kampüs","Yurt","Sosyal Hayat"];
 
 export default async function FamiliarPeoplePage({searchParams}:Props){

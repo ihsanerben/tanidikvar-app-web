@@ -2,7 +2,7 @@ import Link from "next/link";
 import {getTanidik,type PublicTanidik} from "@/lib/api/profiles";
 import {LeaderboardHelp} from "@/components/leaderboard-help";
 type Entry={userId:string;displayName:string;points:number;eventCount:number;title:string;badges:string[];lastEventAt:string};
-export const metadata={title:"Katkı sıralaması",description:"TanıdıkVar topluluğuna en kaliteli katkıları sunan üyeler."};
+export const metadata={title:"Katkı sıralaması",description:"TanıdıkVar topluluğuna en kaliteli katkıları sunan üyeler.",alternates:{canonical:"/siralama"}};
 const periods=[{value:"DAILY",label:"Bugün"},{value:"WEEKLY",label:"Bu hafta"},{value:"MONTHLY",label:"Bu ay"},{value:"YEARLY",label:"Bu yıl"},{value:"ALL_TIME",label:"Tüm zamanlar"}] as const;
 async function entries(period:string){try{const response=await fetch(new URL(`/api/gamification/leaderboard?period=${period}&size=50`,process.env.API_BASE_URL??"http://localhost:8080"),{cache:"no-store"});return response.ok?await response.json() as Entry[]:[];}catch{return[];}}
 const initials=(name:string)=>name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("").toLocaleUpperCase("tr-TR");

@@ -3,7 +3,7 @@ import { getPopularQuestions } from "@/lib/api/questions";
 import {InfiniteResults} from "@/components/infinite-results";
 import {PageTitle} from "@/components/page-title";
 
-export const metadata = { title: "Popülerler", description: "Toplulukta en çok görüntülenen sorular." };
+export const metadata = { title: "Popülerler", description: "Toplulukta en çok görüntülenen sorular.", alternates:{canonical:"/populer"} };
 
 const periods=[{value:"DAILY",label:"Bugün"},{value:"WEEKLY",label:"Bu hafta"},{value:"MONTHLY",label:"Bu ay"},{value:"YEARLY",label:"Bu yıl"},{value:"ALL_TIME",label:"Tüm zamanlar"}] as const;
 export default async function PopularPage({searchParams}:{searchParams:Promise<{sayfa?:string;donem?:string}>}) {

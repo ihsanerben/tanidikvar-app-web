@@ -3,7 +3,12 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   const { path } = await context.params;
   const target = new URL(`/api/${path.map(encodeURIComponent).join("/")}`, process.env.API_BASE_URL ?? "http://localhost:8080"); target.search = request.nextUrl.search;
   const headers = new Headers(); for (const name of ["accept", "content-type", "cookie", "x-xsrf-token"]) { const value = request.headers.get(name); if (value) headers.set(name, value); }
-  const response = await fetch(target, { method: request.method, headers, body: ["GET", "HEAD"].includes(request.method) ? undefined : await request.arrayBuffer(), cache: "no-store", redirect: "manual" });
+  let body: ArrayBuffer | undefined;
+  if (!["GET", "HEAD"].includes(request.method)) {
+    body = await request.arrayBuffer();
+    if (body.byteLength > 1_048_576) return Response.json({code:"PAYLOAD_TOO_LARGE",message:"İstek gövdesi en fazla 1 MB olabilir."},{status:413});
+  }
+  const response = await fetch(target, { method: request.method, headers, body, cache: "no-store", redirect: "manual" });
   const outgoing = new Headers(response.headers); outgoing.delete("content-encoding"); outgoing.delete("content-length");
   return new Response(response.body, { status: response.status, headers: outgoing });
 }
