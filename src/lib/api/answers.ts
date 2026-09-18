@@ -3,7 +3,7 @@ import { QuestionApiError } from "./questions";
 export type AnswerItem = {
   id: string; questionId: string; questionTitle?: string; authorId: string | null; authorName: string; activeAdmin: boolean; educationVerified?: boolean;
   universityName: string | null; departmentName: string | null; educationStatus: string | null; body: string;
-  publishedAt: string; editedAt: string | null; likeCount: number; answerType?: "COMMUNITY" | "TANIDIK";
+  publishedAt: string; editedAt: string | null; likeCount: number; version:number; anonymous?:boolean; answerType?: "COMMUNITY" | "TANIDIK";
 };
 export type AnswerPage = { items: AnswerItem[]; page: number; size: number; totalElements: number };
 export type AnswerComment={id:string;answerId:string;authorId:string;authorName:string;body:string;createdAt:string;version:number};
@@ -16,7 +16,7 @@ const valid = (value: unknown): value is AnswerItem => {
   return typeof answer.id === "string" && typeof answer.questionId === "string" && nullableString(answer.authorId) &&
     typeof answer.authorName === "string" && typeof answer.activeAdmin === "boolean" && (answer.educationVerified===undefined||typeof answer.educationVerified==="boolean") && nullableString(answer.universityName) &&
     nullableString(answer.departmentName) && nullableString(answer.educationStatus) && typeof answer.body === "string" &&
-    typeof answer.publishedAt === "string" && nullableString(answer.editedAt) && typeof answer.likeCount === "number";
+    typeof answer.publishedAt === "string" && nullableString(answer.editedAt) && typeof answer.likeCount === "number" && typeof answer.version === "number";
 };
 async function page(url: URL): Promise<AnswerPage> {
   let response: Response;

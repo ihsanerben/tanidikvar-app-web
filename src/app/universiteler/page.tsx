@@ -52,7 +52,7 @@ export default async function UniversitiesPage({ searchParams }: Props) {
         <label>Üniversite<input id="university-query" name="q" defaultValue={query} placeholder="Üniversite ara" /></label>
           <label>Şehir<select name="city" defaultValue={city}><option value="">Tüm şehirler</option>{cities.map(item=><option key={item}>{item}</option>)}</select></label>
           <label>Kurum türü<select name="institutionType" defaultValue={institutionType}><option value="">Tümü</option><option value="DEVLET">Devlet</option><option value="VAKIF">Vakıf</option><option value="KKTC">KKTC</option><option value="YURT_DISI">Yurt dışı</option></select></label>
-          <Button type="submit">Filtrele</Button><ButtonLink tone="secondary" href="/universiteler">Temizle</ButtonLink>
+          <div className="filter-actions"><Button type="submit">Filtrele</Button><ButtonLink tone="secondary" href="/universiteler">Temizle</ButtonLink><ButtonLink tone="secondary" href="/karsilastir" target="_blank" rel="noopener noreferrer">Karşılaştır ↗</ButtonLink></div>
       </form>
 
       {catalog.items.length === 0 ? (

@@ -1,3 +1,9 @@
-import { permanentRedirect } from "next/navigation";
+import Link from "next/link";
+import {notFound} from "next/navigation";
+import {getProfileAnswers} from "@/lib/api/answers";
+import {questionSegment} from "@/lib/public-url";
+import {plainProgramName} from "@/lib/program-label";
 
-export default async function LegacyProfilePage({ params }: { params: Promise<{ profileId: string }> }) { permanentRedirect(`/tanidik/${(await params).profileId}`); }
+type Profile={id:string;name:string;role:string;educationStatus:string|null;universityName:string|null;departmentName:string|null;graduationYear:number|null;biography:string|null;occupation:string|null;company:string|null;createdAt:string};
+async function profile(id:string){const response=await fetch(new URL(`/api/profiles/${id}`,process.env.API_BASE_URL??"http://localhost:8080"),{cache:"no-store"});if(!response.ok)notFound();return response.json() as Promise<Profile>;}
+export default async function PublicMemberProfile({params}:{params:Promise<{profileId:string}>}){const data=await profile((await params).profileId),answers=await getProfileAnswers(data.id),initials=data.name.split(/\s+/).slice(0,2).map(part=>part[0]).join("").toLocaleUpperCase("tr-TR");return <article className="legacy-public-profile"><nav className="breadcrumb"><Link href="/sorular">Sorular</Link><span>›</span><span>{data.name}</span></nav><section className="legacy-public-profile-card"><span className={`legacy-avatar large role-${(data.educationStatus??"user").toLowerCase()}`}><span>{initials}</span></span><div><h1>{data.name}</h1><p>{[data.universityName,plainProgramName(data.departmentName)].filter(Boolean).join(" · ")||"Topluluk üyesi"}</p>{data.biography&&<p>{data.biography}</p>}</div></section><section className="legacy-profile-contributions"><h2>Katkılar</h2>{answers.length?<ol className="legacy-profile-answer-list">{answers.map(answer=><li key={answer.id}><p>{answer.body}</p><footer><time dateTime={answer.publishedAt}>{new Intl.DateTimeFormat("tr-TR",{dateStyle:"medium",timeZone:"Europe/Istanbul"}).format(new Date(answer.publishedAt))}</time><Link href={`/soru/${questionSegment(answer.questionTitle??"soru",answer.questionId)}`}>Soru detayı</Link></footer></li>)}</ol>:<div className="empty-state"><h3>Henüz katkı yok</h3></div>}</section></article>}

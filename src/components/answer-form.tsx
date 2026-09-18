@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/client-api";
+import {Button} from "@/components/ui";
 
-export function AnswerForm({ questionId, tanidik = false, onSuccess }: { questionId: string; tanidik?: boolean; onSuccess?:()=>void }) {
+export function AnswerForm({ questionId, tanidik = false, onSuccess, onCancel }: { questionId: string; tanidik?: boolean; onSuccess?:()=>void; onCancel?:()=>void }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -39,7 +40,10 @@ export function AnswerForm({ questionId, tanidik = false, onSuccess }: { questio
       </label>
       {tanidik && <label className="check-label"><input name="anonymous" type="checkbox" /> Kimliğimi public yüzeyde gizle</label>}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button" disabled={busy}>{busy ? "Yayınlanıyor…" : "Yanıtı yayınla"}</button>
+      <div className="answer-form-actions">
+        <Button disabled={busy}>{busy ? "Yayınlanıyor…" : "Yanıtı yayınla"}</Button>
+        {onCancel && <Button tone="secondary" type="button" disabled={busy} onClick={onCancel}>Vazgeç</Button>}
+      </div>
     </form>
   );
 }

@@ -24,7 +24,7 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
   const [reportOpen,setReportOpen]=useState(false),[reportReason,setReportReason]=useState(""),[reportBusy,setReportBusy]=useState(false);
   const menuRef=useRef<HTMLSpanElement>(null);
   useEffect(()=>{if(!menuOpen)return;function close(event:PointerEvent){if(!menuRef.current?.contains(event.target as Node))setMenuOpen(false);}document.addEventListener("pointerdown",close);return()=>document.removeEventListener("pointerdown",close);},[menuOpen]);
-  useEffect(()=>{apiRequest<{liked:boolean;version:number}>(`/questions/${questionId}/like`).then(value=>{setLiked(value.liked);setLikeVersion(value.version);}).catch(()=>undefined);},[questionId]);
+  useEffect(()=>{apiRequest<{liked:boolean;version:number}>(`/questions/${questionId}/like`).then(value=>{setLiked(value.liked);setLikeVersion(value.version);}).catch(()=>undefined);apiRequest<{items:{targetId:string}[]}>("/me/saved?size=100").then(value=>setSaved(value.items.some(item=>item.targetId===questionId))).catch(()=>undefined);},[questionId]);
   async function share() {
     setMenuOpen(false);
     const data = { title, text: `${title} · TanıdıkVar`, url: location.href };
@@ -37,7 +37,7 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
     try {
       await apiRequest("/me/saved", { method: "PUT", body: JSON.stringify({ targetType: "QUESTION", targetId: questionId, active: !saved }) });
       setSaved(!saved);
-      setMessage(saved ? "Kayıttan çıkarıldı." : "Soru kaydedildi.");
+      setMessage(saved ? "Kayıttan çıkarıldı." : "Kaydedildi.");
     } catch (error) {
       const text = error instanceof Error ? error.message : "İşlem tamamlanamadı.";
       if (/oturum|giriş|kimlik/i.test(text)) { if (window.confirm("Bu işlem için giriş yapmanız gerekiyor. Giriş sayfasına gitmek ister misiniz?")) router.push("/giris"); } else setMessage(text);
@@ -60,11 +60,11 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
       <button type="button" className="legacy-question-more-trigger" onClick={()=>setMenuOpen(open=>!open)} aria-expanded={menuOpen} aria-haspopup="menu" aria-label="Diğer işlemler" title="Diğer işlemler"><MoreIcon/></button>
       {menuOpen&&<span className="legacy-question-action-menu" role="menu">
         <button type="button" role="menuitem" onClick={() => void share()}><ShareIcon/><span>Paylaş</span></button>
-        <button type="button" role="menuitem" onClick={() => void save()}><SaveIcon filled={saved}/><span>{saved?"Kayıttan çıkar":"Kaydet"}</span></button>
+        <button type="button" role="menuitem" className={`question-save-action${saved?" is-saved":""}`} aria-pressed={saved} onClick={() => void save()}><SaveIcon filled={saved}/><span>{saved?"Kayıttan çıkar":"Kaydet"}</span></button>
         <button type="button" role="menuitem" onClick={()=>{setMenuOpen(false);setReportOpen(true);}}><ReportIcon/><span>Şikâyet et</span></button>
       </span>}
     </span>
-    <ModalShell open={composerOpen} onClose={()=>setComposerOpen(false)} title="Yorumunu yaz"><AnswerForm questionId={questionId} tanidik={tanidik} onSuccess={()=>setComposerOpen(false)}/></ModalShell>
+    <ModalShell open={composerOpen} onClose={()=>setComposerOpen(false)} title="Yorumunu yaz" className="answer-composer-dialog"><AnswerForm questionId={questionId} tanidik={tanidik} onSuccess={()=>setComposerOpen(false)} onCancel={()=>setComposerOpen(false)}/></ModalShell>
     <ModalShell open={reportOpen} onClose={()=>setReportOpen(false)} title="Soruyu şikâyet et" className="question-report-dialog"><form onSubmit={event=>{event.preventDefault();void report();}}><p>Topluluk kurallarına aykırı olduğunu düşündüğün noktayı açıkla.</p><label htmlFor={`report-${questionId}`}>Şikâyet nedeni</label><textarea id={`report-${questionId}`} required minLength={10} maxLength={1000} rows={5} value={reportReason} onChange={event=>setReportReason(event.target.value)} placeholder="Şikâyet nedenini kısaca açıkla."/><small>10–1000 karakter · {reportReason.length}/1000</small><div className="question-report-actions"><Button disabled={reportBusy||reportReason.trim().length<10}>{reportBusy?"Gönderiliyor…":"Şikâyeti gönder"}</Button><Button tone="secondary" type="button" onClick={()=>setReportOpen(false)}>Vazgeç</Button></div></form></ModalShell>
     {message && <span className="sr-only" role="status">{message}</span>}
   </div>;

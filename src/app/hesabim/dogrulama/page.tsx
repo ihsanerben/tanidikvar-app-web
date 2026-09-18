@@ -1,2 +1,0 @@
-import Link from "next/link";import {redirect} from "next/navigation";import {currentUser} from "@/lib/session";import {EducationVerification} from "@/components/education-verification";
-export const metadata={title:"Eğitim doğrulaması",robots:{index:false,follow:false}};export default async function Page(){if(!await currentUser())redirect("/giris");return <section className="legacy-account-page"><Link href="/hesabim">← Hesabıma dön</Link><h1>Eğitim doğrulaması</h1><div className="legacy-account-details"><EducationVerification/></div></section>}

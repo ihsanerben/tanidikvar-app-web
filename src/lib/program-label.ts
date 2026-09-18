@@ -1,8 +1,8 @@
 const qualifiers = /\s*\([^)]*(?:ingilizce|burs|ücret|ikinci öğretim|uzaktan öğretim|kktc|yurt dışı)[^)]*\)\s*/giu;
 const anyParenthetical = /\s*\([^)]*\)\s*/gu;
 
-export function plainProgramName(value: string) {
-  return value.replace(qualifiers, " ").replace(anyParenthetical, " ").replace(/\s+/g, " ").trim();
+export function plainProgramName(value: string | null | undefined) {
+  return (value ?? "").replace(qualifiers, " ").replace(anyParenthetical, " ").replace(/\s+/g, " ").trim();
 }
 
 export function uniquePrograms<T extends { id: string; name: string }>(items: T[]) {

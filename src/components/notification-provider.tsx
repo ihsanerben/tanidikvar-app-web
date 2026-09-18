@@ -25,8 +25,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const target = event.target instanceof Element ? event.target.closest("button,a") : null;
       if (target?.textContent?.trim() === "Vazgeç" && !target.hasAttribute("disabled")) notify("İşlem iptal edildi.", "danger");
     }
+    function closeOutsideMenus(event: PointerEvent) {
+      if (!(event.target instanceof Node)) return;
+      document.querySelectorAll<HTMLDetailsElement>("details[data-close-on-outside][open]").forEach(menu => {
+        if (!menu.contains(event.target as Node)) menu.open = false;
+      });
+    }
     function colors() {
       document.querySelectorAll<HTMLButtonElement>("button").forEach(button => {
+        if (button.classList.contains("question-save-action")) {
+          delete button.dataset.actionTone;
+          return;
+        }
         const tone = actionTone(button.textContent ?? "");
         if (tone) button.dataset.actionTone = tone;
         else delete button.dataset.actionTone;
@@ -37,10 +47,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     colors();
     window.addEventListener("app:notification", receive);
     document.addEventListener("click", cancel);
+    document.addEventListener("pointerdown", closeOutsideMenus);
     return () => {
       observer.disconnect();
       window.removeEventListener("app:notification", receive);
       document.removeEventListener("click", cancel);
+      document.removeEventListener("pointerdown", closeOutsideMenus);
       timers.forEach(clearTimeout);
     };
   }, []);
