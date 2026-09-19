@@ -4,6 +4,7 @@ import {useSearchParams} from "next/navigation";
 import Link from "next/link";
 import {apiRequest} from "@/lib/client-api";
 import {Button,ButtonLink,Card} from "@/components/ui";
+import {plainProgramName} from "@/lib/program-label";
 
 type View="dashboard"|"users"|"content"|"applications"|"reports"|"actions"|"analytics"|"catalog";
 type Row=Record<string,unknown>;type Page={items:Row[];totalElements:number};
@@ -17,11 +18,13 @@ const text=(item:Row,key:string,fallback="—")=>typeof item[key]==="string"&&it
 const date=(input:unknown)=>typeof input==="string"?new Intl.DateTimeFormat("tr-TR",{dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Istanbul"}).format(new Date(input)):"—";
 const authority=(input:unknown)=>input==="MEMBER"?"Üye":input==="TANIDIK"?"Tanıdık":input==="MANAGER"?"Manager":String(input??"—");
 const education=(input:unknown)=>input==="YKS_ADAYI"?"YKS adayı":input==="UNIVERSITE_OGRENCISI"?"Üniversite öğrencisi":input==="MEZUN"?"Mezun":"Profil tamamlanmamış";
+const normalizeRow=(item:Row):Row=>({...item,...(typeof item.departmentName==="string"?{departmentName:plainProgramName(item.departmentName)}:{})});
+const normalizeData=(data:Page|Row):Page|Row=>isPage(data)?{...data,items:data.items.map(normalizeRow)}:normalizeRow(data);
 
 export function ManagerConsole({view}:{view:View}){
  const searchParams=useSearchParams(),query=searchParams.toString();
  const[data,setData]=useState<Page|Row|null>(null),[error,setError]=useState(""),path=view==="dashboard"?"/manager/statistics":view==="analytics"?"/manager/analytics":`${endpoint[view]}?${query?`${query}&`:""}size=20`;
- const load=useCallback(()=>apiRequest<Page|Row>(path).then(result=>{setData(result);setError("");}).catch(cause=>setError(cause instanceof Error?cause.message:"Yönetim verisi yüklenemedi.")),[path]);useEffect(()=>{void load();},[load]);
+ const load=useCallback(()=>apiRequest<Page|Row>(path).then(result=>{setData(normalizeData(result));setError("");}).catch(cause=>setError(cause instanceof Error?cause.message:"Yönetim verisi yüklenemedi.")),[path]);useEffect(()=>{void load();},[load]);
  async function mutate(pathname:string,body:Row,method="PUT"){try{await apiRequest(pathname,{method,body:JSON.stringify(body)});await load();}catch(cause){setError(cause instanceof Error?cause.message:"İşlem kaydedilemedi.");}}
  const decide=(item:Row,status:string)=>mutate(`/manager/tanidik-applications/${item.id}/decision`,{status,reason:status==="REJECTED"?reason:null,version:item.version});
  async function toggle(item:Row){if(view==="users")await mutate(`/manager/users/${item.id}/status`,{hidden:item.deletedAt==null,version:item.version,reason});if(view==="content")await mutate(`/manager/content/${item.kind}/${item.id}/status`,{hidden:item.deletedAt==null&&item.moderatedAt==null,version:item.version,reason});if(view==="catalog")await mutate(`/manager/catalog/UNIVERSITY/${item.id}/status`,{deleted:item.deletedAt==null,version:item.version,reason});}

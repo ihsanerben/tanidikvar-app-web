@@ -36,7 +36,7 @@ const isQuestion = (value: unknown): value is QuestionItem => {
 };
 const normalizeQuestion = (value: unknown): QuestionItem | null => {
   if (!isQuestion(value)) return null;
-  return { ...value, programId: value.programId ?? null };
+  return { ...value, programId: value.programId ?? null, departmentName: plainProgramName(value.departmentName) || null };
 };
 const parseQuestionPage = (payload: unknown, message: string): QuestionPage => {
   if (typeof payload !== "object" || payload === null) throw new QuestionApiError(message);
@@ -70,3 +70,4 @@ export async function getQuestion(id: string): Promise<QuestionItem> {
   if (!question) throw new QuestionApiError("Soru beklenmeyen bir yanıt döndürdü.");
   return question;
 }
+import {plainProgramName} from "@/lib/program-label";

@@ -1,4 +1,5 @@
 import { QuestionApiError } from "./questions";
+import { plainProgramName } from "@/lib/program-label";
 
 export type AnswerItem = {
   id: string; questionId: string; questionTitle?: string; authorId: string | null; authorName: string; activeAdmin: boolean; educationVerified?: boolean;
@@ -27,7 +28,7 @@ async function page(url: URL): Promise<AnswerPage> {
   if (typeof payload !== "object" || payload === null) throw new QuestionApiError("Yanıtlar beklenmeyen bir yanıt döndürdü.");
   const result = payload as Record<string, unknown>;
   if (!Array.isArray(result.items) || !result.items.every(valid) || typeof result.page !== "number" || typeof result.size !== "number" || typeof result.totalElements !== "number") throw new QuestionApiError("Yanıtlar beklenmeyen bir yanıt döndürdü.");
-  return result as AnswerPage;
+  return {...result,items:(result.items as AnswerItem[]).map(item=>({...item,departmentName:plainProgramName(item.departmentName)||null}))} as AnswerPage;
 }
 async function all(path: string): Promise<AnswerItem[]> {
   const url = new URL(path, base()); url.searchParams.set("size", "100");

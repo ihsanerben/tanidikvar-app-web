@@ -1,6 +1,7 @@
 import { statistics,type Statistics } from '../engagement/engagementApi'
 import { apiGet, apiMutation, ApiError, isRecord } from '../../api/apiClient'
 import { pageOf } from '../catalog/catalogApi'
+import { plainProgramName } from '@/lib/program-label'
 export const scopeLabels={GENERAL:'Genel',UNIVERSITY:'Üniversite',UNIVERSITY_DEPARTMENT:'Üniversite + Bölüm'}
 export type Scope=keyof typeof scopeLabels
 export interface QuestionTag { id:string; name:string; available:boolean }
@@ -19,7 +20,7 @@ export function question(value:unknown):Question {
   if(typeof value.scope!=='string'||!Object.hasOwn(scopeLabels,value.scope)||!Number.isSafeInteger(value.version)||!Array.isArray(value.tags))throw invalid()
   for(const tag of value.tags)if(!isRecord(tag)||typeof tag.id!=='string'||typeof tag.name!=='string'||typeof tag.available!=='boolean')throw invalid()
   statistics(value.statistics)
-  return value as unknown as Question
+  return {...value,departmentName:plainProgramName(value.departmentName as string|null)||null} as unknown as Question
 }
 export async function getQuestion(id:string,signal?:AbortSignal) {return question(await apiGet(`/api/questions/${encodeURIComponent(id)}`,signal))}
 export async function listQuestions(path:string,signal?:AbortSignal) {return pageOf(await apiGet(path,signal),question)}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useEffect,useId,useState,type KeyboardEvent} from "react";
 import {apiRequest} from "@/lib/client-api";
 import {catalogSegment,questionSegment} from "@/lib/public-url";
+import {plainProgramName} from "@/lib/program-label";
 
 type Page<T>={items:T[]};
 type University={id:string;name:string};
@@ -28,9 +29,9 @@ export function GlobalSearch(){
  },[query]);
  const entries=results?[
   ...results.universities.map(item=>({label:item.name,href:`/universite/${catalogSegment(item.name,item.id)}`})),
-  ...results.programs.map(item=>({label:`${item.universityName} · ${item.departmentName}`,href:`/universite/${catalogSegment(item.universityName,item.universityId)}/${catalogSegment(item.departmentName,item.departmentId)}`})),
+  ...results.programs.map(item=>{const name=plainProgramName(item.departmentName);return{label:`${item.universityName} · ${name}`,href:`/universite/${catalogSegment(item.universityName,item.universityId)}/${catalogSegment(name,item.departmentId)}`}}),
   ...results.questions.map(item=>({label:item.title,href:`/soru/${questionSegment(item.title,item.id)}`})),
-  ...results.people.map(item=>({label:`${item.name} · ${item.departmentName??item.universityName??""}`,href:`/tanidik/${item.id}`}))
+  ...results.people.map(item=>({label:`${item.name} · ${plainProgramName(item.departmentName)||item.universityName||""}`,href:`/tanidik/${item.id}`}))
  ]:[];
  function keyboard(event:KeyboardEvent<HTMLInputElement>){if(!entries.length)return;if(event.key==="ArrowDown"){event.preventDefault();setActive(value=>(value+1)%entries.length);}if(event.key==="ArrowUp"){event.preventDefault();setActive(value=>(value<=0?entries.length:value)-1);}if(event.key==="Escape"){setResults(null);setActive(-1);}if(event.key==="Enter"&&active>=0){event.preventDefault();window.location.assign(entries[active].href);}}
  let offset=0;

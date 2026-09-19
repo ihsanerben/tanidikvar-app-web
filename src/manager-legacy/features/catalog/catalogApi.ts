@@ -1,4 +1,5 @@
 import { apiGet, apiMutation, ApiError, isRecord } from '../../api/apiClient'
+import { plainProgramName } from '@/lib/program-label'
 export type Kind = 'UNIVERSITY' | 'DEPARTMENT' | 'TAG'
 export interface CatalogEntry { id: string; name: string; deletedAt: string | null; version: number }
 export interface Education { id: string; universityId: string; universityName: string; departmentId: string; departmentName: string; deletedAt: string | null; available: boolean; version: number }
@@ -14,7 +15,7 @@ export function education(value: unknown): Education {
     || typeof value.departmentId !== 'string' || typeof value.departmentName !== 'string' || typeof value.available !== 'boolean'
     || typeof value.version !== 'number' || !(value.deletedAt === null || typeof value.deletedAt === 'string')) throw invalid()
   return { id:value.id, universityId:value.universityId, universityName:value.universityName, departmentId:value.departmentId,
-    departmentName:value.departmentName, available:value.available, version:value.version, deletedAt:value.deletedAt }
+    departmentName:plainProgramName(value.departmentName), available:value.available, version:value.version, deletedAt:value.deletedAt }
 }
 export function pageOf<T>(value: unknown, parse: (value: unknown) => T): Page<T> {
   if (!isRecord(value) || !Array.isArray(value.items) || typeof value.page !== 'number' || typeof value.size !== 'number' || typeof value.totalElements !== 'number') throw invalid()

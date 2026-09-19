@@ -1,9 +1,10 @@
 import { apiGet, apiMutation, ApiError, isRecord } from '../../api/apiClient'
+import { plainProgramName } from '@/lib/program-label'
 export interface Application {id:string;applicantId:string;firstName:string;lastName:string;educationStatus:string;universityName:string|null;departmentName:string|null;graduationYear:number|null;occupation:string|null;company:string|null;coverLetter:string;status:'PENDING'|'APPROVED'|'REJECTED';submittedAt:string;reviewedBy:string|null;reviewedAt:string|null;rejectionReason:string|null;version:number;activeVerification:boolean}
 export interface Applications {items:Application[];page:number;size:number;totalElements:number}
 export function parseApplication(v:unknown):Application {
  if(!isRecord(v)||!['id','applicantId','firstName','lastName','educationStatus','submittedAt'].every(k=>typeof v[k]==='string')||!['universityName','departmentName','occupation','company','reviewedBy','reviewedAt','rejectionReason'].every(k=>v[k]===null||typeof v[k]==='string')||!['PENDING','APPROVED','REJECTED'].includes(String(v.status))||typeof v.version!=='number'||typeof v.activeVerification!=='boolean'||!(v.graduationYear===null||typeof v.graduationYear==='number'))throw new ApiError(200,'INVALID_RESPONSE','Başvuru bilgileri alınamadı.')
- return {...v,coverLetter:typeof v.coverLetter==='string'?v.coverLetter:'Eski başvuruda ön yazı bulunmuyor.'} as unknown as Application
+ return {...v,departmentName:plainProgramName(v.departmentName as string|null)||null,coverLetter:typeof v.coverLetter==='string'?v.coverLetter:'Eski başvuruda ön yazı bulunmuyor.'} as unknown as Application
 }
 export async function listApplications(manager:boolean,page:number,status:string,signal?:AbortSignal):Promise<Applications>{
  const v=await apiGet(`/api/${manager?'manager':'me'}/admin-applications?page=${page}&size=10${manager&&status?'&status='+status:''}`,signal)

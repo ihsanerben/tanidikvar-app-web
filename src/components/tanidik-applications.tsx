@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/client-api";
+import { plainProgramName } from "@/lib/program-label";
 
 type Application={id:string;firstName:string;lastName:string;educationStatus:string;universityName:string|null;departmentName:string|null;graduationYear:number|null;occupation:string|null;company:string|null;coverLetter:string;status:"PENDING"|"APPROVED"|"REJECTED";submittedAt:string;reviewedAt:string|null;rejectionReason:string|null;activeVerification:boolean;version:number};
 type Page<T>={items:T[];page:number;size:number;totalElements:number};
@@ -14,7 +15,7 @@ const date=(value:string)=>new Intl.DateTimeFormat("tr-TR",{dateStyle:"medium",t
 export function TanidikApplications(){
   const[items,setItems]=useState<Application[]|null>(null),[profile,setProfile]=useState<Profile|null>(null),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
   const requestId=useRef(crypto.randomUUID());
-  const load=()=>Promise.all([apiRequest<Page<Application>>("/me/tanidik-applications?size=100"),apiRequest<Profile>("/me/profile")]).then(([applications,current])=>{setItems(applications.items);setProfile(current);}).catch(()=>setMessage("Başvurular yüklenemedi."));
+  const load=()=>Promise.all([apiRequest<Page<Application>>("/me/tanidik-applications?size=100"),apiRequest<Profile>("/me/profile")]).then(([applications,current])=>{setItems(applications.items.map(item=>({...item,departmentName:plainProgramName(item.departmentName)||null})));setProfile({...current,education:current.education?{...current.education,departmentName:plainProgramName(current.education.departmentName)}:null});}).catch(()=>setMessage("Başvurular yüklenemedi."));
   useEffect(()=>{void load();},[]);
   async function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();if(!profile||busy)return;setBusy(true);setMessage("");const form=new FormData(event.currentTarget);try{await apiRequest("/me/tanidik-applications",{method:"POST",body:JSON.stringify({requestId:requestId.current,profileVersion:profile.version,coverLetter:form.get("coverLetter")})});requestId.current=crypto.randomUUID();setMessage("Tanıdık başvurun alındı.");await load();}catch(reason){setMessage(reason instanceof Error?reason.message:"Başvuru gönderilemedi.");}finally{setBusy(false);}}
   const pending=items?.some(item=>item.status==="PENDING"),approved=items?.some(item=>item.activeVerification),canApply=profile?.completed&&!pending&&!approved;
