@@ -1,6 +1,23 @@
-import Link from "next/link";import {getQuestions} from "@/lib/api/questions";import {getTanidiklar} from "@/lib/api/profiles";import {QuestionCard} from "@/components/question-card";
-export async function ContextCommunity({universityId,departmentId,view="all",embedded=false}:{universityId:string;departmentId?:string;view?:"all"|"questions"|"people";embedded?:boolean}){
- const [questions,people]=await Promise.all([view==="people"?null:getQuestions("",0,{scope:departmentId?"UNIVERSITY_DEPARTMENT":undefined,universityId,departmentId,sort:"MOST_COMMENTED"}).catch(()=>null),view==="questions"?null:getTanidiklar("",0,{universityId,departmentId}).catch(()=>null)]),query=new URLSearchParams({universityId,...(departmentId?{departmentId}:{})});
- return <>{(view==="all"||view==="questions")&&<section id="sorular" className="content-section university-tab-panel">{!embedded&&<div className="section-heading"><h2>Sorular</h2></div>}{questions?.items.length?<ul className="legacy-question-list">{questions.items.slice(0,12).map(question=><QuestionCard key={question.id} question={question}/>)}</ul>:<div className="empty-state"><h3>Henüz soru yok</h3><p>Bu üniversite hakkındaki ilk soruyu topluluğa yöneltebilirsin.</p><Link className="button" href={`/soru-sor?${query}`}>İlk soruyu sor</Link></div>}</section>}
- {(view==="all"||view==="people")&&<section id="tanidiklar" className="content-section university-tab-panel">{!embedded&&<div className="section-heading"><h2>Tanıdıklar</h2></div>}{people?.items.length?<ul className="legacy-admin-grid context-people-grid">{people.items.slice(0,12).map(person=><li key={person.id}><Link className="legacy-admin-card" href={`/tanidik/${person.id}`}><span className={`legacy-admin-avatar role-${(person.educationStatus??"user").toLowerCase()}`}><span>{person.name.split(/\s+/).slice(0,2).map(part=>part[0]).join("").toLocaleUpperCase("tr-TR")}</span><i>★★★</i></span><div><h3>{person.name}</h3><p>{[person.departmentName,person.classYear?`${person.classYear}. sınıf`:person.graduationYear?`${person.graduationYear} mezunu`:null].filter(Boolean).join(" · ")}</p><b>Tanıdık</b><span>{person.tanidikAnswerCount} Tanıdık yorumu · {person.communityAnswerCount} topluluk yorumu</span>{person.educationVerified&&<small>✓ Eğitim kimliği doğrulandı</small>}</div></Link></li>)}</ul>:<div className="empty-state"><h3>Henüz Tanıdık yok</h3><p>Bu üniversite için doğrulanan öğrenciler ve mezunlar burada görünecek.</p><Link className="button secondary" href="/hesabim/tanidik-basvurusu">Tanıdık ol</Link></div>}</section>}</>;
+import Link from "next/link";
+import {getQuestions} from "@/lib/api/questions";
+import {getTanidiklar} from "@/lib/api/profiles";
+import {QuestionCard} from "@/components/question-card";
+
+type Props={universityId:string;departmentId?:string;view?:"all"|"questions"|"people";embedded?:boolean;showAsk?:boolean};
+
+export async function ContextCommunity({universityId,departmentId,view="all",embedded=false,showAsk=false}:Props){
+ const [questions,people]=await Promise.all([
+  view==="people"?null:getQuestions("",0,{scope:departmentId?"UNIVERSITY_DEPARTMENT":undefined,universityId,departmentId,sort:"MOST_COMMENTED"}).catch(()=>null),
+  view==="questions"?null:getTanidiklar("",0,{universityId,departmentId}).catch(()=>null)
+ ]);
+ return <>
+  {!departmentId&&(view==="all"||view==="questions")&&<section id="sorular" className="content-section university-tab-panel">
+   {(!embedded||showAsk)&&<div className="section-heading"><h2>Sorular</h2>{showAsk&&<Link className="button" href={`/soru-sor?universityId=${universityId}`}>Soru sor</Link>}</div>}
+   {questions?.items.length?<ul className="legacy-question-list">{questions.items.slice(0,12).map(question=><QuestionCard key={question.id} question={question}/>)}</ul>:<div className="empty-state"><h3>Henüz soru yok</h3><p>Bu üniversite hakkındaki ilk soruyu topluluğa yöneltebilirsin.</p>{showAsk&&<Link className="button" href={`/soru-sor?universityId=${universityId}`}>İlk soruyu sor</Link>}</div>}
+  </section>}
+  {(view==="all"||view==="people")&&<section id="tanidiklar" className="content-section university-tab-panel">
+   {!embedded&&<div className="section-heading"><h2>Tanıdıklar</h2></div>}
+   {people?.items.length?<ul className="legacy-admin-grid context-people-grid">{people.items.slice(0,12).map(person=><li key={person.id}><Link className="legacy-admin-card" href={`/tanidik/${person.id}`}><span className={`legacy-admin-avatar role-${(person.educationStatus??"user").toLowerCase()}`}><span>{person.name.split(/\s+/).slice(0,2).map(part=>part[0]).join("").toLocaleUpperCase("tr-TR")}</span><i>★★★</i></span><div><h3>{person.name}</h3><p>{[person.departmentName,person.classYear?`${person.classYear}. sınıf`:person.graduationYear?`${person.graduationYear} mezunu`:null].filter(Boolean).join(" · ")}</p><b>Tanıdık</b><span>{person.tanidikAnswerCount} Tanıdık yorumu · {person.communityAnswerCount} topluluk yorumu</span>{person.educationVerified&&<small>✓ Eğitim kimliği doğrulandı</small>}</div></Link></li>)}</ul>:<div className="empty-state"><h3>Henüz Tanıdık yok</h3><p>Bu üniversite için doğrulanan öğrenciler ve mezunlar burada görünecek.</p><Link className="button secondary" href="/hesabim/tanidik-basvurusu">Tanıdık ol</Link></div>}
+  </section>}
+ </>;
 }

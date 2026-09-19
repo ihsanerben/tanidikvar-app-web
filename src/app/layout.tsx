@@ -7,6 +7,7 @@ import "./fixes.css";
 import "./question-form.css";
 import "./university.css";
 import "./page-polish.css";
+import "./mobile.css";
 import { currentProfile, currentUser } from "@/lib/session";
 import { HeaderPrimaryNav } from "@/components/header-primary-nav";
 import { NotificationProvider } from "@/components/notification-provider";

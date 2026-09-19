@@ -106,3 +106,64 @@ main,main>*{min-width:0}
 .gamification-card{padding:22px}.gamification-card>div:not(.gamification-heading){display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.gamification-card>div:not(.gamification-heading)>*{margin:0;padding:12px;border-radius:10px;background:#f4f7f3}
 @media(max-width:700px){.redesigned-tanidik-card{grid-template-columns:1fr}.tanidik-profile-avatar{width:min(280px,100%);justify-self:center}.tanidik-profile-avatar .tanidik-profile-links{grid-template-columns:repeat(2,minmax(0,1fr))}.redesigned-tanidik-card>.metric-grid{grid-column:auto}}
 @media(max-width:640px){.segmented-tabs{grid-template-columns:1fr}.legacy-public-profile-card{padding:20px}.poll-option-row{grid-template-columns:1fr}.poll-option-row button{justify-self:start}.contact-section .stack-form{padding:18px}}
+
+/* Compact phone layout: tuned for 390px-wide devices without changing desktop styles. */
+@media(max-width:520px){
+ :root{--space-3:.625rem;--space-4:.875rem;--space-6:1.125rem;--space-8:1.5rem;--space-12:2rem}
+ body{font-size:14px;line-height:1.5}
+ .site-header{min-height:58px;padding-inline:12px}
+ .brand-logo-full{display:none}.brand-logo-mark{display:block;width:34px;height:34px}
+ .legacy-header>.button{min-height:40px;padding:8px 12px;font-size:12px}
+ .mobile-nav>summary{width:40px;min-height:40px;padding:7px}
+ .legacy-account{min-height:40px;max-width:136px;padding:5px 9px;border-radius:11px}.legacy-account-person strong{max-width:112px;font-size:12px}
+ .gold-stars{top:4px;left:-18px;width:19px;min-height:32px;font-size:7px}
+ .content-section,.context-page,.profile-hero{padding-right:14px;padding-left:14px}
+ .content-section{padding-top:28px;padding-bottom:36px}
+ .hero{padding:38px 14px 32px}.hero h1{font-size:clamp(2rem,11.5vw,2.8rem);line-height:1.04}.hero .lead{font-size:.95rem;line-height:1.55}
+ .context-hero{padding:24px 16px;border-radius:12px}.context-hero h1,.question-hero h1{font-size:clamp(1.8rem,9vw,2.35rem);line-height:1.08}.context-hero>p,.question-list>li>p,.question-hero>p{line-height:1.55}
+ .content-section>h1,.page-title-row>h1,.page-title-row>h2,.legacy-account-page>h1{font-size:1.75rem!important;line-height:1.1!important;letter-spacing:-.035em!important}
+ .section-heading h2,.content-section h2{font-size:1.35rem}.page-title-row{gap:8px;margin-bottom:16px}.page-help-button{width:27px;height:27px;font-size:13px}
+ .eyebrow{font-size:.68rem}.lead{font-size:.95rem}.breadcrumb{gap:6px;padding:13px 14px;font-size:.75rem}
+ .button,.ui-button{min-height:40px;padding:8px 12px;border-radius:7px;font-size:12px;line-height:1.25}
+ .actions,.tabs{gap:7px;margin-top:18px}.tabs{flex-wrap:nowrap;padding:0 14px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs a{flex:none;padding:11px 3px;font-size:12px;white-space:nowrap}
+ .ui-card,.question-list>li,.question-hero,.catalog-grid li,.answer-list>li,.comparison-grid article,.sentiment-grid section{padding:15px;border-radius:10px}
+ .question-list{gap:10px}.question-list h2,.legacy-question-card h2{font-size:1.1rem;line-height:1.28}.question-meta,.tag-row{gap:5px 9px;font-size:.75rem}.tag-row span,.title-badge,.achievement-badge,.filter-chip,.tag{font-size:.7rem}
+ .empty-state{margin-top:18px;padding:24px 15px}.empty-state h3{font-size:1.1rem}.empty-state p{font-size:.85rem}
+ .metric-grid{gap:9px;margin-block:18px}.metric-grid>div{gap:3px;padding:11px 12px;border-left-width:2px;background:#fff}.metric-grid strong{font-size:1.35rem}.metric-grid span{font-size:.75rem}
+ .catalog-grid,.program-grid,.account-grid,.comparison-grid,.sentiment-grid{gap:10px}.catalog-grid h2,.program-card h2{font-size:1.05rem}
+ .stack-form{gap:12px;margin-block:18px}.stack-form label,.decision-form label{gap:6px;font-size:12px}
+ .stack-form input,.stack-form textarea,.stack-form select,.filter-panel input,.filter-panel select,.compare-form select,.program-filter input,.program-filter select{min-height:40px;padding:8px 10px;font-size:14px}
+ .stack-form textarea{min-height:112px}.decision-form,.poll-actions form,.contact-section .stack-form{padding:14px}
+ .program-filter,.discovery-filter,.ui-filter-panel{gap:10px;margin-bottom:16px;padding:12px;border-radius:10px}.program-filter>.button{min-height:40px}
+ .compact-template-picker>summary,.question-tag-picker>summary{min-height:42px;padding:10px 11px!important}.compact-template-picker>summary{gap:8px!important}.template-help-icon{width:24px;height:24px;font-size:12px}.compact-template-picker>summary strong{font-size:12px}.compact-template-picker>summary small,.question-tag-picker>summary small{font-size:10px}.template-picker-content,.question-tag-picker>div{padding:10px}.question-tag-picker button,.filter-chips button{padding:6px 8px;font-size:11px}
+ .ui-modal{padding:20px 15px calc(18px + env(safe-area-inset-bottom));border-radius:14px 14px 0 0}.ui-modal>h2{margin:0 38px 15px 0;font-size:1.25rem}.ui-modal-close{top:12px;right:12px;width:32px;height:32px;font-size:20px}
+ .ask-question-dialog{padding:20px 15px}.ask-question-dialog>h2{font-size:1.45rem}.ask-question-dialog input,.ask-question-dialog select,.ask-question-dialog textarea{min-height:40px;padding:8px 10px}.ask-question-dialog textarea{min-height:112px}
+ .auth-page,.auth-recovery-page{padding:32px 14px}.auth-page h1,.auth-recovery-card h1{font-size:2rem}.auth-recovery-card{padding:18px 15px}.auth-recovery-description{font-size:.85rem}.auth-recovery-card input,.auth-recovery-card .button{min-height:42px}
+ .account-content-tabs{gap:3px;margin-bottom:14px;padding:3px;overflow-x:auto}.account-content-tabs a{min-width:max-content;padding:8px;font-size:11px}.account-content-list a,.my-question-list li{min-height:0;padding:12px 13px}.account-person-avatar{width:42px;height:42px;border-radius:12px}.my-question-list li>div:first-child>a{font-size:15px}
+ .legacy-public-profile-card{padding:15px}.legacy-public-profile-card h1{font-size:1.8rem}.legacy-profile-answer-list>li,.gamification-card,.achievement-page .legacy-account-details>section{padding:14px}.legacy-profile-answer-list footer{align-items:flex-start;flex-direction:column}
+ .university-card-stats{gap:5px;margin-top:12px}.university-card-stats div{padding:7px 4px}.university-card-stats dt{font-size:8px}.university-card-stats dd{font-size:14px}
+ .segmented-tabs{display:flex;gap:4px;margin-bottom:14px;padding:3px;overflow-x:auto}.segmented-tabs button{min-width:max-content;min-height:38px;padding:7px 10px;font-size:11px}
+ .legacy-footer{gap:14px;padding:22px 14px calc(22px + env(safe-area-inset-bottom));font-size:12px}.legacy-footer nav{gap:9px 14px}
+ .pagination{gap:7px;margin-top:18px}.pagination .button{padding-inline:10px}.pagination span{font-size:11px}
+ .managed-user-grid{gap:10px;margin:14px 0}.managed-user-card{min-height:0;gap:7px;padding:14px}.managed-user-card h2{font-size:1rem}.managed-user-card dl{gap:7px}.manager-main .management-filters{gap:10px;margin-bottom:16px;padding:12px}
+
+ /* Question feed cards need a denser composition than generic mobile cards. */
+ .legacy-question-list{gap:10px}
+ .legacy-question-card{padding:12px 13px;border-radius:11px}
+ .legacy-question-context{gap:5px;margin-bottom:9px}
+ .legacy-scope-badge,.legacy-question-tag{min-height:24px;padding:3px 7px;border-radius:7px;font-size:10px;line-height:1.25}
+ .legacy-scope-badge{gap:5px}.legacy-scope-badge::before{width:5px;height:5px}
+ .legacy-question-card h2{font-size:14px;letter-spacing:-.25px;line-height:1.3}
+ .legacy-question-excerpt{margin-top:8px;font-size:11px;line-height:1.45;-webkit-line-clamp:2}
+ .legacy-question-bottom{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin-top:12px}
+ .legacy-byline{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;color:#727b74;font-size:10px}
+ .question-author-link{gap:7px}.question-author-link>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .legacy-byline time{margin:0 0 0 37px;font-size:9px;line-height:1.2}
+ .legacy-avatar{width:30px;height:30px;font-size:9px}
+ .legacy-avatar.is-tanidik{border-width:1px;box-shadow:0 0 0 2px #f8edc455}
+ .legacy-avatar.is-tanidik>i{right:-7px!important;width:11px!important;min-height:22px!important;border-radius:0 3px 3px 0!important}
+ .legacy-avatar.is-tanidik>i::before{font-size:4px!important}
+ .legacy-question-stats{align-self:end;gap:10px;font-size:10px}
+ .legacy-question-stats span{gap:3px}.legacy-question-stats svg,.legacy-question-icon-actions svg{width:15px!important;height:15px!important}
+ .legacy-question-like,.legacy-question-more-trigger{min-width:24px;height:24px;padding:0 2px}
+}

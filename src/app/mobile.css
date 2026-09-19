@@ -1,0 +1,156 @@
+/* Phone overrides load after the public theme. Desktop declarations stay intact. */
+@media (max-width: 600px) {
+  :root { --page-heading-size: 26px; --page-heading-gap: 16px; }
+  body { font-size: 14px; line-height: 1.5; }
+  .legacy-header { height: 60px; min-height: 60px; padding: 0 14px; gap: 12px; }
+  .legacy-header .brand { margin-right: auto; }
+  .legacy-header > .brand { order: 0; }
+  .legacy-header > .button, .legacy-header > .legacy-account { order: 1; }
+  .legacy-header > .mobile-nav { order: 2; }
+  .legacy-header > .button { margin-left: 0; }
+  .legacy-header .brand-logo-mark { width: 32px; height: 32px; }
+  .legacy-questions, .legacy-question-detail, .legacy-account-page, .legacy-profile-edit,
+  .legacy-public-profile, .legacy-history-page, .status-page { padding: 24px 14px 36px; }
+  .legacy-questions-heading { gap: 10px; margin-bottom: 16px; }
+  .legacy-questions-heading .page-title-row { margin-bottom: 0; }
+  .legacy-button, .legacy-questions-heading .button { min-height: 40px; padding: 8px 12px; font-size: 12px; }
+  .legacy-question-search, .tanidik-search, .university-search { gap: 8px; margin: 16px 0; }
+  .legacy-question-search summary, .university-search summary, .tanidik-search summary { min-height: 42px; padding: 8px 12px; font-size: 12px; }
+  .legacy-question-list, .my-questions-page .legacy-question-list, .legacy-account-details .legacy-question-list { gap: 10px; }
+  .legacy-question-card { padding: 14px; border-radius: 12px; }
+  .legacy-question-card h2 { font-size: 16px; line-height: 1.35; letter-spacing: -.3px; }
+  .legacy-question-context { gap: 6px; margin-bottom: 10px; }
+  .legacy-scope-badge, .legacy-question-tag { max-width: 100%; min-height: 26px; padding: 4px 7px; font-size: 11px; line-height: 1.4; border-radius: 6px; }
+  .legacy-scope-badge a { min-width: 0; overflow-wrap: anywhere; }
+  .legacy-question-excerpt { margin-top: 8px; font-size: 13px; line-height: 1.5; }
+  .legacy-question-bottom { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .legacy-byline { display: flex; flex-wrap: wrap; width: 100%; gap: 6px 10px; font-size: 12px; }
+  .legacy-byline .question-author-link { min-width: 0; max-width: 100%; gap: 8px; }
+  .legacy-byline .legacy-avatar { width: 30px; height: 30px; font-size: 10px; }
+  .question-author-link .legacy-avatar.is-tanidik { margin-right: 5px; }
+  .legacy-byline time { margin: 0; font-size: 11px; }
+  .legacy-question-stats { align-self: flex-end; gap: 12px; font-size: 11px; }
+  .legacy-question-stats svg { width: 16px!important; height: 16px!important; }
+  .legacy-question-card.has-owner-actions { padding-top: 54px; }
+  .question-card-owner-actions { top: 8px; right: 10px; }
+  .legacy-back-link { margin-bottom: 18px; font-size: 13px; }
+  .legacy-question-body { margin-top: 14px; font-size: 14px; line-height: 1.65; }
+  .legacy-detail-meta { margin-top: 18px; gap: 10px; padding-bottom: 12px; }
+  .legacy-answer-section { margin-top: 18px; }
+  .legacy-answer-tabs button { min-height: 42px; font-size: 12px; padding: 8px; }
+  .legacy-answer-list { gap: 10px; margin-top: 12px; }
+  .legacy-answer-card { min-height: 0; padding: 14px; border-radius: 12px; }
+  .legacy-answer-person { gap: 9px; padding-right: 30px; }
+  .legacy-answer-person strong { font-size: 14px; }
+  .legacy-answer-school { padding-left: 0; font-size: 11px; }
+  .legacy-answer-body { margin: 12px 0; font-size: 14px; line-height: 1.6; }
+  .legacy-answer-form .stack-form, .legacy-answer-login { margin-top: 14px; padding: 14px; }
+  .legacy-account-card { padding: 18px 14px; border-radius: 14px; }
+  .legacy-account-identity .legacy-avatar.large { width: 64px; height: 64px; font-size: 17px; }
+  .legacy-account-identity h2 { margin: 14px 0 4px; font-size: 19px; }
+  .legacy-account-identity p { max-width: 100%; font-size: 12px; overflow-wrap: anywhere; }
+  .legacy-account-summary { grid-template-columns: repeat(2,minmax(0,1fr)); margin: 18px 0; padding: 12px; gap: 10px; border-radius: 10px; }
+  .legacy-account-summary > div { gap: 4px; padding: 6px 0; min-width: 0; min-height: 0; }
+  .legacy-account-summary > div:nth-last-child(2) { border-bottom: 0; }
+  .legacy-account-summary dt { font-size: 11px; }
+  .legacy-account-summary dd { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
+  .legacy-account-links { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .legacy-account-links a { min-height: 46px; padding: 9px 10px; gap: 6px; border-radius: 8px; font-size: 12px; }
+  .legacy-account-links a b { font-size: 20px; }
+  .legacy-account-logout { margin-top: 14px; }
+  .legacy-account-logout .ui-button-danger { min-height: 42px; font-size: 13px; }
+  .legacy-account-details { margin-top: 16px; padding: 14px; border-radius: 12px; }
+  .legacy-account-details .dashboard-grid { gap: 10px; }
+  .account-global-back, .account-back-bottom { margin-top: 18px; }
+  .account-title-with-help h1 { font-size: 26px; }
+  .profile-edit-form { gap: 16px; }
+  .legacy-profile-edit .profile-edit-section { min-width: 0; margin: 0 0 14px; padding: 14px; border-radius: 10px; }
+  .profile-edit-section legend { padding-inline: 5px; font-size: 15px; }
+  .profile-edit-grid { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .profile-edit-grid label { min-width: 0; gap: 5px; font-size: 12px; }
+  .profile-edit-full { grid-column: 1/-1; }
+  .profile-edit-help { margin: 0; font-size: 12px; }
+  .profile-edit-actions { gap: 8px; flex-wrap: wrap; }
+  .profile-edit-actions .button { min-height: 42px; padding: 9px 12px; font-size: 12px; }
+  .legacy-history-card { padding: 14px; border-radius: 12px; }
+  .legacy-history-question { margin-bottom: 12px; padding-bottom: 10px; }
+  .legacy-history-question h2 { font-size: 16px; }
+  .legacy-history-card > p { padding: 12px; font-size: 14px; }
+  .tanidik-application-form, .legacy-application-card { padding: 14px; border-radius: 12px; }
+  .notifications-panel { gap: 12px; }
+  .notifications-toolbar { gap: 10px; padding: 12px; border-radius: 12px; }
+  .notification-filters { gap: 8px; }
+  .notification-filters > label:first-child { min-width: 0; font-size: 12px; }
+  .notification-filters .check-label { min-height: 40px; padding: 8px 10px; font-size: 12px; white-space: normal; }
+  .notification-filters .button, .notification-settings-button { min-height: 40px; padding: 8px 12px; font-size: 12px; }
+  .notification-list a { gap: 10px; padding: 12px; }
+  .notification-copy > strong { font-size: 13px; }
+  .notification-copy > span { font-size: 12px; }
+  .notification-empty { padding: 24px 14px; }
+  .notification-settings-form { gap: 12px; }
+  .notification-settings-form fieldset { min-width: 0; padding: 10px; }
+  .notification-toggle { gap: 10px; padding: 10px; }
+  .notification-toggle strong { font-size: 13px; }
+  .notification-frequency { padding: 6px 0; font-size: 13px; }
+  .account-help-button { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); width: 40px; height: 40px; }
+  .legacy-admin-card { gap: 14px; padding: 16px; }
+  .legacy-admin-card h2, .legacy-admin-card h3 { font-size: 16px; }
+  .legacy-admin-card p, .legacy-admin-card > div > span { font-size: 12px; }
+  .legacy-admin-avatar { width: 48px; height: 48px; font-size: 15px; }
+  .redesigned-tanidik-card { padding: 18px 14px; gap: 18px; }
+  .redesigned-tanidik-card .legacy-avatar.large { width: 80px; height: 80px; font-size: 22px; }
+  .redesigned-tanidik-card .legacy-avatar.large.is-tanidik > i { right: -10px!important; width: 17px!important; min-height: 32px!important; }
+  .redesigned-tanidik-card .legacy-avatar.large.is-tanidik > i::before { font-size: 6px!important; }
+  .redesigned-tanidik-card .tanidik-profile-main h1 { font-size: 26px!important; margin-bottom: 12px; }
+  .tanidik-profile-education { font-size: 14px; }
+  .tanidik-profile-badges { gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .tanidik-profile-badges > span { font-size: 14px; }
+  .tanidik-profile-badges > strong { font-size: 11px; padding: 5px 9px; }
+  .tanidik-profile-facts { gap: 12px 20px; margin-top: 16px; }
+  .tanidik-profile-facts small { font-size: 11px; }
+  .tanidik-profile-facts strong { font-size: 13px; }
+  .legacy-profile-answer-list > li { padding: 14px; gap: 12px; }
+  .legacy-profile-answer-list > li > header > a { font-size: 15px; }
+  .legacy-profile-answer-list > li > p { font-size: 14px; }
+  .context-hero { padding: 18px 14px; }
+  .university-logo { width: 48px; height: 48px; object-fit: contain; }
+  .university-tab-panel { padding: 20px 0; }
+  .university-page-tabs { gap: 12px; padding-inline: 0; }
+  .program-card { padding: 14px; border-radius: 12px; }
+  .catalog-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .catalog-metrics > *, .catalog-chart { padding: 12px; }
+  .catalog-sort-tabs { gap: 6px; margin-bottom: 14px; }
+  .catalog-sort-tabs a { padding: 7px 10px; min-height: 40px; font-size: 12px; }
+  .legacy-home-hero { padding: 28px 14px; gap: 20px; }
+  .legacy-home-hero h1 { font-size: 30px!important; }
+  .legacy-home-hero p { font-size: 14px; line-height: 1.6; }
+  .legacy-home-art { height: 260px; }
+  .contact-section { gap: 18px; margin-block: 24px; padding: 14px; border-radius: 14px; }
+  .contact-section h2 { font-size: 24px; }
+  .contact-form { gap: 12px; padding: 12px; border-radius: 10px; }
+  .legacy-footer nav { flex-direction: row; flex-wrap: wrap; align-items: center; font-size: 12px; }
+  /* Compact containers, but readable controls: prevent iOS focus zoom. */
+  body :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) { min-width: 0; max-width: 100%; min-height: 42px; padding: 8px 10px; font-size: 16px; }
+  .legacy-question-search > input, .university-search > input { min-height: 42px; }
+  .ui-modal-close, .page-help-button { min-width: 40px; min-height: 40px; }
+  .legacy-question-like, .legacy-question-more-trigger { min-width: 40px; height: 40px; }
+  .status-page h1, .auth-page h1, .auth-recovery-card h1, .legacy-history-heading h1,
+  .tanidik-applications-page .profile-heading h1 { font-size: 26px; letter-spacing: -.6px; }
+  .tanidik-applications-page { width: 100%; padding: 24px 14px 24px; }
+  .tanidik-applications-page .auth-card { padding: 14px; gap: 10px; border-radius: 12px; }
+  .tanidik-application-form > h2, .tanidik-application-form > p { margin: 0; }
+  .tanidik-applications-page + .account-global-back { margin-top: 0; margin-bottom: 24px; }
+  .tanidik-applications-page h2 { font-size: 18px; }
+  .tanidik-applications-page p { font-size: 13px; }
+  .legacy-history-heading { gap: 12px; margin-bottom: 16px; }
+  .legacy-history-heading form { gap: 8px; }
+  .legacy-history-heading label { font-size: 12px; }
+  .legacy-contribution-tabs { gap: 6px; padding: 4px; margin: 14px 0; }
+  .legacy-contribution-tabs a { min-height: 40px; font-size: 12px; padding: 8px 10px; }
+  .popular-toolbar { display: flex; flex-wrap: wrap; overflow: visible; gap: 6px; padding: 6px; }
+  .popular-toolbar a { flex: 1 1 auto; min-width: 0; padding: 8px; font-size: 12px; }
+  .leaderboard-periods { display: flex; flex-wrap: wrap; width: 100%; gap: 5px; margin: 16px 0; overflow: visible; }
+  .leaderboard-periods a { width: auto; flex: 1 1 auto; min-width: 0; min-height: 40px; padding: 8px; font-size: 12px; }
+  main > .content-section.leaderboard-page { padding-top: 24px; }
+  .leaderboard-results > .leaderboard li { padding: 10px; min-height: 64px; }
+}

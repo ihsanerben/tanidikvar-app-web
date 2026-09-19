@@ -11,3 +11,62 @@
 .manager-shell.manager-shell .manager-extension .content-section{padding:0}.manager-shell.manager-shell .manager-extension .content-section>h2{font-size:1.3rem}
 .manager-shell.manager-shell .composer-dialog::backdrop{background:#10251f78;backdrop-filter:blur(4px)}
 .manager-shell.manager-shell .stack-form{margin:20px 0}.manager-shell.manager-shell .manager-extension .manager-list{display:grid;gap:16px}.manager-shell.manager-shell .manager-extension .manager-list>article{padding:22px;border:1px solid #e0e3ec;border-left:4px solid #d7ad28;border-radius:12px}
+
+@media(max-width:600px){
+ .manager-shell.manager-shell .manager-header{height:60px;padding:0 12px;gap:10px}
+ .manager-shell.manager-shell .manager-brand{font-size:16px;gap:6px}
+ .manager-shell.manager-shell .manager-brand img{width:85px;height:auto}
+ .manager-shell.manager-shell .manager-header>a:last-child{font-size:11px}
+ .manager-shell.manager-shell .manager-sidebar{top:60px;padding:14px;width:min(280px,85vw)}
+ .manager-shell.manager-shell .manager-sidebar nav a{min-height:42px;padding:10px;font-size:13px}
+ .manager-shell.manager-shell .manager-main{padding:80px 12px 30px;min-width:0}
+ .manager-shell.manager-shell .management-page{padding:0}
+ .manager-shell.manager-shell .management-page h1,.manager-shell.manager-shell .profile-page h1{font-size:26px;letter-spacing:-.5px;margin-bottom:16px}
+ .manager-shell.manager-shell .management-stats{gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .manager-shell.manager-shell .manager-stat-link{padding:14px;min-height:100px}
+ .manager-shell.manager-shell .manager-stat-link strong{font-size:25px}
+ .manager-shell.manager-shell .manager-stat-link span{font-size:12px}
+ .manager-shell.manager-shell .management-filters{padding:12px;gap:10px;margin-bottom:16px}
+ .manager-shell.manager-shell .management-filters label{font-size:12px}
+ .manager-shell.manager-shell .managed-user-card,.manager-shell.manager-shell .manager-content-card,.manager-shell.manager-shell .manager-moderated-record,.manager-shell.manager-shell .manager-account-card{padding:14px;min-height:0;border-radius:12px}
+ .manager-shell.manager-shell .managed-user-card h2,.manager-shell.manager-shell .manager-content-heading h2{font-size:16px}
+ .manager-shell.manager-shell .manager-content-card,.manager-shell.manager-shell .manager-moderated-record{grid-template-columns:minmax(0,1fr)}
+ .manager-shell.manager-shell .manager-content-aside,.manager-shell.manager-shell .manager-review-aside{padding:12px;min-width:0}
+ .manager-shell.manager-shell .manager-account-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .manager-shell.manager-shell :is(input:not([type=checkbox]):not([type=radio]),select,textarea){max-width:100%;min-width:0;min-height:42px;padding:8px 10px;font-size:16px}
+ .manager-shell.manager-shell{font-size:13px}
+ .manager-shell.manager-shell .legacy-manager-header{height:58px;padding:0 12px}
+ .manager-shell.manager-shell .legacy-manager-brand{font-size:18px}
+ .manager-shell.manager-shell .legacy-manager-header>a:last-child{font-size:11px}
+ .manager-shell.manager-shell .legacy-manager-sidebar{padding:68px 10px 9px}
+ .manager-shell.manager-shell .legacy-manager-sidebar nav{gap:4px}
+ .manager-shell.manager-shell .legacy-manager-sidebar nav a{padding:8px 10px;border-radius:7px;font-size:11px}
+ .manager-shell.manager-shell .legacy-manager-main{padding:20px 12px 36px}
+ .manager-shell.manager-shell .legacy-manager-page>h1{margin-bottom:18px;font-size:26px;letter-spacing:-1px}
+ .manager-shell.manager-shell .legacy-manager-description{margin:-7px 0 18px;font-size:13px;line-height:1.5}
+ .manager-shell.manager-shell .legacy-manager-console .metric-grid{grid-template-columns:1fr 1fr;gap:8px}
+ .manager-shell.manager-shell .legacy-manager-console .metric-grid>div{min-height:112px;padding:14px 12px;border-radius:10px}
+ .manager-shell.manager-shell .legacy-manager-console .metric-grid strong{margin-top:8px;font-size:26px}
+ .manager-shell.manager-shell .legacy-manager-console .metric-grid span{font-size:11px}
+ .manager-shell.manager-shell .legacy-manager-console .manager-list{gap:10px}
+ .manager-shell.manager-shell .legacy-manager-console .manager-list article,.manager-shell.manager-shell .manager-extension .manager-list>article{padding:14px;border-radius:10px}
+ .manager-shell.manager-shell .legacy-manager-console .manager-list h2{font-size:16px}
+ .manager-shell.manager-shell .legacy-manager-console dl>div{grid-template-columns:minmax(72px,.7fr) 1fr;gap:7px;padding:6px 0}
+ .manager-shell.manager-shell .legacy-manager-console dt{font-size:9px}.manager-shell.manager-shell .legacy-manager-console dd{font-size:11px}
+ .manager-shell.manager-shell .legacy-manager-console .actions{gap:6px;margin-top:12px}
+ .manager-shell.manager-shell .button{min-height:40px;padding:8px 11px;font-size:11px}
+ .manager-shell.manager-shell .manager-main .manager-extension{margin-top:18px;padding:14px;border-radius:10px}
+ .manager-shell.manager-shell .manager-extension label{gap:5px;font-size:11px}
+ .manager-shell.manager-shell .manager-extension input,.manager-shell.manager-shell .manager-extension select,.manager-shell.manager-shell .manager-extension textarea{min-height:42px;padding:8px 10px;font-size:16px}
+ .manager-shell.manager-shell .analytics-heading{gap:12px;margin-bottom:16px}
+ .manager-shell.manager-shell .analytics-kpis{gap:8px;margin-bottom:14px}
+ .manager-shell.manager-shell .analytics-kpis article{gap:5px;padding:12px}
+ .manager-shell.manager-shell .analytics-kpis strong{font-size:24px}
+ .manager-shell.manager-shell .analytics-grid{gap:12px}
+ .manager-shell.manager-shell .analytics-panel{padding:14px;gap:10px}
+ .manager-shell.manager-shell .analytics-panel h2{font-size:18px}
+ .manager-shell.manager-shell .analytics-panel p{font-size:13px;margin:0}
+ .manager-shell.manager-shell .chart-legend{margin:10px 0 4px;gap:6px 10px}
+ .manager-shell.manager-shell .manager-extension .content-section>h2{font-size:1.1rem}
+ .manager-shell.manager-shell .stack-form{gap:10px;margin:14px 0}
+}
