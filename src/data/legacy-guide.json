@@ -37,7 +37,7 @@
     "details": [
       "Sorular’da arama metnini gönder; Filtrele alanından kapsam, üniversite, bağlı bölüm ve tag seçeneklerini kullan. Seçimler sonuçlara uygulanır. Tümünü temizle arama ve filtreleri sıfırlar.",
       "Sorular sıralaması yeniden eskiye, eskiden yeniye, en çok görüntülenen, en çok beğenilen veya en çok yorumlanan olabilir. Sonuçların devamı sayfalama düğmeleriyle açılır.",
-      "Popülerler günlük son 24 saat, haftalık son 7 gün, aylık son 30 gün ve yıllık son 365 gün seçeneklerini sunar. Görüntülenme, beğeni ve iki yorum türü birlikte değerlendirilir; yalnız soru tarihi veya toplam beğeni kullanılmaz.",
+      "Popülerler İstanbul saatine göre bugün, bu hafta, bu ay ve bu yıl takvim dönemlerini sunar. Görüntülenme, beğeni ve iki yorum türü birlikte değerlendirilir; yalnız soru tarihi veya toplam beğeni kullanılmaz.",
       "Eski bir soru yeni etkileşimlerle yeniden öne çıkabilir. Kartlardaki sayaçlar tüm zamanların görünür toplamlarıdır; seçilen dönemin puanı değildir.",
       "Katalog Manager tarafından yönetilir ve genişletilebilir. Görünen liste Türkiye’deki tüm üniversite ve programların eksiksiz veya resmî sıralaması değildir."
     ]
