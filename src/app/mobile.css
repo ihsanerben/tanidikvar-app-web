@@ -153,4 +153,141 @@
   .leaderboard-periods a { width: auto; flex: 1 1 auto; min-width: 0; min-height: 40px; padding: 8px; font-size: 12px; }
   main > .content-section.leaderboard-page { padding-top: 24px; }
   .leaderboard-results > .leaderboard li { padding: 10px; min-height: 64px; }
+
+  /* Compact phone controls and centered overlays. */
+  .page-help-button,
+  .achievement-help-button,
+  .gamification-help-button,
+  .leaderboard-help-button {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    padding: 0;
+    font-size: 13px;
+  }
+  .account-help-button {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
+    font-size: 14px;
+  }
+  .ui-modal-backdrop {
+    align-items: center;
+    padding: 16px;
+  }
+  .ui-modal,
+  .ask-question-dialog,
+  .legacy-palette-dialog,
+  .page-help-dialog,
+  .ui-help-modal {
+    width: min(360px, 100%);
+    max-height: calc(100dvh - 32px);
+    padding: 17px 15px;
+    border-radius: 13px;
+  }
+  .ui-modal > h2,
+  .ask-question-dialog > h2 {
+    margin: 0 34px 12px 0;
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .ui-modal-close {
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    font-size: 18px;
+  }
+  .page-help-dialog p,
+  .ui-help-modal p,
+  .legacy-palette-dialog p {
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .page-help-dialog .button,
+  .ui-help-modal .button,
+  .legacy-palette-dialog .button {
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  .legacy-palette-dialog h3 { margin: 12px 0 8px; font-size: 12px; }
+  .legacy-palette-dialog .legacy-role-guide { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .legacy-palette-dialog .legacy-role-guide > div { gap: 5px; padding: 7px 4px; font-size: 9px; }
+  .legacy-palette-dialog .legacy-role-guide i { width: 34px; height: 34px; }
+  .legacy-palette-dialog .legacy-tanidik-guide { gap: 10px; padding: 10px; }
+  .legacy-palette-dialog .legacy-palette-dismiss { margin-top: 12px; }
+  .legacy-palette-dialog > .ui-modal-close:first-child {
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    border-width: 1px;
+    font-size: 18px;
+  }
+  .ask-question-dialog .stack-form { gap: 10px; }
+  .ask-question-dialog textarea { min-height: 92px; }
+  .ask-question-dialog .form-actions { gap: 7px; }
+
+  .legacy-question-search {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .legacy-question-search > input {
+    grid-column: 1 / -1 !important;
+    min-height: 40px;
+  }
+  .legacy-question-search > details,
+  .legacy-question-search > .button {
+    grid-column: auto !important;
+    width: 100%;
+    min-width: 0;
+  }
+  .legacy-question-search summary,
+  .legacy-question-search > .button {
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  .legacy-filter-panel { margin-top: 7px; }
+
+  .legacy-contribution-tabs,
+  .history-type-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    padding: 4px;
+  }
+  .legacy-contribution-tabs a,
+  .history-type-tabs a {
+    min-width: 0;
+    min-height: 36px;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 7px;
+    font-size: 11px;
+    line-height: 1.25;
+    text-align: center;
+  }
+  .legacy-contribution-tabs span {
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  .legacy-answer-tabs { gap: 5px; padding: 4px; }
+  .legacy-answer-tabs button { min-height: 36px; padding: 6px 7px; font-size: 11px; }
+
+  .button,
+  .ui-button,
+  .legacy-button {
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
 }
