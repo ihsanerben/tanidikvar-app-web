@@ -1,4 +1,4 @@
-import { ApiError, getAllUniversities, getUniversities } from "@/lib/api/catalog";
+import { ApiError, getCatalogCities, getUniversities } from "@/lib/api/catalog";
 import {Button,ButtonLink,EmptyState} from "@/components/ui";
 import {InfiniteResults} from "@/components/infinite-results";
 import {PageTitle} from "@/components/page-title";
@@ -42,8 +42,7 @@ export default async function UniversitiesPage({ searchParams }: Props) {
     );
   }
 
-  const cityCatalog = await getAllUniversities().catch(()=>[]);
-  const cities = [...new Set(cityCatalog.map(item=>item.city).filter((value):value is string=>Boolean(value)))].sort((left,right)=>left.localeCompare(right,"tr"));
+  const cities = (await getCatalogCities().catch(()=>[])).map(item=>item.label).filter(item=>item!=="Belirtilmemiş");
 
   return (
     <section className="content-section">

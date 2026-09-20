@@ -153,11 +153,11 @@ export async function getUniversity(id: string): Promise<CatalogItem> {
 
 export async function getAllUniversities(): Promise<CatalogItem[]> {
   const firstPage = await getUniversities({ size: 100 });
-  const items = [...firstPage.items];
   const totalPages = Math.ceil(firstPage.totalElements / firstPage.size);
-  for (let page = 1; page < totalPages; page += 1) {
-    items.push(...(await getUniversities({ page, size: 100 })).items);
-  }
+  const remainingPages = await Promise.all(
+    Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) => getUniversities({ page: index + 1, size: 100 })),
+  );
+  const items = [firstPage, ...remainingPages].flatMap(result => result.items);
   return items.toSorted((a, b) => a.name.localeCompare(b.name, "tr", { sensitivity: "base" }));
 }
 
@@ -182,12 +182,11 @@ async function getUniversityDepartmentPage(id: string, pageNumber: number): Prom
 
 export async function getUniversityDepartments(id: string): Promise<EducationItem[]> {
   const firstPage = await getUniversityDepartmentPage(id, 0);
-  const items = [...firstPage.items];
   const totalPages = Math.ceil(firstPage.totalElements / firstPage.size);
-
-  for (let page = 1; page < totalPages; page += 1) {
-    items.push(...(await getUniversityDepartmentPage(id, page)).items);
-  }
+  const remainingPages = await Promise.all(
+    Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) => getUniversityDepartmentPage(id, index + 1)),
+  );
+  const items = [firstPage, ...remainingPages].flatMap(result => result.items);
 
   return items.toSorted((a, b) => a.departmentName.localeCompare(b.departmentName, "tr", { sensitivity: "base" }));
 }
@@ -216,13 +215,7 @@ export async function getCatalogPrograms(filters:ProgramFilters={}):Promise<Page
   Object.entries(entries).forEach(([key,value])=>{if(value!==undefined&&value!=="")url.searchParams.set(key,String(value));});
   return await getJson(url) as PageResponse<ProgramSummary>;
 }
-export async function getAllCatalogPrograms(filters:Omit<ProgramFilters,"page"|"size">={}):Promise<ProgramSummary[]> {
-  const firstPage=await getCatalogPrograms({...filters,page:0,size:100});
-  const items=[...firstPage.items];
-  const totalPages=Math.ceil(firstPage.totalElements/firstPage.size);
-  for(let page=1;page<totalPages;page+=1)items.push(...(await getCatalogPrograms({...filters,page,size:100})).items);
-  return items;
-}
 export async function getCatalogProgram(id:string):Promise<ProgramDetail>{return await getJson(new URL(`/api/catalog-programs/${id}`,apiBaseUrl())) as ProgramDetail;}
 export async function getCatalogOverview():Promise<CatalogOverview>{return await getJson(new URL("/api/statistics/overview",apiBaseUrl())) as CatalogOverview;}
+export async function getCatalogCities():Promise<LabelCount[]>{return await getJson(new URL("/api/statistics/cities",apiBaseUrl())) as LabelCount[];}
 export async function getUniversityCatalogStatistics(id:string):Promise<UniversityCatalogStatistics>{return await getJson(new URL(`/api/universities/${id}/catalog-statistics`,apiBaseUrl())) as UniversityCatalogStatistics;}
