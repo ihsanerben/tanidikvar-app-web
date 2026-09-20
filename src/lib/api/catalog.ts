@@ -200,10 +200,11 @@ export async function getEducation(universityId: string, departmentId: string): 
 
 export type LabelCount = { label: string; count: number };
 export type YearCatalogStatistics = { year: number; programCount: number; quota: number; placed: number; fillRate: number | null; preferences: number };
-export type AdmissionStatistics = { year:number; quota:number|null; placed:number|null; minimumScore:number|null; maximumScore:number|null; successRank:number|null; placedMale:number|null; placedFemale:number|null; averageSecondaryScore:number|null; totalPreferences:number|null; demandPerQuota:number|null; averagePreferenceRank:number|null };
-export type AdmissionOption = { id:string; programCode:string; faculty:string|null; scoreType:string|null; durationYears:number|null; statistics:AdmissionStatistics[] };
+export type AdmissionStatistics = { year:number; quota:number|null; placed:number|null; minimumScore:number|null; maximumScore:number|null; successRank:number|null; placedMale:number|null; placedFemale:number|null; averageSecondaryScore:number|null; totalPreferences:number|null; demandPerQuota:number|null; averagePreferenceRank:number|null; scoreCoefficient:number|null; tytTurkishNet:number|null; tytSocialNet:number|null; tytMathNet:number|null; tytScienceNet:number|null; aytMathNet:number|null; aytPhysicsNet:number|null; aytChemistryNet:number|null; aytBiologyNet:number|null; aytLiteratureNet:number|null; aytHistory1Net:number|null; aytGeography1Net:number|null; aytHistory2Net:number|null; aytGeography2Net:number|null; aytPhilosophyNet:number|null; aytReligionNet:number|null; foreignLanguageNet:number|null };
+export type AdmissionOption = { id:string; programCode:string; faculty:string|null; scoreType:string|null; educationType:string|null; language:string|null; scholarship:string|null; specialQuotaType:string|null; durationYears:number|null; annualFee:number|null; statistics:AdmissionStatistics[] };
+export type ProgramAcademicDetails = { academicUnitId:string|null; faculty:string|null; professorCount:number|null; associateProfessorCount:number|null; doctorFacultyMemberCount:number|null; researchAssistantCount:number|null; accreditationCode:string|null; accreditationDescription:string|null; minimumSuccessRank:number|null; tycQualified:boolean|null };
 export type ProgramSummary = { id:string; educationId:string|null; departmentId:string|null; universityId:string; universityName:string; city:string|null; institutionType:string; name:string; degreeLevel:string; programCodes:string[]; faculties:string[]; scoreTypes:string[]; durationYears:number|null; optionCount:number; currentBestRank:number|null; currentMinimumScore:number|null; currentQuota:number; currentPlaced:number };
-export type ProgramDetail = { summary:ProgramSummary; options:AdmissionOption[] };
+export type ProgramDetail = { summary:ProgramSummary; academicDetails:ProgramAcademicDetails[]; options:AdmissionOption[] };
 export type CatalogOverview = { universityCount:number; programCount:number; optionCount:number; statisticsCount:number; rankedOptionCount:number; institutionTypes:LabelCount[]; cities:LabelCount[]; degreeLevels:LabelCount[]; scoreTypes:LabelCount[]; yearly:YearCatalogStatistics[]; lastSynchronizedAt:string|null };
 export type UniversityCatalogStatistics = { universityId:string; facultyCount:number; programCount:number; optionCount:number; academicUnits:LabelCount[]; degreeLevels:LabelCount[]; scoreTypes:LabelCount[]; yearly:YearCatalogStatistics[]; bestRankedPrograms:ProgramSummary[] };
 
@@ -220,7 +221,7 @@ export async function getAllCatalogPrograms(filters:Omit<ProgramFilters,"page"|"
   const items=[...firstPage.items];
   const totalPages=Math.ceil(firstPage.totalElements/firstPage.size);
   for(let page=1;page<totalPages;page+=1)items.push(...(await getCatalogPrograms({...filters,page,size:100})).items);
-  return items.toSorted((a,b)=>a.name.localeCompare(b.name,"tr",{sensitivity:"base"}));
+  return items;
 }
 export async function getCatalogProgram(id:string):Promise<ProgramDetail>{return await getJson(new URL(`/api/catalog-programs/${id}`,apiBaseUrl())) as ProgramDetail;}
 export async function getCatalogOverview():Promise<CatalogOverview>{return await getJson(new URL("/api/statistics/overview",apiBaseUrl())) as CatalogOverview;}

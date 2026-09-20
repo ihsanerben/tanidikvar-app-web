@@ -8,6 +8,7 @@ const items=[
  ["/populer","Popüler",["/populer"]],
  ["/universiteler","Üniversite",["/universiteler","/universite/"]],
  ["/programlar","Program",["/programlar","/program/"]],
+ ["/karsilastir","Karşılaştır",["/karsilastir"]],
  ["/tanidiklar","Tanıdık",["/tanidiklar","/tanidik/"]],
  ["/siralama","Sıralama",["/siralama"]],
  ["/istatistikler","İstatistik",["/istatistikler"]],
