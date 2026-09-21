@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { getCatalog, type Choice, type Page } from './catalogApi'
 import { formError } from '../auth/formError'
+import { plainProgramName } from '@/lib/program-label'
 
 const turkishAlphabetical=new Intl.Collator('tr-TR',{sensitivity:'base',numeric:true})
 function alphabetical(items:Choice[]){return [...items].sort((a,b)=>turkishAlphabetical.compare(a.label,b.label)||a.id.localeCompare(b.id))}
@@ -20,11 +21,12 @@ export function RemotePicker({ label, endpoint, value, onChange, error, disabled
       let page=0,total=0
       do {
         const url=`${endpoint}${endpoint.includes('?')?'&':'?'}page=${page}&size=${compact?10:100}`
-        const data=await getCatalog(url,controller.signal).then(p=>({...p,items:p.items.map(e=>({id:e.id,label:e.name}))}))
+        const data=await getCatalog(url,controller.signal).then(p=>({...p,items:p.items.map(e=>({id:e.id,label:endpoint.includes('/departments')?plainProgramName(e.name):e.name}))}))
         items.push(...data.items);total=data.totalElements;page++
         if(compact||data.items.length===0)break
       }while(items.length<total)
-      if(!controller.signal.aborted)setResponse({key:requestKey,data:{items:alphabetical(items),page:0,size:items.length,totalElements:total},error:''})
+      const unique=endpoint.includes('/departments')?[...new Map(items.map(item=>[item.label,item])).values()]:items
+      if(!controller.signal.aborted)setResponse({key:requestKey,data:{items:alphabetical(unique),page:0,size:unique.length,totalElements:unique.length},error:''})
     }
     void list().catch(reason=>{if(!controller.signal.aborted)setResponse({key:requestKey,data:null,error:formError(reason).message})})
     return()=>controller.abort()

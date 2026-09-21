@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { apiRequest, apiRequestAllPages } from "@/lib/client-api";
+import {promptDialog} from "@/lib/dialogs";
 
 type Kind = "UNIVERSITY" | "DEPARTMENT" | "TAG";
 type Item = { id: string; name: string; deletedAt: string | null; version: number };
@@ -30,7 +31,7 @@ export function CatalogManager({ initialKind = "UNIVERSITY", kindLocked = false 
   }
 
   async function rename(item: Item) {
-    const name = window.prompt("Yeni katalog adı", item.name);
+    const name = await promptDialog("Katalog kaydının yeni adını gir.",{title:"Katalog adını değiştir",confirmLabel:"Güncelle",input:{label:"Yeni ad",initialValue:item.name,minLength:2,maxLength:200}});
     if (!name || name === item.name) return;
     try {
       await apiRequest(`/manager/catalog/${kind}/${item.id}`, { method: "PUT", body: JSON.stringify({ name, version: item.version, reason }) });

@@ -2,18 +2,19 @@ import Link from "next/link";
 import {getQuestions} from "@/lib/api/questions";
 import {getTanidiklar} from "@/lib/api/profiles";
 import {QuestionCard} from "@/components/question-card";
+import {AskQuestionModal} from "@/components/ask-question-modal";
 
-type Props={universityId:string;departmentId?:string;view?:"all"|"questions"|"people";embedded?:boolean;showAsk?:boolean};
+type Props={universityId:string;departmentId?:string;view?:"all"|"questions"|"people";embedded?:boolean;showAsk?:boolean;initialProgramId?:string;openAsk?:boolean};
 
-export async function ContextCommunity({universityId,departmentId,view="all",embedded=false,showAsk=false}:Props){
+export async function ContextCommunity({universityId,departmentId,view="all",embedded=false,showAsk=false,initialProgramId,openAsk=false}:Props){
  const [questions,people]=await Promise.all([
   view==="people"?null:getQuestions("",0,{scope:departmentId?"UNIVERSITY_DEPARTMENT":undefined,universityId,departmentId,sort:"MOST_COMMENTED"}).catch(()=>null),
   view==="questions"?null:getTanidiklar("",0,{universityId,departmentId}).catch(()=>null)
  ]);
  return <>
-  {!departmentId&&(view==="all"||view==="questions")&&<section id="sorular" className="content-section university-tab-panel">
-   {(!embedded||showAsk)&&<div className="section-heading"><h2>Sorular</h2>{showAsk&&<Link className="button" href={`/soru-sor?universityId=${universityId}`}>Soru sor</Link>}</div>}
-   {questions?.items.length?<ul className="legacy-question-list">{questions.items.slice(0,12).map(question=><QuestionCard key={question.id} question={question}/>)}</ul>:<div className="empty-state"><h3>Henüz soru yok</h3><p>Bu üniversite hakkındaki ilk soruyu topluluğa yöneltebilirsin.</p>{showAsk&&<Link className="button" href={`/soru-sor?universityId=${universityId}`}>İlk soruyu sor</Link>}</div>}
+  {(view==="all"||view==="questions")&&<section id="sorular" className="content-section university-tab-panel">
+   {(!embedded||showAsk)&&<div className="section-heading"><h2>Sorular</h2>{showAsk&&<AskQuestionModal initialUniversityId={universityId} initialProgramId={initialProgramId} defaultOpen={openAsk}/>}</div>}
+   {questions?.items.length?<ul className="legacy-question-list">{questions.items.slice(0,12).map(question=><QuestionCard key={question.id} question={question}/>)}</ul>:<div className="empty-state"><h3>Henüz soru yok</h3><p>{departmentId?"Bu program":"Bu üniversite"} hakkındaki ilk soruyu topluluğa yöneltebilirsin.</p></div>}
   </section>}
   {(view==="all"||view==="people")&&<section id="tanidiklar" className="content-section university-tab-panel">
    {!embedded&&<div className="section-heading"><h2>Tanıdıklar</h2></div>}

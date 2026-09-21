@@ -34,10 +34,8 @@ export function AnswerForm({ questionId, tanidik = false, onSuccess, onCancel }:
 
   return (
     <form className="stack-form wide" onSubmit={submit}>
-      <label>
-        Deneyimini paylaş
-        <textarea name="body" required minLength={10} maxLength={5000} rows={6} placeholder="Somut, güncel ve karar vermeye yardımcı bir yanıt yaz." />
-      </label>
+      <label className="sr-only" htmlFor={`answer-body-${questionId}`}>Yorum</label>
+      <textarea id={`answer-body-${questionId}`} name="body" required minLength={10} maxLength={5000} rows={6} placeholder="Yorumunu yaz." />
       {tanidik && <label className="check-label"><input name="anonymous" type="checkbox" /> Kimliğimi public yüzeyde gizle</label>}
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="answer-form-actions">

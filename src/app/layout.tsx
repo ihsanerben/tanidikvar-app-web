@@ -40,8 +40,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const starCount = education === "MEZUN" ? 3 : education === "UNIVERSITE_OGRENCISI" ? 2 : 1;
   return (
     <html lang="tr" data-scroll-behavior="smooth">
-      <body>
-       <NotificationProvider>
+      <body suppressHydrationWarning>
+       <NotificationProvider authenticated={Boolean(user)}>
         <a className="skip-link" href="#main-content">İçeriğe geç</a>
         <header className="site-header legacy-header">
           <Link className="brand" href="/sorular" aria-label="TanıdıkVar sorular sayfası"><Image className="brand-logo-full" src="/logo.svg" alt="" width={158} height={38} priority /><Image className="brand-logo-mark" src="/logo-mark.svg" alt="" width={38} height={38} priority /></Link>

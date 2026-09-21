@@ -1,7 +1,7 @@
 export type NotificationTone = "success" | "info" | "warning" | "danger";
 
-export function notify(message: string, tone: NotificationTone = "info") {
-  window.dispatchEvent(new CustomEvent("app:notification", { detail: { message, tone } }));
+export function notify(message: string, tone: NotificationTone = "info", href?: string) {
+  window.dispatchEvent(new CustomEvent("app:notification", { detail: { message, tone, href } }));
 }
 
 export function actionTone(label: string): NotificationTone | undefined {

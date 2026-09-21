@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { apiRequest } from "@/lib/client-api";
+import {confirmDialog} from "@/lib/dialogs";
 
 export function QuestionOwnerActions({ id, slug, version, archived }: { id: string; slug: string; version: number; archived: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   async function toggle() {
-    if (!archived && !window.confirm("Soruyu arşivlemek istediğine emin misin?")) return;
+    if (!archived && !await confirmDialog("Soruyu arşivlemek istediğine emin misin?",{title:"Soruyu arşivle",confirmLabel:"Arşivle",tone:"danger"})) return;
     setBusy(true);
     try { await apiRequest(`/questions/${id}/${archived ? "restore" : "archive"}`, { method: "POST", body: JSON.stringify({ version }) }); router.refresh(); }
     finally { setBusy(false); }

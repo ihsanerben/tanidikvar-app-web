@@ -6,6 +6,7 @@ import { apiRequest } from "@/lib/client-api";
 import { AnswerForm } from "@/components/answer-form";
 import {ModalShell} from "@/components/modal-shell";
 import {Button} from "@/components/ui";
+import {confirmDialog} from "@/lib/dialogs";
 
 function ShareIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-8.5 18-2.2-7.3L3 11.5 21 3Z"/><path d="m10.3 13.7 4.5-4.5"/></svg>; }
 function SaveIcon({ filled }: { filled: boolean }) { return <svg viewBox="0 0 24 24" aria-hidden="true" className={filled ? "filled" : ""}><path d="M6 3.5h12v17l-6-4-6 4v-17Z"/></svg>; }
@@ -21,6 +22,7 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
   const [message, setMessage] = useState("");
   const [menuOpen,setMenuOpen]=useState(false);
   const [composerOpen,setComposerOpen]=useState(false);
+  const [composerType,setComposerType]=useState<"COMMUNITY"|"TANIDIK"|null>(null);
   const [reportOpen,setReportOpen]=useState(false),[reportReason,setReportReason]=useState(""),[reportBusy,setReportBusy]=useState(false);
   const menuRef=useRef<HTMLSpanElement>(null);
   useEffect(()=>{if(!menuOpen)return;function close(event:PointerEvent){if(!menuRef.current?.contains(event.target as Node))setMenuOpen(false);}document.addEventListener("pointerdown",close);return()=>document.removeEventListener("pointerdown",close);},[menuOpen]);
@@ -40,7 +42,7 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
       setMessage(saved ? "Kayıttan çıkarıldı." : "Kaydedildi.");
     } catch (error) {
       const text = error instanceof Error ? error.message : "İşlem tamamlanamadı.";
-      if (/oturum|giriş|kimlik/i.test(text)) { if (window.confirm("Bu işlem için giriş yapmanız gerekiyor. Giriş sayfasına gitmek ister misiniz?")) router.push("/giris"); } else setMessage(text);
+      if (/oturum|giriş|kimlik/i.test(text)) { if (await confirmDialog("Bu işlem için giriş yapmanız gerekiyor.",{title:"Üyelik gerekiyor",confirmLabel:"Giriş yap"})) router.push("/giris"); } else setMessage(text);
     }
   }
   async function report(){
@@ -49,10 +51,10 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
     setReportBusy(true);
     setMessage("");
     try{await apiRequest(`/questions/${questionId}/reports`,{method:"POST",body:JSON.stringify({reason:reportReason.trim()})});setMessage("Şikâyetiniz incelemeye gönderildi.");setReportOpen(false);setReportReason("");}
-    catch(error){const text=error instanceof Error?error.message:"Şikâyet gönderilemedi.";if(/oturum|giriş|kimlik/i.test(text)){if(window.confirm("Bu işlem için giriş yapmanız gerekiyor. Giriş sayfasına gitmek ister misiniz?"))router.push("/giris");}else setMessage(text);}finally{setReportBusy(false);}
+    catch(error){const text=error instanceof Error?error.message:"Şikâyet gönderilemedi.";if(/oturum|giriş|kimlik/i.test(text)){if(await confirmDialog("Bu işlem için giriş yapmanız gerekiyor.",{title:"Üyelik gerekiyor",confirmLabel:"Giriş yap"}))router.push("/giris");}else setMessage(text);}finally{setReportBusy(false);}
   }
-  async function like(){const next=!liked;setLiked(next);setLikeCount(value=>Math.max(0,value+(next?1:-1)));try{const value=await apiRequest<{liked:boolean;version:number}>(`/questions/${questionId}/like`,{method:"PUT",body:JSON.stringify({liked:next,version:likeVersion})});setLiked(value.liked);setLikeVersion(value.version);}catch(error){setLiked(!next);setLikeCount(value=>Math.max(0,value+(next?-1:1)));const text=error instanceof Error?error.message:"İşlem tamamlanamadı.";if(/oturum|giriş|kimlik/i.test(text)){if(window.confirm("Bu işlem için giriş yapmanız gerekiyor. Giriş sayfasına gitmek ister misiniz?"))router.push("/giris");}else setMessage(text);}}
-  function openComposer(){if(!canAnswer){if(window.confirm("Yorum yazmak için giriş yapmanız gerekiyor. Giriş sayfasına gitmek ister misiniz?"))router.push("/giris");return;}setComposerOpen(true);}
+  async function like(){const next=!liked;setLiked(next);setLikeCount(value=>Math.max(0,value+(next?1:-1)));try{const value=await apiRequest<{liked:boolean;version:number}>(`/questions/${questionId}/like`,{method:"PUT",body:JSON.stringify({liked:next,version:likeVersion})});setLiked(value.liked);setLikeVersion(value.version);}catch(error){setLiked(!next);setLikeCount(value=>Math.max(0,value+(next?-1:1)));const text=error instanceof Error?error.message:"İşlem tamamlanamadı.";if(/oturum|giriş|kimlik/i.test(text)){if(await confirmDialog("Bu işlem için giriş yapmanız gerekiyor.",{title:"Üyelik gerekiyor",confirmLabel:"Giriş yap"}))router.push("/giris");}else setMessage(text);}}
+  async function openComposer(){if(!canAnswer){if(await confirmDialog("Yorum yazmak için giriş yapmanız gerekiyor.",{title:"Üyelik gerekiyor",confirmLabel:"Giriş yap"}))router.push("/giris");return;}setComposerType(tanidik?"TANIDIK":"COMMUNITY");setComposerOpen(true);}
   return <div className="legacy-question-icon-actions">
     <button type="button" className={`legacy-question-like${liked?" is-liked":""}`} onClick={()=>void like()} aria-pressed={liked} aria-label={`${likeCount} beğeni`} title="Beğen"><HeartIcon/><span>{likeCount}</span></button>
     <button type="button" className="legacy-question-comment" onClick={openComposer} aria-label={`${answerCount} yorum, yorum yaz`} title="Yorum yaz"><CommentIcon/><span>{answerCount}</span></button>
@@ -64,7 +66,7 @@ export function QuestionIconActions({questionId,title,initialLikeCount,answerCou
         <button type="button" role="menuitem" onClick={()=>{setMenuOpen(false);setReportOpen(true);}}><ReportIcon/><span>Şikâyet et</span></button>
       </span>}
     </span>
-    <ModalShell open={composerOpen} onClose={()=>setComposerOpen(false)} title="Yorumunu yaz" className="answer-composer-dialog"><AnswerForm questionId={questionId} tanidik={tanidik} onSuccess={()=>setComposerOpen(false)} onCancel={()=>setComposerOpen(false)}/></ModalShell>
+    <ModalShell open={composerOpen} onClose={()=>setComposerOpen(false)} title={composerType==="TANIDIK"?"Tanıdık yorumunu yaz":"Topluluk yorumunu yaz"} className="answer-composer-dialog">{tanidik&&<div className="answer-type-chooser" role="group" aria-label="Yorum türü"><Button type="button" tone={composerType==="TANIDIK"?"primary":"secondary"} aria-pressed={composerType==="TANIDIK"} onClick={()=>setComposerType("TANIDIK")}>Tanıdık yorumu</Button><Button type="button" tone={composerType==="COMMUNITY"?"primary":"secondary"} aria-pressed={composerType==="COMMUNITY"} onClick={()=>setComposerType("COMMUNITY")}>Topluluk yorumu</Button></div>}<AnswerForm questionId={questionId} tanidik={composerType==="TANIDIK"} onSuccess={()=>setComposerOpen(false)} onCancel={()=>setComposerOpen(false)}/></ModalShell>
     <ModalShell open={reportOpen} onClose={()=>setReportOpen(false)} title="Soruyu şikâyet et" className="question-report-dialog"><form onSubmit={event=>{event.preventDefault();void report();}}><p>Topluluk kurallarına aykırı olduğunu düşündüğün noktayı açıkla.</p><label htmlFor={`report-${questionId}`}>Şikâyet nedeni</label><textarea id={`report-${questionId}`} required minLength={10} maxLength={1000} rows={5} value={reportReason} onChange={event=>setReportReason(event.target.value)} placeholder="Şikâyet nedenini kısaca açıkla."/><small>10–1000 karakter · {reportReason.length}/1000</small><div className="question-report-actions"><Button disabled={reportBusy||reportReason.trim().length<10}>{reportBusy?"Gönderiliyor…":"Şikâyeti gönder"}</Button><Button tone="secondary" type="button" onClick={()=>setReportOpen(false)}>Vazgeç</Button></div></form></ModalShell>
     {message && <span className="sr-only" role="status">{message}</span>}
   </div>;

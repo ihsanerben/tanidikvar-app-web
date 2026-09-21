@@ -4,7 +4,6 @@ import {notFound,permanentRedirect} from "next/navigation";
 import {ApiError,getEducation} from "@/lib/api/catalog";
 import {catalogIdFromSegment,catalogSegment} from "@/lib/public-url";
 import {ContextInsights} from "@/components/context-insights";
-import {RetentionActions} from "@/components/retention-actions";
 import {ContextCommunity} from "@/components/context-community";
 
 type Props={params:Promise<{universitySlug:string;departmentSlug:string}>};
@@ -19,7 +18,7 @@ export default async function DepartmentPage({params}:Props){
  const jsonLd={"@context":"https://schema.org","@type":"EducationalOccupationalProgram",name:education.departmentName,provider:{"@type":"CollegeOrUniversity",name:education.universityName},url:canonical};
  return <article className="context-page university-theme"><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/>
   <nav className="breadcrumb" aria-label="İçerik yolu"><Link href="/universiteler">Üniversiteler</Link><span aria-hidden="true">›</span><Link href={`/universite/${currentUniversity}`}>{education.universityName}</Link><span aria-hidden="true">›</span><span>{education.departmentName}</span></nav>
-  <header className="context-hero"><p className="eyebrow">{education.universityName}</p><h1>{education.departmentName}</h1><p>Bu programa özel sorular, öğrenciler, mezunlar ve karar verileri burada toplanır.</p><RetentionActions targetType="PROGRAM" targetId={education.id} canSave={false}/></header>
+  <header className="context-hero"><p className="eyebrow">{education.universityName}</p><h1>{education.departmentName}</h1><p>Bu programa özel sorular, öğrenciler, mezunlar ve karar verileri burada toplanır.</p></header>
   <nav className="tabs" aria-label="Program bölümleri"><a href="#genel">Genel</a><a href="#sorular">Sorular</a><a href="#degerlendirmeler">Değerlendirmeler</a><a href="#anketler">Anketler</a><a href="#tanidiklar">Tanıdıklar</a></nav>
   <ContextInsights universityId={education.universityId} programId={education.id}/><ContextCommunity universityId={education.universityId} departmentId={education.departmentId}/>
  </article>;
