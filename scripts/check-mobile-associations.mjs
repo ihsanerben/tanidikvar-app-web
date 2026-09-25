@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { appleAssociation, androidAssociation } from '../src/lib/mobile-associations.ts';
+assert.equal(appleAssociation(undefined,undefined),null);
+assert.equal(appleAssociation('invalid','com.tanidikvar.app'),null);
+assert.equal(appleAssociation('ABCDEFGHIJ','untrusted.app'),null);
+const apple=appleAssociation('ABCDEFGHIJ','com.tanidikvar.app.preview');
+assert.equal(apple.applinks.details[0].appID,'ABCDEFGHIJ.com.tanidikvar.app.preview');
+assert.deepEqual(apple.applinks.details[0].paths,['/soru/*','/universite/*','/program/*','/profiles/*']);
+assert.equal(androidAssociation('com.tanidikvar.app','wrong'),null);
+const fingerprint=Array(32).fill('AA').join(':');
+assert.equal(androidAssociation('com.tanidikvar.app',fingerprint)[0].target.sha256_cert_fingerprints[0],fingerprint);
+assert.equal(androidAssociation('evil.app',fingerprint),null);
+assert.equal(androidAssociation('com.tanidikvar.app',fingerprint+',bad'),null);
+console.log('Mobile association validation passed (8 assertions).');
