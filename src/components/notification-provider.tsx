@@ -42,7 +42,7 @@ export function NotificationProvider({ children, authenticated = false }: { chil
     }
     function colors() {
       document.querySelectorAll<HTMLButtonElement>("button").forEach(button => {
-        if (button.classList.contains("question-save-action")) {
+        if (button.classList.contains("question-save-action") || button.classList.contains("notification-open")) {
           delete button.dataset.actionTone;
           return;
         }
@@ -71,7 +71,7 @@ export function NotificationProvider({ children, authenticated = false }: { chil
   useEffect(()=>{
     if(!authenticated)return;
     let active=true,known=new Set<string>(),initialized=false,polling=false;
-    async function poll(){if(polling||document.visibilityState==="hidden")return;polling=true;try{const page=await apiRequest<{items:StoredNotification[];totalElements:number}>("/me/notifications?size=100");if(!active)return;const unread=page.items.filter(item=>!item.readAt),fresh=initialized?unread.filter(item=>!known.has(item.id)):unread;if(fresh.length){const lead=fresh.length===1?fresh[0].title:`${fresh.length} yeni bildirim`;notify(`${lead}. ${unread.length} okunmamış bildirimin var.`,"info","/hesabim/bildirimler");}known=new Set(unread.map(item=>item.id));initialized=true;}catch{/* Geçici ağ hataları global arayüzü etkilemez. */}finally{polling=false;}}
+    async function poll(){if(polling||document.visibilityState==="hidden")return;polling=true;try{const page=await apiRequest<{items:StoredNotification[];totalElements:number}>("/me/notifications?size=100&unread=true");if(!active)return;const unread=page.items.filter(item=>!item.readAt),fresh=initialized?unread.filter(item=>!known.has(item.id)):unread;if(fresh.length){const lead=fresh.length===1?fresh[0].title:`${fresh.length} yeni bildirim`;notify(`${lead}. ${page.totalElements} okunmamış bildirimin var.`,"info","/hesabim/bildirimler");}known=new Set(unread.map(item=>item.id));initialized=true;}catch{/* Geçici ağ hataları global arayüzü etkilemez. */}finally{polling=false;}}
     function resume(){if(document.visibilityState==="visible")void poll();}
     void poll();const timer=setInterval(()=>void poll(),5000);document.addEventListener("visibilitychange",resume);window.addEventListener("focus",resume);return()=>{active=false;clearInterval(timer);document.removeEventListener("visibilitychange",resume);window.removeEventListener("focus",resume)};
   },[authenticated]);

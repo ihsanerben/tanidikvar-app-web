@@ -13,6 +13,7 @@ export async function generateMetadata({params}:Props):Promise<Metadata>{const{u
 
 export default async function DepartmentPage({params}:Props){
  const{universitySlug,departmentSlug}=await params,education=await resolveEducation(universitySlug,departmentSlug),currentUniversity=catalogSegment(education.universityName,education.universityId),currentDepartment=catalogSegment(education.departmentName,education.departmentId);
+ if(education.programId)permanentRedirect(`/program/${education.programId}`);
  if(universitySlug!==currentUniversity||departmentSlug!==currentDepartment)permanentRedirect(`/universite/${currentUniversity}/${currentDepartment}`);
  const canonical=`/universite/${currentUniversity}/${currentDepartment}`,guideContext=`universityId=${education.universityId}&departmentId=${education.departmentId}&programId=${education.id}`;
  const jsonLd={"@context":"https://schema.org","@type":"EducationalOccupationalProgram",name:education.departmentName,provider:{"@type":"CollegeOrUniversity",name:education.universityName},url:canonical};

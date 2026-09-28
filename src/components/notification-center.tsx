@@ -1,0 +1,19 @@
+"use client";
+import {useEffect,useState} from "react";
+import {useRouter} from "next/navigation";
+import {apiRequest} from "@/lib/client-api";
+import {Button} from "@/components/ui";
+import {ModalShell} from "@/components/modal-shell";
+import {NotificationPreferences} from "@/components/notification-preferences";
+import {notificationDestination,type Note} from "@/lib/notification-destination";
+type Page={items:Note[];totalElements:number};
+export function NotificationCenter(){
+ const router=useRouter();const [filter,setFilter]=useState({type:"",unread:false}),[page,setPage]=useState(0),[data,setData]=useState<Page|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState<string|null>(null),[settings,setSettings]=useState(false),[revision,setRevision]=useState(0);
+ useEffect(()=>{let active=true;setData(null);setError("");const query=new URLSearchParams({page:String(page),size:"20",unread:String(filter.unread)});if(filter.type)query.set("targetType",filter.type);apiRequest<Page>(`/me/notifications?${query}`).then(result=>{if(active)setData(result);}).catch(()=>{if(active)setError("Bildirimler yüklenemedi. Tekrar dene.");});return()=>{active=false;};},[filter,page,revision]);
+ async function open(note:Note){if(busy)return;setBusy(note.id);setError("");try{if(!note.readAt)await apiRequest(`/me/notifications/${note.id}/read`,{method:"PUT"});setData(value=>value?{...value,items:value.items.map(item=>item.id===note.id?{...item,readAt:new Date().toISOString()}:item)}:value);router.push(notificationDestination(note));}catch{setError("Bildirim okundu olarak kaydedilemedi. Tekrar dene.");}finally{setBusy(null);}}
+ return <section className="notifications-panel"><div className="notifications-toolbar"><div className="notification-filters"><label>Bildirim türü<select value={filter.type} onChange={event=>{setPage(0);setFilter({...filter,type:event.target.value});}}><option value="">Tümü</option>{[["QUESTION","Sorular"],["ANSWER","Yorumlar"],["ANSWER_COMMENT","Yanıtlar"],["POLL","Anketler"],["EVALUATION","Değerlendirmeler"],["EXPERIENCE","Deneyimler"],["METRIC","Ölçümler"],["ACHIEVEMENT","Rozetler"]].map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label><label className="check-label"><input type="checkbox" checked={filter.unread} onChange={event=>{setPage(0);setFilter({...filter,unread:event.target.checked});}}/>Yalnız okunmamışlar</label></div><Button tone="secondary" type="button" onClick={()=>setSettings(true)}>Bildirim ayarları</Button></div>
+ {error&&<div role="alert"><p>{error}</p><Button tone="secondary" onClick={()=>setRevision(value=>value+1)}>Tekrar dene</Button></div>}
+ {!data&&!error?<p role="status">Bildirimler yükleniyor…</p>:data?.items.length?<ul className="notification-list">{data.items.map(note=><li key={note.id} className={note.readAt?"":"unread"}><button type="button" className="notification-open" disabled={busy!==null} onClick={()=>void open(note)}><span className="notification-indicator" aria-hidden="true"/><span className="notification-copy"><strong>{note.title}</strong><span>{note.body}</span><time dateTime={note.createdAt}>{new Intl.DateTimeFormat("tr-TR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(note.createdAt))}</time></span><span aria-hidden="true">→</span></button></li>)}</ul>:data&&<div className="notification-empty"><strong>Bildirim bulunamadı</strong><span>Seçtiğin filtrelere uygun bir bildirim yok.</span></div>}
+ <div className="inline-actions">{page>0&&<Button tone="secondary" onClick={()=>setPage(value=>value-1)}>Önceki</Button>}{(page+1)*20<(data?.totalElements??0)&&<Button tone="secondary" onClick={()=>setPage(value=>value+1)}>Sonraki</Button>}</div>
+ <ModalShell open={settings} onClose={()=>setSettings(false)} title="Bildirim ayarları"><NotificationPreferences onSaved={()=>setSettings(false)}/></ModalShell></section>;
+}

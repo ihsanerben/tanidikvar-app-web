@@ -73,3 +73,48 @@
 .program-filter>.filter-actions{position:relative;align-items:center}.program-filter>.filter-actions .advanced-filter{align-self:center}.program-filter>.filter-actions .advanced-filter>summary{height:48px}.program-filter>.filter-actions .advanced-filter>div{right:auto;left:0;top:calc(100% + 10px)}
 .legacy-account-page:has(.notifications-panel){max-width:1040px}.legacy-account-page:has(.notifications-panel)>.legacy-account-details{padding:0;border:0;background:transparent}.legacy-account-page:has(.notifications-panel) .dashboard-grid{display:block}.notifications-panel{display:grid;gap:20px}.notifications-toolbar{display:flex;align-items:flex-end;gap:12px;padding:18px;border:1px solid #dbe3dc;border-radius:16px;background:#fff;box-shadow:0 10px 30px #163f360a}.notification-filters{display:flex;min-width:0;flex:1;align-items:flex-end;gap:12px;margin:0;padding:0;border:0;background:transparent}.notification-filters>label:first-child{display:grid;min-width:210px;gap:7px;color:#36564d;font-size:13px;font-weight:700}.notification-filters select{width:100%;min-height:46px;padding:10px 38px 10px 12px;border:1px solid #bfcac3;border-radius:10px;background:#fff;color:#29483f;font:inherit}.notification-filters .check-label{display:flex;min-height:46px;align-items:center;gap:9px;padding:10px 13px;border:1px solid #d8e0da;border-radius:10px;background:#f7f9f6;color:#405c53;font-size:13px;font-weight:650;white-space:nowrap}.notification-filters .check-label input{width:18px;height:18px;accent-color:#163f36}.notification-filters .filter-actions{display:flex;flex-wrap:nowrap;grid-column:auto}.notification-filters .button,.notification-settings-button{min-height:46px;padding:10px 16px}.notification-settings-button{flex:none}.notification-list{gap:10px;margin:0}.notification-list li{overflow:hidden;border:1px solid #dce3dd;border-left:1px solid #dce3dd;border-radius:13px;background:#fff;box-shadow:0 6px 20px #163f3608}.notification-list li.unread{border-color:#a8c8b7;border-left:4px solid #2f8f57;background:#fbfdf9}.notification-list a{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:18px 20px}.notification-indicator{width:10px;height:10px;border:2px solid #a9b6af;border-radius:50%}.notification-list li.unread .notification-indicator{border-color:#2f8f57;background:#2f8f57;box-shadow:0 0 0 4px #dff0e5}.notification-copy{display:grid;gap:5px;min-width:0}.notification-copy>strong{color:#183e35;font-size:15px}.notification-copy>span{color:#617169;line-height:1.5}.notification-copy>time{color:#89938d;font-size:11px}.notification-list a>b{color:#7a8b82;font-size:18px}.notification-list a:hover{background:#f6f9f5}.notification-empty{display:grid;justify-items:center;gap:6px;padding:44px 20px;border:1px dashed #cbd6cf;border-radius:14px;background:#fafbf8;color:#6c7a72;text-align:center}.notification-empty strong{color:#29483f;font-size:17px}.notification-settings-dialog{width:min(650px,100%)}.notification-settings-form{display:grid;gap:18px}.notification-settings-intro{margin:-8px 42px 2px 0;color:#687970;line-height:1.6}.notification-settings-form fieldset{display:grid;gap:10px;margin:0;padding:16px;border:1px solid #dbe3dc;border-radius:13px;background:#fbfcfa}.notification-settings-form legend{padding:0 7px;color:#29483f;font-weight:800}.notification-toggle{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 14px;border:1px solid #e0e6e1;border-radius:10px;background:#fff;cursor:pointer}.notification-toggle>span{display:grid;gap:4px}.notification-toggle strong{color:#29483f;font-size:14px}.notification-toggle small{color:#738078;font-size:12px;line-height:1.45}.notification-toggle input{width:38px;height:20px;flex:none;accent-color:#163f36}.notification-frequency{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:7px 14px;color:#36564d;font-size:14px;font-weight:700}.notification-frequency select{min-width:165px;min-height:44px;padding:9px 12px;border:1px solid #bdc9c1;border-radius:9px;background:#fff;color:#29483f;font:inherit}.notification-settings-actions{display:flex;justify-content:flex-end}.notification-settings-actions .button{min-width:160px}.notification-settings-loading{padding:30px;text-align:center;color:#687970}
 @media(max-width:760px){.notifications-toolbar,.notification-filters{align-items:stretch;flex-direction:column}.notification-filters>label:first-child,.notification-settings-button{width:100%}.notification-filters .filter-actions{width:100%}.notification-filters .filter-actions .button{flex:1}.notification-list a{padding:16px 14px}.notification-toggle{align-items:flex-start}.notification-frequency{align-items:stretch;flex-direction:column}.notification-frequency select{width:100%}.notification-settings-actions .button{width:100%}}
+
+.answer-type-chooser .button[aria-pressed="true"], .legacy-answer-tabs button[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: white; }
+.form-notice { padding: 12px; border-radius: var(--radius-sm); background: var(--brand-soft); color: var(--text-muted); font-size: .85rem; }
+
+.account-content-tabs a[aria-current="page"], .legacy-contribution-tabs a.active { background:var(--brand); color:white; border-color:var(--brand); }
+
+.notification-open{display:flex;align-items:center;gap:1rem;width:100%;padding:1rem;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}.notification-open:disabled{cursor:wait;opacity:.7}.notification-open:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+[id^="answer-"],[id^="comment-"],[id^="content-"]{scroll-margin-top:6rem}:target{outline:2px solid var(--primary);outline-offset:4px}
+
+.achievement-summary{display:flex;gap:32px;margin:20px 0}.achievement-summary>div{display:grid;gap:4px}.achievement-summary strong{font-size:1.8rem;color:#164b40}.achievement-summary span{color:#69756e}.achievement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin:24px 0}.achievement-tile{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;border:1px solid #d6dfd8;border-radius:18px;padding:24px 16px;background:#fff}.achievement-tile.locked{background:#f5f6f3}.achievement-tile h3,.achievement-tile p{margin:0}.achievement-tile p{font-size:.9rem;color:#63746c;flex:1}.achievement-medallion{display:grid;place-items:center;width:76px;height:76px;flex-shrink:0;border-radius:50%;border:3px solid #d9b764;background:#f8f0da;color:#164b40;box-shadow:0 0 0 5px #fbf7ed;cursor:pointer;font-size:32px}.achievement-medallion.locked{border-color:#c8d0ca;background:#e8ede8;color:#78867d;box-shadow:none}.achievement-medallion:focus-visible{outline:3px solid #164b40;outline-offset:5px}.achievement-detail-icon{text-align:center;font-size:48px}.achievement-save{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0}.featured-achievements{display:flex;gap:24px;flex-wrap:wrap}.featured-achievements>div{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:150px;text-align:center}.featured-achievements span{font-size:.9rem}
+
+.notification-target { outline: 2px solid var(--brand); outline-offset: 4px; scroll-margin-top: 6rem; }
+
+.account-content-tabs.history-type-tabs .anonymous-filter {
+  display: inline-flex;
+  flex: 0 0 44px;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--brand);
+  border-radius: 50%;
+  background: white;
+  color: var(--brand);
+  box-shadow: none;
+}
+.account-content-tabs.history-type-tabs .anonymous-filter.active,
+.account-content-tabs.history-type-tabs .anonymous-filter:hover {
+  background: var(--brand);
+  color: white;
+}
+.account-content-tabs.history-type-tabs .anonymous-filter:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+.account-content-tabs.history-type-tabs .anonymous-filter svg { flex-shrink: 0; }
+
+.notification-list .notification-open { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 16px; background: transparent; }
+.notification-list .notification-open:hover { background: var(--brand-soft); }
+.notification-list .notification-open .notification-copy { display: grid; gap: 6px; text-align: left; }
+.notification-list .notification-copy > span { overflow-wrap: anywhere; }
+.notification-list .notification-copy > time { color: #617169; }

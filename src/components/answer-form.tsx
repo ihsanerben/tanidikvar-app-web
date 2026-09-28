@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/client-api";
 import {Button} from "@/components/ui";
 
-export function AnswerForm({ questionId, tanidik = false, onSuccess, onCancel }: { questionId: string; tanidik?: boolean; onSuccess?:()=>void; onCancel?:()=>void }) {
+export function AnswerForm({ questionId, tanidik = false, canAnonymous = tanidik, existing = false, onSuccess, onCancel }: { questionId: string; tanidik?: boolean; canAnonymous?: boolean; existing?: boolean; onSuccess?:()=>void; onCancel?:()=>void }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -20,7 +20,7 @@ export function AnswerForm({ questionId, tanidik = false, onSuccess, onCancel }:
       const anonymousControl = form.elements.namedItem("anonymous");
       await apiRequest(`/questions/${questionId}/${tanidik ? "admin-answers" : "answers"}`, {
         method: "POST",
-        body: JSON.stringify({ body, anonymous: tanidik && anonymousControl instanceof HTMLInputElement ? anonymousControl.checked : false }),
+        body: JSON.stringify({ body, anonymous: canAnonymous && anonymousControl instanceof HTMLInputElement ? anonymousControl.checked : false }),
       });
       form.reset();
       onSuccess?.();
@@ -36,12 +36,13 @@ export function AnswerForm({ questionId, tanidik = false, onSuccess, onCancel }:
     <form className="stack-form wide" onSubmit={submit}>
       <label className="sr-only" htmlFor={`answer-body-${questionId}`}>Yorum</label>
       <textarea id={`answer-body-${questionId}`} name="body" required minLength={10} maxLength={5000} rows={6} placeholder="Yorumunu yaz." />
-      {tanidik && <label className="check-label"><input name="anonymous" type="checkbox" /> Kimliğimi public yüzeyde gizle</label>}
+      {canAnonymous && <label className="check-label"><input name="anonymous" type="checkbox" /> Kimliğimi public yüzeyde gizle</label>}
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="answer-form-actions">
         <Button disabled={busy}>{busy ? "Yayınlanıyor…" : "Yanıtı yayınla"}</Button>
         {onCancel && <Button tone="secondary" type="button" disabled={busy} onClick={onCancel}>Vazgeç</Button>}
       </div>
+      {existing && <p className="form-notice" role="note">Bu soruda yorumun bulunuyor. Mevcut yorumunu düzenleyebilir veya yeni bir yorum ekleyebilirsin.</p>}
     </form>
   );
 }

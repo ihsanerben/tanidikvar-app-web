@@ -15,5 +15,5 @@ export function QuestionOwnerActions({ id, slug, version, archived }: { id: stri
     try { await apiRequest(`/questions/${id}/${archived ? "restore" : "archive"}`, { method: "POST", body: JSON.stringify({ version }) }); router.refresh(); }
     finally { setBusy(false); }
   }
-  return <div className="question-owner-actions">{!archived && <Link className="button secondary" href={`/soru/${slug}/duzenle`}>Soruyu düzenle</Link>}<button className="button secondary" type="button" disabled={busy} onClick={() => void toggle()}>{busy ? "İşleniyor…" : archived ? "Geri aç" : "Arşivle"}</button></div>;
+  return <div className="question-owner-actions">{<Link className="button secondary" href={`/soru/${slug}/duzenle`}>Soruyu düzenle</Link>}<button className="button secondary" type="button" disabled={busy} onClick={() => void toggle()}>{busy ? "İşleniyor…" : archived ? "Geri aç" : "Arşivle"}</button></div>;
 }

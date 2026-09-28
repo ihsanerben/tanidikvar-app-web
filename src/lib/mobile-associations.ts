@@ -1,5 +1,5 @@
 const appIds = new Set(['com.tanidikvar.app', 'com.tanidikvar.app.preview', 'com.tanidikvar.app.dev']);
-const paths = ['/soru/*', '/universite/*', '/program/*', '/profiles/*'];
+const paths = ['/soru/*', '/universite/*', '/program/*', '/profiles/*', '/sehir/*', '/tanidik/*', '/tanidik/*/karne', '/universite/*/*', '/verify-email', '/reset-password', '/e-posta-dogrula', '/parola-yenile', '/karsilastir', '/sorular', '/populer', '/universiteler', '/programlar', '/tanidiklar', '/arama', '/siralama', '/istatistikler', '/hakkimizda', '/durum', '/soru-sor'];
 
 export function appleAssociation(team: string | undefined, bundle: string | undefined) {
   if (!team || !/^[A-Z0-9]{10}$/.test(team) || !bundle || !appIds.has(bundle)) return null;

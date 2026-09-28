@@ -53,7 +53,7 @@ async function fetchJson(url: URL): Promise<unknown> {
   if (!response.ok) throw new QuestionApiError("Soru verisi yüklenemedi.", response.status);
   return response.json().catch(() => null);
 }
-export async function getQuestions(query: string, page: number, filters: {scope?:QuestionScope;universityId?:string;departmentId?:string;tagId?:string;city?:string;answered?:boolean;verifiedAnswer?:boolean;sort?:string;size?:number} = {}): Promise<QuestionPage> {
+export async function getQuestions(query: string, page: number, filters: {scope?:QuestionScope;universityId?:string;programId?:string;departmentId?:string;tagId?:string;city?:string;answered?:boolean;verifiedAnswer?:boolean;sort?:string;size?:number} = {}): Promise<QuestionPage> {
   const url = new URL("/api/questions", apiBaseUrl());
   url.searchParams.set("q", query); url.searchParams.set("page", String(page)); url.searchParams.set("size", String(filters.size??20));
   Object.entries(filters).forEach(([key,value])=>{if(key!=="size"&&value!==undefined&&value!=="")url.searchParams.set(key,String(value));});

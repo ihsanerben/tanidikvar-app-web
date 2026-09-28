@@ -8,6 +8,7 @@ export function slugify(value: string) {
 export function catalogSegment(name: string, id: string) { return `${slugify(name)}--${id}`; }
 
 export function catalogIdFromSegment(segment: string) {
+  if (UUID_PATTERN.test(segment)) return segment.toLowerCase();
   const separator = segment.lastIndexOf("--");
   if (separator < 1) return null;
   const id = segment.slice(separator + 2);
@@ -19,6 +20,7 @@ export function questionSegment(title: string, id: string) {
 }
 
 export function questionIdFromSegment(segment: string) {
+  if (UUID_PATTERN.test(segment)) return segment.toLowerCase();
   const id = segment.slice(-36);
   if (segment.at(-37) !== "-" || !UUID_PATTERN.test(id)) return null;
   return id.toLowerCase();

@@ -25,6 +25,7 @@ export type PageResponse<T> = {
 
 export type EducationItem = {
   id: string;
+  programId?: string | null;
   universityId: string;
   universityName: string;
   departmentId: string;

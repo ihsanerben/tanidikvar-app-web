@@ -291,3 +291,7 @@
     font-size: 11px;
   }
 }
+
+/* The footer keeps the same brand and slogan at every width. */
+.legacy-footer { justify-content: center; flex-wrap: wrap; gap: 12px 24px; }
+.legacy-footer > span { display: block; }

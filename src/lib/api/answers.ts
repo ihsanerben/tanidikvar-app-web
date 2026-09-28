@@ -1,13 +1,14 @@
+import { cookies } from "next/headers";
 import { QuestionApiError } from "./questions";
 import { plainProgramName } from "@/lib/program-label";
 
 export type AnswerItem = {
   id: string; questionId: string; questionTitle?: string; authorId: string | null; authorName: string; activeAdmin: boolean; educationVerified?: boolean;
   universityName: string | null; departmentName: string | null; educationStatus: string | null; body: string;
-  publishedAt: string; editedAt: string | null; likeCount: number; version:number; anonymous?:boolean; answerType?: "COMMUNITY" | "TANIDIK";
+  publishedAt: string; editedAt: string | null; likeCount: number; version:number; anonymous?:boolean; owned?: boolean; answerType?: "COMMUNITY" | "TANIDIK";
 };
 export type AnswerPage = { items: AnswerItem[]; page: number; size: number; totalElements: number };
-export type AnswerComment={id:string;answerId:string;authorId:string;authorName:string;body:string;createdAt:string;version:number};
+export type AnswerComment={id:string;answerId:string;authorId:string;authorName:string;body:string;createdAt:string;version:number;replyToId?:string|null};
 
 const base = () => new URL(process.env.API_BASE_URL ?? "http://localhost:8080");
 const nullableString = (value: unknown) => typeof value === "string" || value === null;
@@ -21,7 +22,7 @@ const valid = (value: unknown): value is AnswerItem => {
 };
 async function page(url: URL): Promise<AnswerPage> {
   let response: Response;
-  try { response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } }); }
+  try { response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json", Cookie: (await cookies()).toString() } }); }
   catch { throw new QuestionApiError("Yanıtlara şu anda ulaşılamıyor."); }
   if (!response.ok) throw new QuestionApiError("Yanıtlar yüklenemedi.", response.status);
   const payload: unknown = await response.json().catch(() => null);
@@ -38,7 +39,7 @@ async function all(path: string): Promise<AnswerItem[]> {
 }
 export async function getQuestionAnswers(id: string) {
   const [community, tanidik] = await Promise.all([all(`/api/questions/${id}/answers`), all(`/api/questions/${id}/admin-answers`)]);
-  return [...community.map(item=>({...item,answerType:"COMMUNITY" as const})), ...tanidik.map(item=>({...item,answerType:"TANIDIK" as const}))].sort((left, right) => Date.parse(left.publishedAt) - Date.parse(right.publishedAt));
+  return [...community.map(item=>({...item,answerType:"COMMUNITY" as const})), ...tanidik.map(item=>({...item,answerType:"TANIDIK" as const}))].sort((left, right) => Number(right.owned) - Number(left.owned) || Date.parse(left.publishedAt) - Date.parse(right.publishedAt));
 }
 export async function getProfileAnswers(id: string) {
   const [community, tanidik] = await Promise.all([all(`/api/profiles/${id}/comments/community`), all(`/api/profiles/${id}/comments/admin`)]);
@@ -47,9 +48,15 @@ export async function getProfileAnswers(id: string) {
 export async function getProfileAnswerHistory(id: string, type: "COMMUNITY" | "TANIDIK") {
   return all(`/api/profiles/${id}/comments/${type === "TANIDIK" ? "admin" : "community"}`);
 }
-export async function getAnswerComments(id:string):Promise<AnswerComment[]>{
+export type AnswerCommentPage={items:AnswerComment[];page:number;size:number;totalElements:number};
+export async function getAnswerComments(id:string,targetId?:string):Promise<AnswerCommentPage>{
   const response=await fetch(new URL(`/api/answers/${id}/comments?size=100`,base()),{cache:"no-store",headers:{Accept:"application/json"}});
-  if(!response.ok)return [];
-  const payload=await response.json().catch(()=>null) as {items?:AnswerComment[]}|null;
-  return Array.isArray(payload?.items)?payload.items:[];
+  if(!response.ok)throw new QuestionApiError("Alt yorumlar yüklenemedi.",response.status);
+  const payload=await response.json() as AnswerCommentPage;
+  const items=[...payload.items];
+  if(targetId&&!items.some(item=>item.id===targetId)){
+    const target=await fetch(new URL(`/api/answers/${id}/comments/${targetId}`,base()),{cache:"no-store",headers:{Accept:"application/json"}});
+    if(target.ok)items.push(await target.json() as AnswerComment);
+  }
+  return {...payload,items};
 }

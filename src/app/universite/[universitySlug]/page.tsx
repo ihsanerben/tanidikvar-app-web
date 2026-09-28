@@ -10,7 +10,7 @@ import type { CSSProperties } from "react";
 import {Distribution,MetricCards,YearlyTable} from "@/components/catalog-statistics";
 import {InfiniteResults} from "@/components/infinite-results";
 
-type Props = { params: Promise<{ universitySlug: string }>; searchParams?:Promise<{sekme?:string;q?:string;puan?:string;duzey?:string;sirala?:"NAME"|"RANK";soruSor?:string;programId?:string}> };
+type Props = { params: Promise<{ universitySlug: string }>; searchParams?:Promise<{olcum?:string;icerik?:string;sekme?:string;q?:string;puan?:string;duzey?:string;sirala?:"NAME"|"RANK";soruSor?:string;programId?:string}> };
 
 async function resolveUniversity(segment: string) {
   const id = catalogIdFromSegment(segment);
@@ -29,8 +29,9 @@ export default async function UniversityPage({ params,searchParams }: Props) {
   const { universitySlug } = await params;
   const university = await resolveUniversity(universitySlug);
   const canonicalSegment = catalogSegment(university.name, university.id);
-  if (universitySlug !== canonicalSegment) permanentRedirect(`/universite/${canonicalSegment}`);
-  const query=await searchParams,requested=query?.sekme,tab=["genel","sorular","bolumler","istatistikler","degerlendirmeler","anketler","tanidiklar"].includes(requested??"")?requested:"genel";
+  const incoming=await searchParams;
+  if (universitySlug !== canonicalSegment) {const values=new URLSearchParams(Object.entries(incoming??{}).filter((entry):entry is [string,string]=>typeof entry[1]==="string"));permanentRedirect(`/universite/${canonicalSegment}${values.size?`?${values}`:""}`);}
+  const query=await searchParams,requested=query?.sekme,tab=["genel","sorular","bolumler","istatistikler","degerlendirmeler","anketler","olcumler","deneyimler","tanidiklar"].includes(requested??"")?requested:"sorular";
   const programFilters={universityId:university.id,query:query?.q,scoreType:query?.puan,degreeLevel:query?.duzey,sort:query?.sirala??"RANK" as const,page:0,size:24};
   const programs=tab==="bolumler"?await getCatalogPrograms(programFilters):null;
   const statistics=tab==="istatistikler"?await getUniversityCatalogStatistics(university.id):null;
@@ -38,8 +39,8 @@ export default async function UniversityPage({ params,searchParams }: Props) {
   const jsonLd={"@context":"https://schema.org","@type":"CollegeOrUniversity",name:university.name,address:university.city?{"@type":"PostalAddress",addressLocality:university.city,addressCountry:"TR"}:undefined,url:`/universite/${canonicalSegment}`,sameAs:university.websiteUrl?[university.websiteUrl]:undefined};return <article className="context-page university-theme" style={theme}><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/>
     <nav className="breadcrumb" aria-label="İçerik yolu"><Link href="/universiteler">Üniversiteler</Link><span aria-hidden="true">›</span><span>{university.name}</span></nav>
     <header className="context-hero">{university.logoUrl&&<img className="university-logo" src={university.logoUrl} alt={`${university.name} logosu`} width="80" height="80"/>}<p className="eyebrow">{[university.city,university.institutionType].filter(Boolean).join(" · ")||"Üniversite topluluğu"}</p><h1>{university.name}</h1><p>{university.description??"Programlar ve bu üniversiteye ait topluluk içerikleri tek bağlamda."}</p>{university.websiteUrl&&<p><a href={university.websiteUrl} rel="noreferrer">Resmî web sitesi</a></p>}<RetentionActions targetType="UNIVERSITY" targetId={university.id} canSave={false}/></header>
-    <nav className="tabs university-page-tabs" aria-label="Üniversite bölümleri">{[["genel","Genel"],["bolumler","Programlar"],["istatistikler","İstatistikler"],["sorular","Sorular"],["degerlendirmeler","Değerlendirmeler"],["anketler","Anketler"],["tanidiklar","Tanıdıklar"]].map(([value,label])=><Link scroll={false} key={value} aria-current={tab===value?"page":undefined} href={`/universite/${canonicalSegment}?sekme=${value}`}>{label}</Link>)}</nav>
-    {(tab==="genel"||tab==="degerlendirmeler"||tab==="anketler")&&<ContextInsights universityId={university.id} view={tab} embedded/>}
+    <nav className="tabs university-page-tabs" aria-label="Üniversite bölümleri">{[["genel","Genel"],["bolumler","Programlar"],["istatistikler","İstatistikler"],["sorular","Sorular"],["degerlendirmeler","Değerlendirmeler"],["anketler","Anketler"],["olcumler","Gerçek hayat ölçümleri"],["deneyimler","Deneyimler"],["tanidiklar","Tanıdıklar"]].map(([value,label])=><Link scroll={false} key={value} aria-current={tab===value?"page":undefined} href={`/universite/${canonicalSegment}?sekme=${value}`}>{label}</Link>)}</nav>
+    {(tab==="genel"||tab==="degerlendirmeler"||tab==="anketler"||tab==="olcumler"||tab==="deneyimler")&&<ContextInsights universityId={university.id} view={tab} targetId={query?.icerik} metricKey={query?.olcum} embedded/>}
     {tab==="sorular"&&<ContextCommunity universityId={university.id} view="questions" embedded showAsk initialProgramId={query?.programId} openAsk={query?.soruSor==="1"}/>}
     {tab==="tanidiklar"&&<ContextCommunity universityId={university.id} view="people" embedded/>}
     {tab==="bolumler"&&<section id="bolumler" className="content-section">

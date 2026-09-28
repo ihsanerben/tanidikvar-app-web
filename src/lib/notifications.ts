@@ -13,7 +13,7 @@ export function actionTone(label: string): NotificationTone | undefined {
 }
 
 export function mutationNotice(path: string, method: string, body: unknown) {
-  if (/\/(like|views|assignment|refresh|login)$/.test(path)) return;
+  if (/\/(like|views|assignment|refresh|login)$/.test(path) || /\/notifications\/[^/]+\/read$/.test(path)) return;
   const data = body && typeof body === "object" ? body as Record<string, unknown> : {};
   if (path.endsWith("/logout")) return notify("Çıkış yapıldı.", "danger");
   if (/\/(remove|archive|revoke|revoke-admin)$/.test(path) || data.deleted === true || data.hidden === true) return notify("Kayıt kaldırıldı.", "danger");

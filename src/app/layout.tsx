@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           {user ? <Link className={`legacy-account account-role-${education.toLowerCase()}${user.role==="TANIDIK"?" is-tanidik":""}`} href={user.role === "MANAGER" ? "/yonetim" : "/hesabim"}>{user.role==="TANIDIK"&&<span className="gold-stars" aria-hidden="true">{Array.from({length:starCount},(_,index)=><span key={index}>★</span>)}</span>}<span className="legacy-account-person"><strong>{name}</strong></span><i aria-hidden="true"/><span className="legacy-account-action"><b>{user.role==="MANAGER"?"Yönetim":"Hesabım"}</b><small>{user.role==="MANAGER"?"Manager":roleLabel[education]??education}</small></span></Link> : <Link className="button" href="/giris">Giriş yap</Link>}
         </header>
         <main id="main-content">{children}</main>
-        <footer className="site-footer legacy-footer"><Link className="brand footer-brand" href="/sorular" aria-label="TanıdıkVar sorular sayfası"><Image src="/logo-wordmark.svg" alt="" width={110} height={28} /></Link><span>Kariyer yolunda bir tanıdığın olsun.</span><nav aria-label="Alt menü"><Link href="/universiteler">Üniversiteler</Link><Link href="/programlar">Programlar</Link><Link href="/istatistikler">İstatistikler</Link><Link href="/hakkimizda#iletisim">İletişim</Link><Link href="/durum">Sistem durumu ↗</Link></nav></footer>
+        <footer className="site-footer legacy-footer"><Link className="brand footer-brand" href="/sorular" aria-label="TanıdıkVar sorular sayfası"><Image src="/logo-wordmark.svg" alt="" width={110} height={28} /></Link><span>Kariyer yolunda bir tanıdığın olsun.</span></footer>
        </NotificationProvider>
       </body>
     </html>
