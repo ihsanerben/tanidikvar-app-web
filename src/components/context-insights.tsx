@@ -1,30 +1,38 @@
-import {getDecisionData,type Category} from "@/lib/api/decisions";
-import {currentProfile,currentUser} from "@/lib/session";
-import {EvaluationForm,PollVoteForms} from "@/components/decision-actions";
-import {ContextContribution} from "@/components/context-contribution";
+import {InsightLoadError} from "./insight-load-error";
+import {ContributionByline} from "./contribution-byline";
+import {ExperienceList} from "@/components/experience-list";
+import {MetricParticipation} from "@/components/metric-participation";
+import {EvaluationRatings} from "@/components/evaluation-ratings";
+import {getDecisionData,getEvaluationCriteria,type EvaluationRating,type PollParticipation} from "@/lib/api/decisions";
+import {authenticatedApi,currentProfile,currentUser} from "@/lib/session";
+import {PollVoteForms} from "@/components/decision-actions";
 import {ContributionDialog} from "@/components/contribution-dialog";
 import {PollCreateForm} from "@/components/poll-create-form";
 
-const labels:Record<string,string>={WEEKLY_STUDY_HOURS:"Haftalık çalışma",ATTENDANCE_LEVEL:"Devam zorunluluğu",PROJECT_INTENSITY:"Proje yoğunluğu",EXAM_INTENSITY:"Sınav yoğunluğu",ENGLISH_PERCENT:"İngilizce kullanımı",GROUP_WORK_PERCENT:"Grup çalışması",CAMPUS_HOURS:"Kampüste geçirilen süre",MONTHLY_HOUSING_COST:"Aylık barınma",MONTHLY_TRANSPORT_COST:"Aylık ulaşım",MONTHLY_FOOD_COST:"Aylık yemek"};
-const money=new Set(["MONTHLY_HOUSING_COST","MONTHLY_TRANSPORT_COST","MONTHLY_FOOD_COST"]);
-function CategoryBars({items}:{items:Category[]}){const max=Math.max(...items.map(item=>item.count),1);return <ul className="data-bars">{items.map(item=><li key={item.label}><span>{item.label}</span><meter min="0" max={max} value={item.count}/><strong>{item.count}</strong></li>)}</ul>;}
-
-export async function ContextInsights({universityId,programId,view="genel",embedded=false,targetId,metricKey}:{universityId:string;programId?:string;view?:"genel"|"degerlendirmeler"|"anketler"|"olcumler"|"deneyimler";embedded?:boolean;targetId?:string;metricKey?:string}) {
-  let data;try{data=await getDecisionData(universityId,programId,targetId,view);}catch{return <section className="content-section"><h2>Karar verileri</h2><p className="muted">Karar verileri şu anda yüklenemiyor.</p></section>;}
-  const user=await currentUser(),profile=user?await currentProfile():null,canContribute=user?.role==="TANIDIK"&&profile?.education?.universityId===universityId&&(!programId||profile.programId===programId),costs=data.metrics.filter(item=>money.has(item.metricKey)),life=data.metrics.filter(item=>!money.has(item.metricKey));
-  if(view==="degerlendirmeler")return <section className="content-section university-tab-panel">{!embedded&&<h2>Değerlendirmeler</h2>}<p className="muted">{data.summary.evaluationCount} topluluk değerlendirmesi · Ortalama {data.summary.averageRating.toLocaleString("tr-TR")} / 5</p>{canContribute?<ContributionDialog label="Değerlendirme ekle"><EvaluationForm universityId={universityId} programId={programId}/></ContributionDialog>:<p className="contribution-policy">Değerlendirme eklemek için profilinde bu üniversiteyle eşleşen bir Tanıdık olmalısın.</p>}{data.evaluations.length?<div className="insight-grid">{data.evaluations.map(item=><article id={`content-${item.id}`} key={item.id}><p className="rating" aria-label={`${item.rating} yıldız`}>{"★".repeat(item.rating)}{"☆".repeat(5-item.rating)}</p>{item.body&&<p>{item.body}</p>}<span>{item.authorName}</span></article>)}</div>:<div className="empty-state"><p>Henüz değerlendirme yok.</p></div>}</section>;
-  if(view==="anketler")return <section className="content-section university-tab-panel">{!embedded&&<h2>Anketler</h2>}<p className="muted">{data.pollCount} anket</p>{canContribute&&<ContributionDialog label="Anket ekle"><PollCreateForm universityId={universityId} programId={programId}/></ContributionDialog>}<PollVoteForms polls={data.polls}/></section>;
-  if(view==="genel")return <section className="content-section"><div className="metric-grid"><div><strong>{data.summary.averageRating.toLocaleString("tr-TR")}</strong><span>5 üzerinden puan</span></div><div><strong>{data.summary.evaluationCount}</strong><span>değerlendirme</span></div><div><strong>{data.pollCount}</strong><span>anket</span></div><div><strong>{data.metrics.reduce((sum,item)=>sum+item.sampleSize,0)}</strong><span>ölçüm katkısı</span></div><div><strong>{data.experienceCount}</strong><span>deneyim</span></div></div></section>;
-  return <section className="content-section university-tab-panel">
-    {canContribute&&<ContributionDialog label={view==="olcumler"?"Ölçüm ekle":"Deneyim ekle"}><ContextContribution universityId={universityId} programId={programId} kind={view==="olcumler"?"metrics":"experiences"}/></ContributionDialog>}
-    {view==="olcumler"&&<>
-    {life.length>0&&<><h3>Gerçek hayat ölçümleri</h3><div className="metric-grid">{life.map(metric=><div id={`metric-${metric.metricKey}`} className={metricKey===metric.metricKey?"notification-target":undefined} key={metric.metricKey}><strong>{metric.privacyThresholdMet?metric.average?.toLocaleString("tr-TR"):"Gizli"}</strong><span>{labels[metric.metricKey]??metric.metricKey} · {metric.sampleSize} katkı ({metric.verifiedSampleSize} doğrulanmış)</span></div>)}</div></>}
-    {costs.length>0&&<section aria-labelledby="cost-heading"><h3 id="cost-heading">Güncel öğrenci maliyeti</h3><p className="muted">Para değerleri yalnız bilgi amaçlıdır; iyi veya kötü olarak renklendirilmez.</p><div className="metric-grid neutral-metrics">{costs.map(metric=><div id={`metric-${metric.metricKey}`} className={metricKey===metric.metricKey?"notification-target":undefined} key={metric.metricKey}><strong>{metric.privacyThresholdMet?`${metric.average?.toLocaleString("tr-TR")} ₺`:"En az 5 katkı gerekli"}</strong><span>{labels[metric.metricKey]} · {metric.sampleSize} katkı · {new Date(metric.updatedAt).toLocaleDateString("tr-TR",{month:"long",year:"numeric"})}</span></div>)}</div></section>}
-    {!life.length&&!costs.length&&<p>Henüz ölçüm katkısı yok.</p>}</>}
-    {view==="deneyimler"&&<>
-    {(data.sentiments.positives.length>0||data.sentiments.negatives.length>0)&&<div className="sentiment-grid"><section><h3>Öğrencilerin en sevdiği şeyler</h3><CategoryBars items={data.sentiments.positives}/></section><section><h3>En çok geliştirilmeli denilenler</h3><CategoryBars items={data.sentiments.negatives}/></section></div>}
-    {data.career&&<section aria-labelledby="career-heading"><h3 id="career-heading">Bu program mezunları nereye gidiyor?</h3>{data.career.privacyThresholdMet?<><p>{data.career.sampleSize} anonim mezun katkısı · Ortalama ilk iş bulma süresi {data.career.averageJobSearchMonths?.toLocaleString("tr-TR")} ay · {data.career.graduateStudyCount} yüksek lisans</p><h4>Sektörler</h4><CategoryBars items={data.career.sectors}/><h4>İlk roller</h4><CategoryBars items={data.career.firstRoles}/><h4>Şirket türleri</h4><CategoryBars items={data.career.companyTypes}/></>:<p className="empty-state">Mezun gizliliği için sonuçlar en az 5 katkıdan sonra gösterilir. Şu an {data.career.sampleSize} katkı var.</p>}</section>}
-    {data.experiences.length>0&&<><h3>Yapılandırılmış deneyimler</h3><div className="insight-grid">{data.experiences.map(item=><article id={`content-${item.id}`} key={item.id} data-sentiment={item.sentiment}><p className="eyebrow">{item.templateType}</p><h3>{item.title}</h3><p>{item.body}</p><span>{item.authorName}</span></article>)}</div></>}
-    {!data.experiences.length&&<p>Henüz deneyim paylaşılmadı.</p>}</>}
-  </section>;
+export async function ContextInsights({universityId,programId,view="genel",embedded=false,targetId,metricKey,programCount,questionCount,tanidikCount}:{universityId:string;programId?:string;view?:"genel"|"degerlendirmeler"|"anketler"|"olcumler"|"deneyimler";embedded?:boolean;targetId?:string;metricKey?:string;programCount?:number;questionCount?:number;tanidikCount?:number}) {
+  const user=await currentUser(),profile=user?await currentProfile():null;
+  const canContribute=!!user&&user.role!=="MANAGER"&&["UNIVERSITE_OGRENCISI","MEZUN"].includes(profile?.educationStatus??"")&&profile?.education?.universityId===universityId&&(!programId||profile.programId===programId);
+  if(view==="deneyimler")return <section className="content-section university-tab-panel"><ExperienceList universityId={universityId} programId={programId} currentUserId={user?.id} canContribute={canContribute} targetId={targetId}/></section>;
+  let data;try{data=await getDecisionData(universityId,programId,targetId,view);}catch{return <InsightLoadError/>;}
+  if(view==="degerlendirmeler"){
+    const params=new URLSearchParams({universityId});if(programId)params.set("programId",programId);
+    const [criteria,ratings]=await Promise.all([getEvaluationCriteria(universityId,programId).catch(()=>null),canContribute?authenticatedApi<EvaluationRating[]>(`/evaluations/my-ratings?${params}`):Promise.resolve([])]);
+    if(!criteria)return <InsightLoadError/>;
+    return <section className="content-section university-tab-panel">{!canContribute&&<p className="contribution-policy">Bu üniversitenin öğrencileri ve mezunları değerlendirmeye katılabilir.</p>}{targetId&&data.evaluations.filter(item=>item.id===targetId).map(item=><article className="experience-card notification-target" id={`content-${item.id}`} key={item.id}><ContributionByline authorId={item.authorId} authorName={item.authorName} createdAt={item.createdAt}/><p>{item.rating} / 5{item.body?` · ${item.body}`:""}</p></article>)}<EvaluationRatings universityId={universityId} programId={programId} criteria={criteria} ratings={ratings} canContribute={canContribute}/></section>;
+  }
+  if(view==="anketler"){
+    const participation=user&&data.polls.length?await authenticatedApi<PollParticipation[]>(`/me/poll-votes?pollIds=${data.polls.map(item=>item.id).join(',')}`):[];
+    return <section className="content-section university-tab-panel"><header className="insight-toolbar poll-toolbar"><span>{data.pollCount.toLocaleString("tr-TR")} anket</span>{canContribute&&user?.role==="TANIDIK"&&<ContributionDialog label="Anket ekle"><PollCreateForm universityId={universityId} programId={programId}/></ContributionDialog>}</header><PollVoteForms polls={data.polls} total={data.pollCount} universityId={universityId} programId={programId} participation={participation} authenticated={!!user} canVote={!!user&&user.role!=="MANAGER"&&(profile?.educationStatus==="UNIVERSITE_OGRENCISI"||user.role==="TANIDIK")&&profile?.education?.universityId===universityId}/></section>;
+  }
+  if(view==="genel")return <section className="content-section university-overview"><div className="overview-metrics">{[
+    {label:"Topluluk puanı",value:data.summary.evaluationCount?`${data.summary.averageRating.toLocaleString("tr-TR",{maximumFractionDigits:1})} / 5`:"Henüz oy yok",detail:`${data.summary.evaluationCount} değerlendirme`},
+    ...(programCount!==undefined?[{label:"Program",value:programCount,detail:"Katalogdaki programlar"}]:[]),
+    ...(questionCount!==undefined?[{label:"Soru",value:questionCount,detail:"Üniversite topluluğundan"}]:[]),
+    ...(tanidikCount!==undefined?[{label:"Tanıdık",value:tanidikCount,detail:"Bu üniversitedeki Tanıdıklar"}]:[]),
+    {label:"Anket",value:data.pollCount,detail:"Topluluğun görüşleri"},
+    {label:"Deneyim",value:data.experienceCount,detail:"Öğrenci ve mezun paylaşımları"},
+    {label:"Ölçüm katkısı",value:data.metrics.reduce((sum,item)=>sum+item.sampleSize,0),detail:`${data.metrics.filter(item=>item.sampleSize>0).length} farklı ölçümde katkı`}
+  ].map(item=><article className="overview-metric" key={item.label}><span>{item.label}</span><strong>{typeof item.value==="number"?item.value.toLocaleString("tr-TR"):item.value}</strong><small>{item.detail}</small></article>)}</div></section>;
+  if(view==="olcumler")return <section className="content-section university-tab-panel">{!canContribute&&<p className="contribution-policy">Bu üniversitenin öğrencileri ve mezunları ölçümlere katılabilir.</p>}<MetricParticipation universityId={universityId} programId={programId} metrics={data.metrics} canContribute={canContribute} targetKey={metricKey}/></section>;
+  return null;
 }

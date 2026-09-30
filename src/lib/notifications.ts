@@ -6,10 +6,11 @@ export function notify(message: string, tone: NotificationTone = "info", href?: 
 
 export function actionTone(label: string): NotificationTone | undefined {
   const text = label.toLocaleLowerCase("tr-TR");
-  if (/vazgeç|çıkış|\bsil\b|kaldır|gizle|pasifleştir|arşivle|reddet/.test(text)) return "danger";
-  if (/güncelle|düzenle/.test(text)) return "warning";
-  if (/kaydet|onayla/.test(text)) return "info";
-  if (/ekle|yayınla|geri yükle|aktifleştir|kabul et/.test(text)) return "success";
+  const containsAction = (actions: string) => new RegExp(`(?:^|[^\\p{L}])(?:${actions})(?=$|[^\\p{L}])`, "u").test(text);
+  if (containsAction("vazgeç|çıkış|sil|kaldır|gizle|pasifleştir|arşivle|reddet")) return "danger";
+  if (containsAction("güncelle|düzenle")) return "warning";
+  if (containsAction("kaydet|onayla")) return "info";
+  if (containsAction("ekle|yayınla|geri yükle|aktifleştir|kabul et")) return "success";
 }
 
 export function mutationNotice(path: string, method: string, body: unknown) {

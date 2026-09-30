@@ -5,7 +5,7 @@ export type QuestionItem = {
   id: string; authorId: string | null; authorName: string; avatarFileId: string | null; educationStatus: string | null; activeAdmin: boolean;
   title: string; body: string | null; scope: QuestionScope; universityId: string | null; universityName: string | null;
   programId: string | null; departmentId: string | null; departmentName: string | null; tags: QuestionTag[]; createdAt: string; editedAt: string | null;
-  archivedAt: string | null; version: number; bestAnswerId: string | null; statistics: QuestionStatistics;
+  archivedAt: string | null; version: number; statistics: QuestionStatistics;
 };
 export type QuestionPage = { items: QuestionItem[]; page: number; size: number; totalElements: number };
 
@@ -32,7 +32,7 @@ const isStatistics = (value: unknown): value is QuestionStatistics => {
 const isQuestion = (value: unknown): value is QuestionItem => {
   if (typeof value !== "object" || value === null) return false;
   const question = value as Record<string, unknown>;
-  return typeof question.id === "string" && nullableString(question.authorId) && typeof question.authorName === "string" && nullableString(question.avatarFileId) && nullableString(question.educationStatus) && typeof question.activeAdmin === "boolean" && typeof question.title === "string" && nullableString(question.body) && ["GENERAL", "UNIVERSITY", "UNIVERSITY_DEPARTMENT"].includes(String(question.scope)) && nullableString(question.universityId) && nullableString(question.universityName) && (question.programId === undefined || nullableString(question.programId)) && nullableString(question.departmentId) && nullableString(question.departmentName) && Array.isArray(question.tags) && question.tags.every(isQuestionTag) && typeof question.createdAt === "string" && nullableString(question.editedAt) && nullableString(question.archivedAt) && finiteNumber(question.version) && nullableString(question.bestAnswerId) && isStatistics(question.statistics);
+  return typeof question.id === "string" && nullableString(question.authorId) && typeof question.authorName === "string" && nullableString(question.avatarFileId) && nullableString(question.educationStatus) && typeof question.activeAdmin === "boolean" && typeof question.title === "string" && nullableString(question.body) && ["GENERAL", "UNIVERSITY", "UNIVERSITY_DEPARTMENT"].includes(String(question.scope)) && nullableString(question.universityId) && nullableString(question.universityName) && (question.programId === undefined || nullableString(question.programId)) && nullableString(question.departmentId) && nullableString(question.departmentName) && Array.isArray(question.tags) && question.tags.every(isQuestionTag) && typeof question.createdAt === "string" && nullableString(question.editedAt) && nullableString(question.archivedAt) && finiteNumber(question.version) && isStatistics(question.statistics);
 };
 const normalizeQuestion = (value: unknown): QuestionItem | null => {
   if (!isQuestion(value)) return null;
@@ -53,7 +53,7 @@ async function fetchJson(url: URL): Promise<unknown> {
   if (!response.ok) throw new QuestionApiError("Soru verisi yüklenemedi.", response.status);
   return response.json().catch(() => null);
 }
-export async function getQuestions(query: string, page: number, filters: {scope?:QuestionScope;universityId?:string;programId?:string;departmentId?:string;tagId?:string;city?:string;answered?:boolean;verifiedAnswer?:boolean;sort?:string;size?:number} = {}): Promise<QuestionPage> {
+export async function getQuestions(query: string, page: number, filters: {scope?:QuestionScope;universityId?:string;programId?:string;departmentId?:string;tagId?:string;city?:string;sort?:string;size?:number} = {}): Promise<QuestionPage> {
   const url = new URL("/api/questions", apiBaseUrl());
   url.searchParams.set("q", query); url.searchParams.set("page", String(page)); url.searchParams.set("size", String(filters.size??20));
   Object.entries(filters).forEach(([key,value])=>{if(key!=="size"&&value!==undefined&&value!=="")url.searchParams.set(key,String(value));});

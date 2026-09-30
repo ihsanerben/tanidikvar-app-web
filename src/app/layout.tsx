@@ -11,6 +11,7 @@ import "./mobile.css";
 import { currentProfile, currentUser } from "@/lib/session";
 import { HeaderPrimaryNav } from "@/components/header-primary-nav";
 import { NotificationProvider } from "@/components/notification-provider";
+import { tanidikStarCount } from "@/components/tanidik-stars";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:5173"),
@@ -37,7 +38,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const name = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || user?.email || "Üye";
   const education = profile?.educationStatus ?? "USER";
   const roleLabel: Record<string,string> = {YKS_ADAYI:"YKS Adayı",UNIVERSITE_OGRENCISI:"Üniversite Öğrencisi",MEZUN:"Mezun",USER:"Üye"};
-  const starCount = education === "MEZUN" ? 3 : education === "UNIVERSITE_OGRENCISI" ? 2 : 1;
+  const starCount = tanidikStarCount(education);
   return (
     <html lang="tr" data-scroll-behavior="smooth">
       <body suppressHydrationWarning>
@@ -49,7 +50,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           {user ? <Link className={`legacy-account account-role-${education.toLowerCase()}${user.role==="TANIDIK"?" is-tanidik":""}`} href={user.role === "MANAGER" ? "/yonetim" : "/hesabim"}>{user.role==="TANIDIK"&&<span className="gold-stars" aria-hidden="true">{Array.from({length:starCount},(_,index)=><span key={index}>★</span>)}</span>}<span className="legacy-account-person"><strong>{name}</strong></span><i aria-hidden="true"/><span className="legacy-account-action"><b>{user.role==="MANAGER"?"Yönetim":"Hesabım"}</b><small>{user.role==="MANAGER"?"Manager":roleLabel[education]??education}</small></span></Link> : <Link className="button" href="/giris">Giriş yap</Link>}
         </header>
         <main id="main-content">{children}</main>
-        <footer className="site-footer legacy-footer"><Link className="brand footer-brand" href="/sorular" aria-label="TanıdıkVar sorular sayfası"><Image src="/logo-wordmark.svg" alt="" width={110} height={28} /></Link><span>Kariyer yolunda bir tanıdığın olsun.</span></footer>
+        <footer className="site-footer legacy-footer"><Link className="brand footer-brand" href="/sorular" aria-label="TanıdıkVar sorular sayfası"><Image src="/logo.svg" alt="" width={126} height={30} /></Link><span>Kariyer yolunda bir tanıdığın olsun.</span></footer>
        </NotificationProvider>
       </body>
     </html>

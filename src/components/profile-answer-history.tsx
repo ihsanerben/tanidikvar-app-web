@@ -1,3 +1,4 @@
+import {TanidikStars} from "@/components/tanidik-stars";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { type AnswerItem,type AnswerPage } from "@/lib/api/answers";
@@ -53,7 +54,7 @@ export async function ProfileAnswerHistory({ type, scope, unified = false,anonym
     <div className="legacy-history-list">
       {visible.map(({ answer, question }) => <article className="legacy-history-card" key={answer.id}>
         <header className="legacy-history-question"><small>Soruyu soran</small><h2><strong>{question?.authorName ?? "Üye"}:</strong> {question?.title ?? "Soru artık görüntülenemiyor"}</h2></header>
-        <div className="legacy-history-author"><span className={`legacy-avatar role-${(profile?.educationStatus ?? "user").toLowerCase()}${type === "TANIDIK" ? " is-tanidik" : ""}`}><span>{initials(name)}</span>{type === "TANIDIK" && <i>★★★</i>}</span><div><strong>{answer.authorName || name}</strong>{type === "TANIDIK" && <small>{[answer.universityName, answer.departmentName].filter(Boolean).join(" · ")}</small>}</div></div>
+        <div className="legacy-history-author"><span className={`legacy-avatar role-${(profile?.educationStatus ?? "user").toLowerCase()}${type === "TANIDIK" ? " is-tanidik" : ""}`}><span>{initials(name)}</span>{type === "TANIDIK" && <TanidikStars educationStatus={profile?.educationStatus}/>}</span><div><strong>{answer.authorName || name}</strong>{type === "TANIDIK" && <small>{[answer.universityName, answer.departmentName].filter(Boolean).join(" · ")}</small>}</div></div>
         <p>{answer.body}</p>
         <footer><time dateTime={answer.publishedAt}>{formatDate(answer.publishedAt)}</time><span><HistoryAnswerEdit id={answer.id} body={answer.body} version={answer.version} type={type}/>{question && <Link href={`/soru/${questionSegment(question.title, question.id)}`}>Soru detayı</Link>}</span></footer>
       </article>)}

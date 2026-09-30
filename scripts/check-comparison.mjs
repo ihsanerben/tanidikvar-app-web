@@ -19,7 +19,7 @@ async function render(failing = false) {
       return { programCount: 9, facultyCount: 2, optionCount: 12, yearly: [{ year: 2024, quota: 123, placed: 0, fillRate: 0 }, { year: 2025, quota: 999, placed: 999, fillRate: 100 }] };
     },
   };
-  const load = name => name === '@/components/compare-form' ? { CompareForm: () => null } : name === '@/lib/api/catalog' ? catalog : require(name);
+  const load = name => name === '@/components/page-title' ? {PageTitle: () => null} : name === '@/components/compare-form' ? { CompareForm: () => null } : name === '@/lib/api/catalog' ? catalog : require(name);
   new Function('require', 'exports', compiled)(load, exports);
   const tree = await exports.default({ searchParams: Promise.resolve({ mode: 'UNIVERSITY', year: '2024', u1: 'first', u2: 'second' }) });
   return { html: renderToStaticMarkup(tree), requests };

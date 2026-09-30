@@ -1,31 +1,20 @@
 "use client";
+import Link from "next/link";
+import {useRef,useState} from "react";
+import {apiRequest} from "@/lib/client-api";
+import {ContributionByline} from "./contribution-byline";
+import type {Poll,PollParticipation} from "@/lib/api/decisions";
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { apiRequest } from "@/lib/client-api";
-
-type Poll = { id: string; question: string; verifiedOnly: boolean; totalVotes:number; verifiedVoteCount:number; options: { id: string; label: string; voteCount: number }[] };
-
-export function EvaluationForm({ universityId, programId }: { universityId: string; programId?: string }) {
-  const router = useRouter();
-  const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setMessage("");
-    const data = new FormData(event.currentTarget);
-    try {
-      const text=String(data.get("body")??"").trim(),focus=String(data.get("focus")??"").trim();
-      await apiRequest("/evaluations", { method: "PUT", body: JSON.stringify({ universityId, programId: programId ?? null, rating: Number(data.get("rating")), body: text?`${focus}: ${text}`:focus }) });
-      setMessage("Değerlendirmen kaydedildi."); router.refresh();
-    } catch (reason) { setMessage(reason instanceof Error ? reason.message : "Değerlendirme kaydedilemedi."); }
-    finally { setBusy(false); }
-  }
-  return <form className="stack-form decision-form evaluation-form" onSubmit={submit}><h3>Deneyimini değerlendir</h3><div className="evaluation-criteria"><label>Genel puan<select name="rating" defaultValue="5" required>{[5,4,3,2,1].map(value=><option key={value} value={value}>{value} / 5</option>)}</select></label><label>Değerlendirme odağı<select name="focus" defaultValue="Eğitim kalitesi"><option>Eğitim kalitesi</option><option>Akademik kadro</option><option>Kampüs ve sosyal yaşam</option><option>Ulaşım ve konum</option><option>Yurt ve barınma</option><option>Kariyer olanakları</option><option>Öğrenci işleri</option></select></label></div><label>Deneyimin<textarea name="body" maxLength={2000} rows={4} placeholder="Seçtiğin başlıkta yaşadığın deneyimi anlat."/></label>{message&&<p className="muted" role="status">{message}</p>}<button className="button" disabled={busy}>{busy?"Kaydediliyor…":"Değerlendirmeyi kaydet"}</button></form>;
+export function PollVoteForms({polls,total,universityId,programId,participation,authenticated,canVote}:{polls:Poll[];total:number;universityId:string;programId?:string;participation:PollParticipation[]|null;authenticated:boolean;canVote:boolean}) {
+ const [more,setMore]=useState<Poll[]>([]),[votes,setVotes]=useState<PollParticipation[]>([]),[page,setPage]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const all=[...polls,...more.filter(poll=>!polls.some(first=>first.id===poll.id))];
+ async function load(){if(busy)return;setBusy(true);setError("");try{const params=new URLSearchParams({universityId,page:String(page+1),size:"20"});if(programId)params.set("programId",programId);const result=await apiRequest<{items:Poll[]}>(`/polls?${params}`);const mine=authenticated&&result.items.length?await apiRequest<PollParticipation[]>(`/me/poll-votes?pollIds=${result.items.map(item=>item.id).join(',')}`):[];setVotes(current=>[...current,...mine]);setMore(current=>[...current,...result.items]);setPage(current=>current+1);}catch(reason){setError(reason instanceof Error?reason.message:"Anketler yüklenemedi.");}finally{setBusy(false);}}
+ return <div className="poll-actions">{all.length?all.map(poll=><PollCard key={poll.id} poll={poll} initialVote={[...(participation??[]),...votes].find(vote=>vote.pollId===poll.id)?.optionId} participationLoaded={participation!==null} authenticated={authenticated} canVote={canVote}/>):<div className="empty-state"><h3>Henüz anket yok</h3><p>Topluluğun açtığı anketler burada görünecek.</p></div>}{all.length<total&&<button className="button secondary" disabled={busy} onClick={load}>{busy?"Yükleniyor…":"Daha fazla anket"}</button>}{error&&<p role="alert" className="form-error">{error}</p>}</div>;
 }
-
-export function PollVoteForms({ polls }: { polls: Poll[] }) {
-  const router = useRouter(); const [message,setMessage]=useState(""); const [busy,setBusy]=useState(false);
-  async function vote(event: FormEvent<HTMLFormElement>, pollId: string) { event.preventDefault(); setBusy(true); setMessage(""); const optionId=new FormData(event.currentTarget).get("optionId"); try { await apiRequest(`/polls/${pollId}/vote`,{method:"PUT",body:JSON.stringify({optionId})}); setMessage("Oyun kaydedildi."); router.refresh(); } catch(reason){setMessage(reason instanceof Error?reason.message:"Oy kaydedilemedi.");} finally{setBusy(false);} }
-  if (!polls.length) return null;
-  return <div className="poll-actions">{polls.map(poll=><form id={`content-${poll.id}`} key={poll.id} onSubmit={event=>vote(event,poll.id)}><fieldset><legend>{poll.question}</legend><p className="muted">{poll.totalVotes} oy · {poll.verifiedVoteCount} doğrulanmış katılımcı{poll.verifiedOnly?" · yalnız doğrulanmış katılım":""}</p>{poll.options.map(option=><label key={option.id}><input type="radio" name="optionId" value={option.id} required/> <span>{option.label}</span><strong>{option.voteCount}</strong></label>)}</fieldset><button className="button secondary" disabled={busy}>Oy ver</button></form>)}{message&&<p className="muted" role="status">{message}</p>}</div>;
+function PollCard({poll,initialVote,participationLoaded,authenticated,canVote}:{poll:Poll;initialVote?:string;participationLoaded:boolean;authenticated:boolean;canVote:boolean}) {
+ const submitting=useRef(false),attempted=useRef("");
+ const [result,setResult]=useState(poll),[saved,setSaved]=useState(initialVote),[selected,setSelected]=useState(initialVote??""),[busy,setBusy]=useState(false),[message,setMessage]=useState(""),[failed,setFailed]=useState(false);
+ const closed=!!result.closesAt&&new Date(result.closesAt).getTime()<=Date.now();
+ async function vote(optionId:string){if(submitting.current||closed||!canVote||!participationLoaded||optionId===saved)return;submitting.current=true;attempted.current=optionId;setSelected(optionId);setBusy(true);setMessage("");setFailed(false);try{const updated=await apiRequest<Poll>(`/polls/${poll.id}/vote`,{method:"PUT",body:JSON.stringify({optionId})});setResult(updated);setSaved(optionId);setMessage("Oyun kaydedildi.");}catch(reason){setSelected(saved??"");setFailed(true);setMessage(reason instanceof Error?reason.message:"Oy kaydedilemedi.");}finally{submitting.current=false;setBusy(false);}}
+ return <article id={`content-${poll.id}`} className="poll-card"><div className="poll-meta"><span>{result.totalVotes.toLocaleString("tr-TR")} oy</span><span>{closed?"Anket sona erdi":"Üniversitenin öğrencilerine ve Tanıdıklarına açık"}</span>{saved&&<strong>✓ Oy verdin</strong>}</div><ContributionByline authorId={poll.authorId} authorName={poll.authorName} createdAt={poll.createdAt} activeAdmin={poll.activeAdmin} educationStatus={poll.educationStatus}/><h3>{result.question}</h3><div className="poll-voting"><fieldset disabled={busy||closed||!canVote||!participationLoaded}><legend className="sr-only">Anket seçenekleri</legend>{result.options.map(option=>{const percent=result.totalVotes?Math.round(option.voteCount/result.totalVotes*100):0;return <label className="poll-choice" data-voted={saved===option.id} key={option.id}><input type="radio" name={`option-${poll.id}`} value={option.id} checked={selected===option.id} onChange={()=>void vote(option.id)} required/><span className="poll-choice-content"><span className="poll-choice-label"><span>{option.label}{saved===option.id&&<small> ✓ Senin oyun</small>}</span><strong>%{percent}</strong></span><span className="poll-track"><span style={{width:`${percent}%`}}/></span><small>{option.voteCount.toLocaleString("tr-TR")} oy</small></span></label>;})}</fieldset>{!closed&&(authenticated?canVote?participationLoaded?null:<p role="alert">Önceki oyun yüklenemedi. Sayfayı yenileyerek tekrar dene.</p>:<p className="contribution-policy">Bu ankete bu üniversitenin öğrencileri ve Tanıdıkları katılabilir.</p>:<Link className="button secondary" href="/giris">Oy vermek için giriş yap</Link>)}{busy&&<p role="status" className="vote-confirmation">Kaydediliyor…</p>}{failed&&<button type="button" className="button secondary" onClick={()=>void vote(attempted.current)}>Tekrar dene</button>}{message&&<p className={failed?"form-error":"vote-confirmation"} role={failed?"alert":"status"}>{message}</p>}</div></article>;
 }

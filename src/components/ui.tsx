@@ -10,7 +10,6 @@ export function Card({className,...props}:HTMLAttributes<HTMLElement>){return <a
 export function FilterPanel({className,...props}:FormHTMLAttributes<HTMLFormElement>){return <form {...props} className={classes("ui-filter-panel",className)}/>} 
 export function PageHeader({className,...props}:HTMLAttributes<HTMLElement>){return <header {...props} className={classes("ui-page-header",className)}/>} 
 export function Avatar({name,large=false}:{name:string;large?:boolean}){return <span className={`avatar${large?" large":""}`} aria-hidden="true">{name.trim().slice(0,1).toLocaleUpperCase("tr-TR")}</span>}
-export function VerifiedBadge({label="Üniversite kimliği doğrulandı"}:{label?:string}){return <span className="verified-badge" title={label} aria-label={label}>✓ Doğrulanmış</span>}
 export function TitleBadge({children}:{children:ReactNode}){return <span className="title-badge">{children}</span>}
 export function AchievementBadge({children,tier="bronze"}:{children:ReactNode;tier?:"bronze"|"silver"|"gold"}){return <span className={`achievement-badge ${tier}`}>{children}</span>}
 export function Tag({children}:{children:ReactNode}){return <span className="tag">{children}</span>}

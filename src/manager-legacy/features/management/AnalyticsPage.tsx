@@ -8,7 +8,7 @@ const colors:Record<AnalyticsMetric,string>={users:'#3f83c5',questions:'#7957a8'
 const labels:Record<AnalyticsMetric,string>={users:'Yeni kullanıcı',questions:'Yeni soru',communityAnswers:'Topluluk yorumu',adminAnswers:'Tanıdık yorumu',views:'Görüntülenme',likes:'Beğeni',applications:'Başvuru',approvedApplications:'Onay',rejectedApplications:'Ret'}
 const groups:{title:string;description:string;metrics:AnalyticsMetric[]}[]=[
  {title:'Büyüme',description:'Yeni hesap ve soru üretiminin günlük seyri.',metrics:['users','questions']},
- {title:'Katkılar',description:'Topluluk ve doğrulanmış Tanıdık yorumlarının karşılaştırması.',metrics:['communityAnswers','adminAnswers']},
+ {title:'Katkılar',description:'Topluluk ve Tanıdık yorumlarının karşılaştırması.',metrics:['communityAnswers','adminAnswers']},
  {title:'Etkileşim',description:'Soruların aldığı görüntülenme ve beğeniler.',metrics:['views','likes']},
  {title:'Tanıdık başvuruları',description:'Gönderim ve kararların günlük dağılımı.',metrics:['applications','approvedApplications','rejectedApplications']},
 ]

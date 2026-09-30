@@ -1,0 +1,1 @@
+export const experienceTemplates=[['WHY_I_CHOSE','Ben neden burayı seçtim?'],['WISH_I_KNEW','Keşke tercih etmeden önce bilseydim'],['EXPECTATION_REALITY','Beklediğim / gerçekte olan'],['CHOOSE_AGAIN','Tekrar tercih eder miydim?']];

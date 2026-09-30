@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/client-api";
 import {Button} from "@/components/ui";
 
-export function AnswerForm({ questionId, tanidik = false, canAnonymous = tanidik, existing = false, onSuccess, onCancel }: { questionId: string; tanidik?: boolean; canAnonymous?: boolean; existing?: boolean; onSuccess?:()=>void; onCancel?:()=>void }) {
+export function AnswerForm({ questionId, tanidik = false, canAnonymous = tanidik, onSuccess, onCancel }: { questionId: string; tanidik?: boolean; canAnonymous?: boolean; existing?: boolean; onSuccess?:()=>void; onCancel?:()=>void }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -36,13 +36,12 @@ export function AnswerForm({ questionId, tanidik = false, canAnonymous = tanidik
     <form className="stack-form wide" onSubmit={submit}>
       <label className="sr-only" htmlFor={`answer-body-${questionId}`}>Yorum</label>
       <textarea id={`answer-body-${questionId}`} name="body" required minLength={10} maxLength={5000} rows={6} placeholder="Yorumunu yaz." />
-      {canAnonymous && <label className="check-label"><input name="anonymous" type="checkbox" /> Kimliğimi public yüzeyde gizle</label>}
+      {canAnonymous && <label className="check-label"><input name="anonymous" type="checkbox" /> Yorumu anonim yayınla</label>}
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="answer-form-actions">
         <Button disabled={busy}>{busy ? "Yayınlanıyor…" : "Yanıtı yayınla"}</Button>
         {onCancel && <Button tone="secondary" type="button" disabled={busy} onClick={onCancel}>Vazgeç</Button>}
       </div>
-      {existing && <p className="form-notice" role="note">Bu soruda yorumun bulunuyor. Mevcut yorumunu düzenleyebilir veya yeni bir yorum ekleyebilirsin.</p>}
     </form>
   );
 }

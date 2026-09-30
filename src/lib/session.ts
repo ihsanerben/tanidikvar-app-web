@@ -8,6 +8,10 @@ export type CurrentProfile = {
   education?: { universityId?: string | null; universityName?: string | null; departmentId?: string|null; departmentName?: string | null } | null;
   linkedinUrl: string | null;
   portfolioUrl: string | null;
+  biography?: string | null;
+  occupation?: string | null;
+  company?: string | null;
+  graduationYear?: number | null;
 };
 export async function currentUser(): Promise<CurrentUser | null> {
   const cookie = (await cookies()).toString(); if (!cookie) return null;

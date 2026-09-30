@@ -1,5 +1,5 @@
 import { ApiError, getCatalogCities, getUniversities } from "@/lib/api/catalog";
-import {Button,ButtonLink,EmptyState} from "@/components/ui";
+import {Button,ButtonLink,EmptyState,buttonClassName} from "@/components/ui";
 import {InfiniteResults} from "@/components/infinite-results";
 import {PageTitle} from "@/components/page-title";
 
@@ -42,16 +42,16 @@ export default async function UniversitiesPage({ searchParams }: Props) {
     );
   }
 
-  const cities = (await getCatalogCities().catch(()=>[])).map(item=>item.label).filter(item=>item!=="Belirtilmemiş");
+  const cities = (await getCatalogCities().catch(()=>[])).map(item=>item.label).filter(item=>item!=="Belirtilmemiş").sort((a,b)=>a.localeCompare(b,"tr"));
 
   return (
     <section className="content-section">
       <PageTitle help="Üniversiteleri şehir ve kurum türüne göre filtreleyebilir; her karttan program, soru ve Tanıdık sayılarını görebilirsin.">Üniversiteler</PageTitle>
-      <form className="program-filter discovery-filter" action="/universiteler" role="search">
+      <form key={JSON.stringify(params)} className="program-filter discovery-filter university-index-filter" action="/universiteler" role="search">
         <label>Üniversite<input id="university-query" name="q" defaultValue={query} placeholder="Üniversite ara" /></label>
           <label>Şehir<select name="city" defaultValue={city}><option value="">Tüm şehirler</option>{cities.map(item=><option key={item}>{item}</option>)}</select></label>
           <label>Kurum türü<select name="institutionType" defaultValue={institutionType}><option value="">Tümü</option><option value="DEVLET">Devlet</option><option value="VAKIF">Vakıf</option><option value="KKTC">KKTC</option><option value="YURT_DISI">Yurt dışı</option></select></label>
-          <div className="filter-actions"><Button type="submit">Filtrele</Button><ButtonLink tone="secondary" href="/universiteler">Temizle</ButtonLink></div>
+          <div className="filter-actions"><Button type="submit">Filtrele</Button><a className={buttonClassName("secondary")} href="/universiteler">Temizle</a></div>
       </form>
 
       {catalog.items.length === 0 ? (
